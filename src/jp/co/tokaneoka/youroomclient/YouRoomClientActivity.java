@@ -15,9 +15,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TextView;
 
-public class YouRoomClientActivity extends Activity {
+public class YouRoomClientActivity extends Activity implements OnClickListener {
     /** Called when the activity is first created. */
 	
 	private static final String PREFERENCE_KEY = "AccessToken";
@@ -27,18 +30,28 @@ public class YouRoomClientActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
     }
 
+    @Override
+	public void onClick(View v) {
+    	if ( v.getId() == R.id.login_button){
+    		Intent intent = new Intent(this, LoginActivity.class); 
+    		startActivity(intent);
+    	}
+	}		
+	
 	@Override
 	public void onStart(){
 		super.onStart();
 
         if( !isLogined() ){
-        	Intent intent = new Intent(this, LoginActivity.class); 
-        	startActivity(intent);
+            setContentView(R.layout.top);
+        	Button login_button = (Button)findViewById(R.id.login_button);
+        	login_button.setOnClickListener(this);
+
         } else {
-        	       	
+            setContentView(R.layout.main);
+
             HashMap<String, String> oAuthTokenMap = getOauthTokenFromLocal();
         	YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
         	String roomTL = "";
@@ -78,8 +91,10 @@ public class YouRoomClientActivity extends Activity {
         	editor.putString("oauthToken", null);
         	editor.putString("oauthTokenSecret", null);
         	editor.commit();
+    		Intent intent = new Intent(this, LoginActivity.class); 
+    		startActivity(intent);
         	ret = true;
-        	break;
+	    	break;
         default:
             ret = super.onOptionsItemSelected(item);
             break;
@@ -112,4 +127,5 @@ public class YouRoomClientActivity extends Activity {
 		
 		return oAuthTokenMap;
 	}
+
 }

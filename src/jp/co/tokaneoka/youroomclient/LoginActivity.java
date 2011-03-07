@@ -39,11 +39,18 @@ public class LoginActivity extends Activity implements OnClickListener {
 		
 		EditText passwordText = (EditText)findViewById(R.id.login_password);
 		String password = passwordText.getText().toString();
-		Login(email,password);
-		
+		if ( Login(email,password) ) {
+			Intent intent = new Intent(this, YouRoomClientActivity.class); 
+	    	startActivity(intent);
+	    	finish();
+		} else {
+			Toast.makeText(this, "ÉçÉOÉCÉìé∏îs", Toast.LENGTH_SHORT).show();
+		}
 	}
 	
-	private void Login(String username, String password) {
+	private boolean Login(String username, String password) {
+		
+		boolean check = false;
 		
 		Map<String, String> xauthParameterMap = new HashMap<String, String>();		
     	HashMap<String, String> resultMap = new HashMap<String, String>();
@@ -64,9 +71,9 @@ public class LoginActivity extends Activity implements OnClickListener {
 			editor.putString("oauthToken", resultMap.get("oauth_token"));
 			editor.putString("oauthTokenSecret", resultMap.get("oauth_token_secret"));
 			editor.commit();
-			Intent intent = new Intent(this, YouRoomClientActivity.class);
-			startActivity(intent);
+			check = true;
 		}
+		return check;
 	}
 
 }

@@ -1,0 +1,4 @@
+
+    <LinearLayout android:id="@+id/linearLayout1" android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android">
+        <Button android:text="@string/login_button" android:id="@+id/login_button" android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_gravity="right"></Button>
+    </LinearLayout>
