@@ -7,10 +7,12 @@ import java.util.Map;
 import jp.co.tokaneoka.youroomclient.R;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -21,7 +23,14 @@ public class LoginActivity extends Activity implements OnClickListener {
 	
 	private static final String PREFERENCE_KEY = "AccessToken";
 	SharedPreferences sharedpref;
-	
+    Handler  mHandler = new Handler();  
+    boolean loginCheck = false;
+    String email = "";
+    String password = "";
+    Intent intent;
+    Toast toast;
+    ProgressDialog dialog;
+    
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_view);
@@ -35,17 +44,38 @@ public class LoginActivity extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		
 		EditText emailText = (EditText)findViewById(R.id.login_email);
-		String email = emailText.getText().toString();
+		email = emailText.getText().toString();
 		
 		EditText passwordText = (EditText)findViewById(R.id.login_password);
-		String password = passwordText.getText().toString();
-		if ( Login(email,password) ) {
-			Intent intent = new Intent(this, YouRoomClientActivity.class); 
-	    	startActivity(intent);
-	    	finish();
-		} else {
-			Toast.makeText(this, "ログイン失敗", Toast.LENGTH_SHORT).show();
-		}
+		password = passwordText.getText().toString();
+		intent = new Intent(this, YouRoomClientActivity.class); 
+		toast = Toast.makeText(this, "ログイン失敗", Toast.LENGTH_SHORT);
+		
+		dialog = new ProgressDialog(this);
+		dialog.setTitle("ログイン");
+		dialog.setMessage("ログイン中...");
+		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		dialog.show();  
+		
+		(new Thread(new Runnable() {
+			@Override
+			public void run(){
+				loginCheck = Login(email, password);
+				mHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						if (loginCheck){
+					    	startActivity(intent);
+					    	dialog.dismiss();
+					    	finish();
+						} else {
+					    	dialog.dismiss();
+							toast.show();
+						}
+					}
+				});
+			}
+		})).start();		
 	}
 	
 	private boolean Login(String username, String password) {
@@ -74,6 +104,5 @@ public class LoginActivity extends Activity implements OnClickListener {
 			check = true;
 		}
 		return check;
-	}
-
+	}	
 }
