@@ -69,39 +69,44 @@ public class RoomActivity extends Activity {
         	roomTL= youRoomCommand.getRoomTimeLine();
 
     		ListView listView = (ListView)findViewById(R.id.listView1);
-    		ArrayList<RoomTimeLine> datalist = new ArrayList<RoomTimeLine>();
+    		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
         	
     		try {
     	    	JSONArray jsons = new JSONArray(roomTL);
     	    	for(int i =0 ; i< jsons.length(); i++){
-    	    		RoomTimeLine roomTimeLine = new RoomTimeLine();
-    		    	JSONObject jobject = jsons.getJSONObject(i);
-    		    	JSONObject entryobject = jobject.getJSONObject("entry");
-    		    	String name = entryobject.getJSONObject("participation").getString("name");
-    		    	String content = entryobject.getString("content");
+    	    		YouRoomEntry roomEntry = new YouRoomEntry();
+    		    	JSONObject jObject = jsons.getJSONObject(i);
+    		    	JSONObject entryObject = jObject.getJSONObject("entry");
+
+    		    	int id = entryObject.getInt("id");
+    		    	String participationName = entryObject.getJSONObject("participation").getString("name");
+    		    	String content = entryObject.getString("content");
+    		    	
     		    	String formattedTime = "";
-    		    	String unformattedTime = entryobject.getString("created_at");
+    		    	String unformattedTime = entryObject.getString("created_at");
     		    	
     		    	formattedTime = convertDatetime(unformattedTime);
     
-    		    	roomTimeLine.setName(name);
-    		    	roomTimeLine.setUpdateTime(formattedTime);
-    		    	roomTimeLine.setContent(content);
-    	    		datalist.add(roomTimeLine);
+    		    	roomEntry.setId(id);
+    		    	roomEntry.setParticipationName(participationName);
+    		    	roomEntry.setUpdatedTime(formattedTime);
+    		    	roomEntry.setContent(content);
+    		    	
+    	    		dataList.add(roomEntry);
     	    	}
     		} catch (JSONException e) {
     			e.printStackTrace();
     		}
     		
-    		RoomTimeLineAdapter adapter = new RoomTimeLineAdapter(this, R.layout.list_item, datalist);
+    		YouRoomEntryAdapter adapter = new YouRoomEntryAdapter(this, R.layout.list_item, dataList);
     		listView.setAdapter(adapter);
     		
     		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
     	        @Override
     	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     	            ListView listView = (ListView) parent;
-    	            RoomTimeLine item = (RoomTimeLine) listView.getItemAtPosition(position);
-    	            Toast.makeText(getApplication(), item.getContent(), Toast.LENGTH_SHORT).show();
+    	            YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
+    	            Toast.makeText(getApplication(), "entry_id = " + item.getId(), Toast.LENGTH_SHORT).show();
     	        }
     	    });		
         }
@@ -180,43 +185,75 @@ public class RoomActivity extends Activity {
 	}
 
     // ListViewカスタマイズ用のArrayAdapterに利用するクラス    
-	public class RoomTimeLine {
+	public class YouRoomEntry {
 
+		private int id;
 		private String content;
-		private String updateTime;
-		private String name;
+		private int rootId;
+		private int parentId;
+		private String createdTime;
+		private String updatedTime;
 		
-		public String getName() {
-			return name;
+		private String participationName;
+		private String participationId;
+		
+		public int getId() {
+			return id;
 		}
-		
-		public void setName(String name) {
-			this.name = name;
+		public void setId(int id) {
+			this.id = id;
 		}
-		
-		public String getContent(){
+		public String getContent() {
 			return content;
 		}
-		
 		public void setContent(String content) {
 			this.content = content;
 		}
-
-		public String getUpdateTime() {
-			return updateTime;
+		public int getRootId() {
+			return rootId;
+		}
+		public void setRootId(int rootId) {
+			this.rootId = rootId;
+		}
+		public int getParentId() {
+			return parentId;
+		}
+		public void setParentId(int parentId) {
+			this.parentId = parentId;
+		}
+		public String getCreatedTime() {
+			return createdTime;
+		}
+		public void setCreatedTime(String createdTime) {
+			this.createdTime = createdTime;
+		}
+		public String getUpdatedTime() {
+			return updatedTime;
+		}
+		public void setUpdatedTime(String updatedTime) {
+			this.updatedTime = updatedTime;
+		}
+		public String getParticipationName() {
+			return participationName;
+		}
+		public void setParticipationName(String participationName) {
+			this.participationName = participationName;
+		}
+		public String getParticipationId() {
+			return participationId;
+		}
+		public void setParticipationId(String participationId) {
+			this.participationId = participationId;
 		}
 		
-		public void setUpdateTime(String updateTime) {
-			this.updateTime = updateTime;
-		}		
 	}
     
     // ListViewカスタマイズ用のArrayAdapter
-	public class RoomTimeLineAdapter extends ArrayAdapter<RoomTimeLine> {
+	public class YouRoomEntryAdapter extends ArrayAdapter<YouRoomEntry> {
 		private LayoutInflater inflater;
-		private ArrayList<RoomTimeLine> items;
+		private ArrayList<YouRoomEntry> items;
 		
-		public RoomTimeLineAdapter( Context context, int textViewResourceId, ArrayList<RoomTimeLine> items) {
+		public YouRoomEntryAdapter( Context context, int textViewResourceId, ArrayList<YouRoomEntry> items) {
 			super(context, textViewResourceId, items);
 			this.items = items;
 			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -227,24 +264,24 @@ public class RoomActivity extends Activity {
 			if (convertView == null) {
 				view = inflater.inflate(R.layout.list_item, null);				
 			}
-			RoomTimeLine roomTL = (RoomTimeLine)this.getItem(position);
+			YouRoomEntry roomEntry = (YouRoomEntry)this.getItem(position);
 			TextView name = null;
 			TextView content = null;
 			TextView updateTime = null;
 			
-			if ( roomTL != null ){
+			if ( roomEntry != null ){
 				name = (TextView)view.findViewById(R.id.textView1);
 				updateTime = (TextView)view.findViewById(R.id.textView2);
 				content = (TextView)view.findViewById(R.id.textView3);
 			}
 			if ( name != null ){
-				name.setText(roomTL.getName());
+				name.setText(roomEntry.getParticipationName());
 			}
 			if ( updateTime != null ){
-				updateTime.setText(roomTL.getUpdateTime());
+				updateTime.setText(roomEntry.getUpdatedTime());
 			}
 			if ( content != null ){
-				content.setText(roomTL.getContent());
+				content.setText(roomEntry.getContent());
 			}
 			return view;
 		}
