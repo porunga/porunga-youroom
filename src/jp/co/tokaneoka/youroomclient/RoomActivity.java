@@ -35,7 +35,8 @@ public class RoomActivity extends Activity {
 	private static final String PREFERENCE_KEY = "AccessToken";
 	SharedPreferences sharedpref;
 	private final int DELETE_TOKEN = 1;
-	
+	private String roomId;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,7 +67,8 @@ public class RoomActivity extends Activity {
             HashMap<String, String> oAuthTokenMap = getOauthTokenFromLocal();
         	YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
         	String roomTL = "";
-        	roomTL= youRoomCommand.getRoomTimeLine();
+        	roomId = "726";
+        	roomTL= youRoomCommand.getRoomTimeLine(roomId);
 
     		ListView listView = (ListView)findViewById(R.id.listView1);
     		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
@@ -106,7 +108,10 @@ public class RoomActivity extends Activity {
     	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     	            ListView listView = (ListView) parent;
     	            YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
-    	            Toast.makeText(getApplication(), "entry_id = " + item.getId(), Toast.LENGTH_SHORT).show();
+    	            Intent intent = new Intent(getApplication(), EntryActivity.class);
+    	            intent.putExtra("roomId", String.valueOf(roomId) );
+    	            intent.putExtra("entryId", String.valueOf(item.getId()));
+    	            startActivity(intent);
     	        }
     	    });		
         }

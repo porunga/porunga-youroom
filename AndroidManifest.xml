@@ -15,6 +15,7 @@
             </intent-filter>
         </activity>
         <activity android:name="jp.co.tokaneoka.youroomclient.LoginActivity"></activity>
+        <activity android:name="jp.co.tokaneoka.youroomclient.EntryActivity"></activity>
 
     </application>
 </manifest>

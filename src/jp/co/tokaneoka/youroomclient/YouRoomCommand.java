@@ -59,10 +59,10 @@ public class YouRoomCommand {
 	}
 	*/
 	
-	public String getEntry(String groupParam, String entryId){
+	public String getEntry(String roomId, String entryId){
 		
 		String method = "GET";
-		String api = "https://www.youroom.in/r/" + groupParam + "/entries/" + entryId;
+		String api = "https://www.youroom.in/r/" + roomId + "/entries/" + entryId;
 	   	Map<String, String> parameterMap = new HashMap<String, String>();
     	parameterMap.put("format", "json");
     	
@@ -87,10 +87,10 @@ public class YouRoomCommand {
 		return decodeResult;     	
 	}
 	
-	public String getRoomTimeLine(){
+	public String getRoomTimeLine(String roomId){
 		
     	String method = "GET";
-    	String api = "https://www.youroom.in/r/726";
+    	String api = "https://www.youroom.in/r/" + roomId;
 	   	Map<String, String> parameterMap = new HashMap<String, String>();
     	parameterMap.put("format", "json");
     		
