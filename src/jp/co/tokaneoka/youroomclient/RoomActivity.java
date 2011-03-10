@@ -1,8 +1,6 @@
 package jp.co.tokaneoka.youroomclient;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 import jp.co.tokaneoka.youroomclient.R;
@@ -27,7 +25,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class RoomActivity extends Activity {
     /** Called when the activity is first created. */
@@ -87,7 +84,7 @@ public class RoomActivity extends Activity {
     		    	String formattedTime = "";
     		    	String unformattedTime = entryObject.getString("created_at");
     		    	
-    		    	formattedTime = convertDatetime(unformattedTime);
+    		    	formattedTime = YouRoomUtil.convertDatetime(unformattedTime);
     
     		    	roomEntry.setId(id);
     		    	roomEntry.setParticipationName(participationName);
@@ -167,26 +164,6 @@ public class RoomActivity extends Activity {
 		oAuthTokenMap.put("oauth_token_secret", oauthTokenSecret);
 		
 		return oAuthTokenMap;
-	}
-	
-	// "2011-03-02T12:46:06Z" -> "2011/03/02 21:46:06"
-    private String convertDatetime(String unformattedTime) {
-    	
-    	String[] updateTimes = unformattedTime.substring(0, unformattedTime.length() -1).split("T");
-    	String[] date = updateTimes[0].split("-");
-    	String[] times = updateTimes[1].split(":");
-    	int year = Integer.parseInt(date[0]);
-    	int month = Integer.parseInt(date[1]);
-    	int day = Integer.parseInt(date[2]);
-    	int hour = Integer.parseInt(times[0]);
-    	int minute = Integer.parseInt(times[1]);
-    	int second = Integer.parseInt(times[2]);
-    	
-    	Calendar cal = new GregorianCalendar(year, month ,day, hour, minute, second);
-    	cal.add(Calendar.HOUR, 9);
-    	
-    	return cal.get(Calendar.YEAR) + "/" + cal.get(Calendar.MONTH) +"/" + cal.get(Calendar.DAY_OF_MONTH) + " " + cal.get(Calendar.HOUR_OF_DAY) + ":" + cal.get(Calendar.MINUTE);
-    	
 	}
 
     // ListViewカスタマイズ用のArrayAdapterに利用するクラス    
