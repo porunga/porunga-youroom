@@ -12,7 +12,6 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.Intent;
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,10 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class EntryActivity extends Activity {
-	
-	private static final String PREFERENCE_KEY = "AccessToken";
-	SharedPreferences sharedpref;
-	
+		
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,8 +37,9 @@ public class EntryActivity extends Activity {
         Intent intent = getIntent();
         String roomId = intent.getStringExtra("roomId");        
         String entryId = intent.getStringExtra("entryId");
-                
-        HashMap<String, String> oAuthTokenMap = getOauthTokenFromLocal();
+        
+        YouRoomUtil youRoomUtil = new YouRoomUtil(this);        
+        HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
     	YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
     	
     	String entry = "";
@@ -79,19 +76,6 @@ public class EntryActivity extends Activity {
 			Toast.makeText(this, "コメントはありません。", Toast.LENGTH_SHORT).show();
 		}
 		
-	}
-	
-	private HashMap<String, String> getOauthTokenFromLocal(){
-		HashMap<String, String> oAuthTokenMap = new HashMap<String, String>();
-		
-    	sharedpref = getSharedPreferences(PREFERENCE_KEY, Activity.MODE_APPEND );
-		String oauthToken = sharedpref.getString("oauthToken", null);
-		String oauthTokenSecret = sharedpref.getString("oauthTokenSecret", null);
-		
-		oAuthTokenMap.put("oauth_token", oauthToken);
-		oAuthTokenMap.put("oauth_token_secret", oauthTokenSecret);
-		
-		return oAuthTokenMap;
 	}
 	
     // ListViewカスタマイズ用のArrayAdapterに利用するクラス    

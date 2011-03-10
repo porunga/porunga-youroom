@@ -60,8 +60,8 @@ public class RoomActivity extends Activity {
 
         } else {
             setContentView(R.layout.main);
-            
-            HashMap<String, String> oAuthTokenMap = getOauthTokenFromLocal();
+            YouRoomUtil youRoomUtil = new YouRoomUtil(this);
+            HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
         	YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
         	String roomTL = "";
         	roomId = "726";
@@ -151,19 +151,6 @@ public class RoomActivity extends Activity {
 			check = true;
 		}
 		return check;
-	}
-	
-	private HashMap<String, String> getOauthTokenFromLocal(){
-		HashMap<String, String> oAuthTokenMap = new HashMap<String, String>();
-		
-    	sharedpref = getSharedPreferences(PREFERENCE_KEY, Activity.MODE_APPEND );
-		String oauthToken = sharedpref.getString("oauthToken", null);
-		String oauthTokenSecret = sharedpref.getString("oauthTokenSecret", null);
-		
-		oAuthTokenMap.put("oauth_token", oauthToken);
-		oAuthTokenMap.put("oauth_token_secret", oauthTokenSecret);
-		
-		return oAuthTokenMap;
 	}
 
     // ListViewカスタマイズ用のArrayAdapterに利用するクラス    
