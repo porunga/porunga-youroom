@@ -48,7 +48,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 		
 		EditText passwordText = (EditText)findViewById(R.id.login_password);
 		password = passwordText.getText().toString();
-		intent = new Intent(this, YouRoomClientActivity.class); 
+		intent = new Intent(this, RoomActivity.class); 
 		toast = Toast.makeText(this, "ÉçÉOÉCÉìé∏îs", Toast.LENGTH_SHORT);
 		
 		dialog = new ProgressDialog(this);

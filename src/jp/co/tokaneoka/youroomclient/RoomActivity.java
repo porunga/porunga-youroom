@@ -1,17 +1,11 @@
 package jp.co.tokaneoka.youroomclient;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.List;
-import java.util.zip.Inflater;
 
 import jp.co.tokaneoka.youroomclient.R;
-import jp.co.tokaneoka.youroomclient.EntryActivity.Entry;
-import jp.co.tokaneoka.youroomclient.R.id;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +29,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class YouRoomClientActivity extends Activity implements OnClickListener {
+public class RoomActivity extends Activity {
     /** Called when the activity is first created. */
 	
 	private static final String PREFERENCE_KEY = "AccessToken";
@@ -46,15 +40,7 @@ public class YouRoomClientActivity extends Activity implements OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
-
-    @Override
-	public void onClick(View v) {
-    	if ( v.getId() == R.id.login_button){
-    		Intent intent = new Intent(this, LoginActivity.class); 
-    		startActivity(intent);
-    	}
-	}		
-	
+        
 	@Override
 	public void onStart(){
 		super.onStart();
@@ -62,7 +48,17 @@ public class YouRoomClientActivity extends Activity implements OnClickListener {
         if( !isLogined() ){
             setContentView(R.layout.top);
         	Button login_button = (Button)findViewById(R.id.login_button);
-        	login_button.setOnClickListener(this);
+        	
+            OnClickListener loginClickListener = new OnClickListener(){
+            	public void onClick(View v) {
+                	if ( v.getId() == R.id.login_button){
+                		Intent intent = new Intent(getApplication(), LoginActivity.class); 
+                		startActivity(intent);
+                	}
+            	}		    	
+            };
+        	
+        	login_button.setOnClickListener(loginClickListener);
 
         } else {
             setContentView(R.layout.main);
