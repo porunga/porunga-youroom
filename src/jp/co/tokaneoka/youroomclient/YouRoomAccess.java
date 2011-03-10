@@ -71,7 +71,7 @@ public class YouRoomAccess {
 		this.oauthTokenSecret = oauthTokenSecret;
 	}
 	
-	public HttpResponse postRequest(){
+	public HttpResponse requestPost(){
 		
 		oauthParametersMap = createParametersMap();
 		String apiParamter = createParameters();
@@ -96,7 +96,7 @@ public class YouRoomAccess {
 		return objResponse;		
 	}
 	
-	public HttpResponse getRequest(){
+	public HttpResponse requestGet(){
 		
 		oauthParametersMap = createParametersMap();		
 		String apiParamter = createParameters();

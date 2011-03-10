@@ -33,7 +33,7 @@ public class Xauth {
 		youRoomAccess.setApi(api);
 		youRoomAccess.setParameter(xauthParameterMap);
 		
-		HttpResponse objResponse = youRoomAccess.postRequest();
+		HttpResponse objResponse = youRoomAccess.requestPost();
 		//TODO if (objResponse == null )
 		
 		int statusCode = objResponse.getStatusLine().getStatusCode();

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.zip.Inflater;
 
 import jp.co.tokaneoka.youroomclient.R;
+import jp.co.tokaneoka.youroomclient.EntryActivity.Entry;
 import jp.co.tokaneoka.youroomclient.R.id;
 
 import org.json.JSONArray;
@@ -27,10 +28,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class YouRoomClientActivity extends Activity implements OnClickListener {
     /** Called when the activity is first created. */
@@ -63,7 +66,7 @@ public class YouRoomClientActivity extends Activity implements OnClickListener {
 
         } else {
             setContentView(R.layout.main);
-
+            
             HashMap<String, String> oAuthTokenMap = getOauthTokenFromLocal();
         	YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
         	String roomTL = "";
@@ -97,6 +100,14 @@ public class YouRoomClientActivity extends Activity implements OnClickListener {
     		RoomTimeLineAdapter adapter = new RoomTimeLineAdapter(this, R.layout.list_item, datalist);
     		listView.setAdapter(adapter);
     		
+    		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    	        @Override
+    	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    	            ListView listView = (ListView) parent;
+    	            RoomTimeLine item = (RoomTimeLine) listView.getItemAtPosition(position);
+    	            Toast.makeText(getApplication(), item.getContent(), Toast.LENGTH_SHORT).show();
+    	        }
+    	    });		
         }
 	}
 	
