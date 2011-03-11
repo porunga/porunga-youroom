@@ -59,6 +59,35 @@ public class YouRoomCommand {
 	}
 	*/
 	
+	public String getMyGroup(){
+		
+		String method = "GET";
+
+		String api = "https://www.youroom.in/groups/my";
+	   	Map<String, String> parameterMap = new HashMap<String, String>();
+    	parameterMap.put("format", "json");
+    	
+    	youRoomAccess.setMethod(method);    	
+    	youRoomAccess.setApi(api);
+    	youRoomAccess.setParameter(parameterMap);    	
+    	HttpResponse objResponse = youRoomAccess.requestGet();
+    	
+	 	int statusCode = objResponse.getStatusLine().getStatusCode();
+	 	String decodeResult = "";
+	   	if (statusCode == HttpURLConnection.HTTP_OK) {
+			String result;
+			try {
+				result = EntityUtils.toString(objResponse.getEntity(), "UTF-8");
+				decodeResult = UnicodeEscape.decode(result);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+	   	}
+		return decodeResult;     	
+	}
+		
 	public String getEntry(String roomId, String entryId){
 		
 		String method = "GET";

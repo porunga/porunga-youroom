@@ -44,8 +44,8 @@ public class EntryActivity extends Activity {
     	
     	String entry = "";
     	entry = youRoomCommand.getEntry(roomId, entryId);
-//    	if String decodeResult = "";
-		ListView listView = (ListView)findViewById(R.id.listView1);
+    	//TODO if String decodeResult = "";
+    	ListView listView = (ListView)findViewById(R.id.listView1);
 		ArrayList<YouRoomChildEntry> dataList = new ArrayList<YouRoomChildEntry>();
     	
 		try {

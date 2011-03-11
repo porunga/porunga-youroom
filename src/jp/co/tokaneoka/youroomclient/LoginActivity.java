@@ -43,12 +43,13 @@ public class LoginActivity extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		
+		Class distActivity = GroupActivity.class;
 		EditText emailText = (EditText)findViewById(R.id.login_email);
 		email = emailText.getText().toString();
 		
 		EditText passwordText = (EditText)findViewById(R.id.login_password);
 		password = passwordText.getText().toString();
-		intent = new Intent(this, RoomActivity.class); 
+		intent = new Intent(this, distActivity); 
 		toast = Toast.makeText(this, "ÉçÉOÉCÉìé∏îs", Toast.LENGTH_SHORT);
 		
 		dialog = new ProgressDialog(this);
