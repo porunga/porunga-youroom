@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import jp.co.tokaneoka.youroomclient.R;
+import jp.co.tokaneoka.youroomclient.EntryActivity.YouRoomChildEntry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,6 +13,7 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +22,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class RoomActivity extends Activity {
     /** Called when the activity is first created. */
@@ -63,8 +66,8 @@ public class RoomActivity extends Activity {
 				String formattedTime = "";
 				String unformattedTime = entryObject.getString("created_at");
     		    	
-				formattedTime = YouRoomUtil.convertDatetime(unformattedTime);
-    
+				formattedTime = YouRoomUtil.convertDatetime(unformattedTime);				
+				
 				roomEntry.setId(id);
 				roomEntry.setParticipationName(participationName);
 				roomEntry.setCreatedTime(formattedTime);
@@ -102,6 +105,14 @@ public class RoomActivity extends Activity {
 		private int parentId;
 		private String createdTime;
 		private String updatedTime;
+		private int descendantsCount;
+		
+		public int getDescendantsCount() {
+			return descendantsCount;
+		}
+		public void setDescendantsCount(int descendantsCount) {
+			this.descendantsCount = descendantsCount;
+		}
 		
 		private String participationName;
 		private String participationId;
@@ -177,6 +188,7 @@ public class RoomActivity extends Activity {
 			TextView name = null;
 			TextView content = null;
 			TextView createdTime = null;
+			TextView descendantsCount = null;
 			
 			if ( roomEntry != null ){
 				name = (TextView)view.findViewById(R.id.textView1);
@@ -192,8 +204,47 @@ public class RoomActivity extends Activity {
 			if ( content != null ){
 				content.setText(roomEntry.getContent());
 			}
+			
+			descendantsCount = (TextView)view.findViewById(R.id.textView4);
+			GetEntryTask task = new GetEntryTask(descendantsCount, roomId);
+			task.execute(roomEntry.getId());
+			
 			return view;
 		}
+	}
+	
+	public class GetEntryTask extends AsyncTask<Integer, Void, String> {
+		
+		private String entryId;
+		private String roomId;
+		String count;
+		private TextView textView;
+		
+		public GetEntryTask(TextView textView, String roomId){
+			this.roomId = roomId;
+			this.textView = textView;
+		}
+
+		@Override
+		protected String doInBackground(Integer... entryIds) {
+			HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
+			YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
+			String entry = youRoomCommand.getEntry(roomId, String.valueOf(entryIds[0]));
+			
+			try {
+				JSONObject json = new JSONObject(entry);    			
+		    	count = json.getJSONObject("entry").getString("descendants_count");
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			return count;
+		}
+		
+		@Override
+		protected void onPostExecute(String count){
+			//TODO レイアウト修正直書き
+			textView.setText("[ " + count + "comments ] > ");
+		}		
 	}
 	
 }
