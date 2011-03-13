@@ -61,21 +61,21 @@ public class EntryActivity extends Activity {
 		    	String content = childObject.getString("content");
 		    	String formattedTime = "";
 		    	String unformattedTime = childObject.getString("created_at");
-		    	
+		    		
 		    	formattedTime = YouRoomUtil.convertDatetime(unformattedTime);
 
 		    	roomChildEntry.setParticipationName(participationName);
 		    	roomChildEntry.setUpdatedTime(formattedTime);
 		    	roomChildEntry.setContent(content);
+		    			    	
 	    		dataList.add(roomChildEntry);
-	    		YouRoomChildEntryAdapter adapter = new YouRoomChildEntryAdapter(this, R.layout.list_item, dataList);
-	    		listView.setAdapter(adapter);
 	    	}
 		} catch (JSONException e) {
 			e.printStackTrace();
 			Toast.makeText(this, "コメントはありません。", Toast.LENGTH_SHORT).show();
 		}
-		
+		YouRoomChildEntryAdapter adapter = new YouRoomChildEntryAdapter(this, R.layout.list_item, dataList);
+		listView.setAdapter(adapter);		
 	}
 	
     // ListViewカスタマイズ用のArrayAdapterに利用するクラス    

@@ -25,6 +25,7 @@ public class RoomActivity extends Activity {
     /** Called when the activity is first created. */
 	
 	private String roomId;
+	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,7 +41,6 @@ public class RoomActivity extends Activity {
         Intent intent = getIntent();
         roomId = intent.getStringExtra("roomId");
         
-		YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
 		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
 		String roomTL = "";

@@ -10,7 +10,6 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,9 +25,8 @@ import android.widget.TextView;
 
 public class GroupActivity extends Activity {
 
-	private static final String PREFERENCE_KEY = "AccessToken";
-	SharedPreferences sharedpref;
 	private final int DELETE_TOKEN = 1;
+	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,7 +37,7 @@ public class GroupActivity extends Activity {
 	public void onStart(){
 		super.onStart();
 		
-        if( !isLogined() ){
+        if( !youRoomUtil.isLogined() ){
             setContentView(R.layout.top);
         	Button login_button = (Button)findViewById(R.id.login_button);
         	
@@ -105,37 +103,7 @@ public class GroupActivity extends Activity {
     	    });
         }		
 	}
-    /*
-	private boolean isLogined() {
 		
-		boolean check = false;
-        String oauthToken = null;
-        String oauthTokenSecret = null;
-        HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
-        
-        oauthToken = oAuthTokenMap.get("oauthToken");
-        oauthTokenSecret = oAuthTokenMap.get("oauthTokenSecret");        
-		//とりあえず、oauthTokenがあるかどうかのみチェック
-		if (oauthToken != null && oauthTokenSecret != null ){
-			check = true;
-		}
-		return check;
-	}
-	*/
-	
-	private boolean isLogined() {
-		
-		boolean check = false;
-    	sharedpref = getSharedPreferences(PREFERENCE_KEY, Activity.MODE_APPEND );
-		String oauthToken = sharedpref.getString("oauthToken", null);
-		String oauthTokenSecret = sharedpref.getString("oauthTokenSecret", null);
-		//とりあえず、oauthTokenがあるかどうかのみチェック
-		if (oauthToken != null && oauthTokenSecret != null ){
-			check = true;
-		}
-		return check;
-	}
-
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
       menu.add(Menu.NONE, DELETE_TOKEN, DELETE_TOKEN, R.string.delete_token);
@@ -146,13 +114,10 @@ public class GroupActivity extends Activity {
         boolean ret = true;
         switch (item.getItemId()) {
         case DELETE_TOKEN:
-        	SharedPreferences pref = getSharedPreferences(PREFERENCE_KEY, MODE_PRIVATE);
-        	SharedPreferences.Editor editor = pref.edit();
-        	editor.putString("oauthToken", null);
-        	editor.putString("oauthTokenSecret", null);
-        	editor.commit();
-    		Intent intent = new Intent(this, LoginActivity.class); 
-    		startActivity(intent);
+        	if ( youRoomUtil.removeOauthTokenFromLocal() ){
+        		Intent intent = new Intent(this, LoginActivity.class); 
+        		startActivity(intent);
+        	}
         	ret = true;
 	    	break;
         default:

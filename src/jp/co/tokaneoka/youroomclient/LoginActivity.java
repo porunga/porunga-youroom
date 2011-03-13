@@ -9,8 +9,6 @@ import jp.co.tokaneoka.youroomclient.R;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -21,8 +19,6 @@ import android.widget.Toast;
 
 public class LoginActivity extends Activity implements OnClickListener {
 	
-	private static final String PREFERENCE_KEY = "AccessToken";
-	SharedPreferences sharedpref;
     Handler  mHandler = new Handler();  
     boolean loginCheck = false;
     String email = "";
@@ -30,6 +26,7 @@ public class LoginActivity extends Activity implements OnClickListener {
     Intent intent;
     Toast toast;
     ProgressDialog dialog;
+    YouRoomUtil youRoomUtil = new YouRoomUtil(this);
     
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,12 +94,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 		resultMap = xAuth.getAccessToken();
 		
 		if ( resultMap.size() > 0 ){
-			sharedpref = getSharedPreferences(PREFERENCE_KEY, Activity.MODE_APPEND );
-			Editor editor = sharedpref.edit();
-			editor.putString("oauthToken", resultMap.get("oauth_token"));
-			editor.putString("oauthTokenSecret", resultMap.get("oauth_token_secret"));
-			editor.commit();
-			check = true;
+			check = youRoomUtil.storeOauthTokenToLocal(resultMap);
 		}
 		return check;
 	}	
