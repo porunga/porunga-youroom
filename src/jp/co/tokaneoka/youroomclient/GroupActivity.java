@@ -190,15 +190,15 @@ public class GroupActivity extends Activity {
 		public View getView(final int position, View convertView, ViewGroup parent){
 			View view = convertView;
 			if (convertView == null) {
-				view = inflater.inflate(R.layout.list_item, null);				
+				view = inflater.inflate(R.layout.group_list_item, null);				
 			}
 			YouRoomGroup group = (YouRoomGroup)this.getItem(position);
 			TextView name = null;
 			TextView updateTime = null;
 			
 			if ( group != null ){
+				name = (TextView)view.findViewById(R.id.textView1);
 				updateTime = (TextView)view.findViewById(R.id.textView2);
-				name = (TextView)view.findViewById(R.id.textView3);
 			}
 			if ( name != null ){
 				name.setText(group.getName());
