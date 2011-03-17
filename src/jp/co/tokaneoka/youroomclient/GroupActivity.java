@@ -88,7 +88,7 @@ public class GroupActivity extends Activity {
     			e.printStackTrace();
     		}
     		
-    		YouRoomGroupAdapter adapter = new YouRoomGroupAdapter(this, R.layout.list_item, dataList);
+    		YouRoomGroupAdapter adapter = new YouRoomGroupAdapter(this, R.layout.group_list_item, dataList);
     		listView.setAdapter(adapter);
     		
     		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

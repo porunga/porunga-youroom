@@ -79,7 +79,7 @@ public class RoomActivity extends Activity {
 			e.printStackTrace();
 		}
     		
-		YouRoomEntryAdapter adapter = new YouRoomEntryAdapter(this, R.layout.list_item, dataList);
+		YouRoomEntryAdapter adapter = new YouRoomEntryAdapter(this, R.layout.room_list_item, dataList);
 		listView.setAdapter(adapter);
     		
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -182,7 +182,7 @@ public class RoomActivity extends Activity {
 		public View getView(final int position, View convertView, ViewGroup parent){
 			View view = convertView;
 			if (convertView == null) {
-				view = inflater.inflate(R.layout.list_item, null);				
+				view = inflater.inflate(R.layout.room_list_item, null);				
 			}
 			YouRoomEntry roomEntry = (YouRoomEntry)this.getItem(position);
 			TextView name = null;
