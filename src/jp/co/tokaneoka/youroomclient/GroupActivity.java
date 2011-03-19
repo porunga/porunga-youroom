@@ -2,15 +2,19 @@ package jp.co.tokaneoka.youroomclient;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,14 +24,18 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class GroupActivity extends Activity {
 
 	private final int DELETE_TOKEN = 1;
 	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
-
+	private YouRoomGroupAdapter adapter;
+	ProgressDialog progressDialog;	
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,42 +61,21 @@ public class GroupActivity extends Activity {
         	login_button.setOnClickListener(loginClickListener);
 
         } else {
-            setContentView(R.layout.main);
-            YouRoomUtil youRoomUtil = new YouRoomUtil(this);
-            HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
-        	YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
-
-        	String myGroups = youRoomCommand.getMyGroup();
-        	
+            setContentView(R.layout.group_view);
     		ListView listView = (ListView)findViewById(R.id.listView1);
+ 
     		ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
-        	
-    		try {
-    	    	JSONArray jsons = new JSONArray(myGroups);
-    	    	for(int i =0 ; i< jsons.length(); i++){
-    	    		YouRoomGroup group = new YouRoomGroup();
-    		    	JSONObject jObject = jsons.getJSONObject(i);
-    		    	JSONObject groupObject = jObject.getJSONObject("group");
 
-    		    	int id = groupObject.getInt("id");
-    		    	String name = groupObject.getString("name");
-    		    	
-    		    	String formattedTime = "";
-    		    	String unformattedTime = groupObject.getString("updated_at");
-    		    	
-    		    	formattedTime = YouRoomUtil.convertDatetime(unformattedTime);
-    
-    		    	group.setId(id);
-    		    	group.setName(name);
-    		    	group.setUpdatedTime(formattedTime);
-    		    	
-    	    		dataList.add(group);
-    	    	}
-    		} catch (JSONException e) {
-    			e.printStackTrace();
-    		}
+    		progressDialog = new ProgressDialog(this);
+    		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+    		progressDialog.setMessage("ˆ—‚ðŽÀs’†‚µ‚Ä‚¢‚Ü‚·");
+    		progressDialog.setCancelable(true);
+    		progressDialog.show();
     		
-    		YouRoomGroupAdapter adapter = new YouRoomGroupAdapter(this, R.layout.group_list_item, dataList);
+			GetGroupTask task = new GetGroupTask();
+			task.execute();
+    					
+    		adapter = new YouRoomGroupAdapter(this, R.layout.group_list_item, dataList);
     		listView.setAdapter(adapter);
     		
     		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -210,5 +197,60 @@ public class GroupActivity extends Activity {
 			return view;
 		}
 	}
+	
+	private ArrayList<YouRoomGroup> getGroup(){
+		
+        YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
+        HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
+    	YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
+    	String myGroups = youRoomCommand.getMyGroup();
+  		ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
+		
+		try {
+	    	JSONArray jsons = new JSONArray(myGroups);
+	    	for(int i =0 ; i< jsons.length(); i++){
+	    		YouRoomGroup group = new YouRoomGroup();
+		    	JSONObject jObject = jsons.getJSONObject(i);
+		    	JSONObject groupObject = jObject.getJSONObject("group");
+
+		    	int id = groupObject.getInt("id");
+		    	String name = groupObject.getString("name");
+		    	
+		    	String formattedTime = "";
+		    	String unformattedTime = groupObject.getString("updated_at");
+		    	
+		    	formattedTime = YouRoomUtil.convertDatetime(unformattedTime);
+
+		    	group.setId(id);
+		    	group.setName(name);
+		    	group.setUpdatedTime(formattedTime);
+		    	
+	    		dataList.add(group);
+	    	}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return dataList;
+	}
+
+	public class GetGroupTask extends AsyncTask<Void, Void, ArrayList<YouRoomGroup>> {
+				
+		@Override
+		protected ArrayList<YouRoomGroup> doInBackground(Void... ids) {						
+			ArrayList<YouRoomGroup> dataList = getGroup();
+			return dataList;
+		}
+				
+		@Override
+		protected void onPostExecute(ArrayList<YouRoomGroup> dataList){
+			Iterator iterator = dataList.iterator();
+			while( iterator.hasNext() ) {
+				adapter.add((YouRoomGroup) iterator.next());
+			}
+			adapter.notifyDataSetChanged();
+			progressDialog.dismiss();
+		}
+	}
+
 	
 }
