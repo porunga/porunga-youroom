@@ -27,8 +27,6 @@ public class EntryActivity extends Activity {
 		
 	String roomId;
 	YouRoomChildEntryAdapter adapter;
-	ArrayList<Integer> requestFinishedId = new ArrayList<Integer>();
-	ArrayList<Integer> resultDataListId = new ArrayList<Integer>();
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,7 +49,17 @@ public class EntryActivity extends Activity {
 		
 		ArrayList<YouRoomChildEntry> dataList = getChild(roomId, entryId, level);
 		adapter = new YouRoomChildEntryAdapter(this, R.layout.entry_list_item, dataList);
-		listView.setAdapter(adapter);		
+		listView.setAdapter(adapter);
+		
+		for(int i=0; i< dataList.size(); i++){
+			try {
+				GetChildEntryTask task = new GetChildEntryTask(roomId);
+				task.execute(dataList.get(i));
+			} catch (RejectedExecutionException e) {
+				// TODO AsyncTaskでは内部的にキューを持っていますが、このキューサイズを超えるタスクをexecuteすると、ブロックされずに例外が発生します。らしいので、一旦握りつぶしている
+				e.printStackTrace();
+			}
+		}
 	}
 	
     // ListViewカスタマイズ用のArrayAdapterに利用するクラス    
@@ -140,20 +148,6 @@ public class EntryActivity extends Activity {
 			super(context, textViewResourceId, items);
 			this.items = items;
 			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			
-/*
-			int listSize;
-			for (int i = 0; i< items.size(); i++ ){
-				String entryId = String.valueOf(items.get(i).getId());
-				ArrayList<YouRoomChildEntry> dataList = getChild(roomId, entryId, items.get(i).getLevel() + 1 );
-				listSize = dataList.size();
-				if (listSize > 0) {
-					for (int j = 0; j< listSize; j++){
-						items.add(i+j+1, dataList.get(j));
-					}
-				}
-			}
-			*/
 		}
 
 		public View getView(final int position, View convertView, ViewGroup parent){
@@ -188,19 +182,17 @@ public class EntryActivity extends Activity {
 					commentLevel += "-> ";
 				level.setText(commentLevel);
 			}
-			
+			/*
 			if ( !resultDataListId.contains(roomEntry.getId()) && !requestFinishedId.contains(roomEntry.getId())){
 				try {
 					GetChildEntryTask task = new GetChildEntryTask(roomId);
 					task.execute(roomEntry);
 				} catch (RejectedExecutionException e) {
-					/* TODO AsyncTaskでは内部的にキューを持っていますが、このキューサイズを超えるタスクをexecuteすると、ブロックされずに例外が発生します。
-					 * らしいので、一旦握りつぶしている
-					 */
+					// TODO AsyncTaskでは内部的にキューを持っていますが、このキューサイズを超えるタスクをexecuteすると、ブロックされずに例外が発生します。らしいので、一旦握りつぶしている
 					e.printStackTrace();
 				}
 			}
-			/*
+
 			ArrayList<YouRoomChildEntry> dataChildList = getChild(roomId, entryId, roomEntry.getLevel() + 1 );
 			
 			if ( dataChildList.size() > 0){
@@ -273,30 +265,36 @@ public class EntryActivity extends Activity {
 		protected ArrayList<YouRoomChildEntry> doInBackground(YouRoomChildEntry... roomChildEntries) {
 			roomChildEntry = roomChildEntries[0];
 			String entryId = String.valueOf(roomChildEntry.getId());
-			ArrayList<YouRoomChildEntry> dataChildList = new ArrayList<YouRoomChildEntry>();
-			int level = roomChildEntry.getLevel();
-			synchronized (objLock){
-			if ( !resultDataListId.contains(roomChildEntry.getId()) && !requestFinishedId.contains(roomChildEntry.getId())){
-				dataChildList = getChild(roomId, entryId, level + 1 );
-				requestFinishedId.add(roomChildEntry.getId());
-			}
-			}
-			return dataChildList;
+						
+			ArrayList<YouRoomChildEntry> dataList = getChild(roomId, entryId, roomChildEntry.getLevel() + 1 );
+			ArrayList<YouRoomChildEntry> dataChildList;
+			for (int i=0; i< dataList.size(); i++){
+				String childEntryId = String.valueOf(dataList.get(i).getId());
+				Log.e("!!!","entryId = " + entryId);
+				dataChildList = getChild(roomId, childEntryId, dataList.get(i).getLevel() + 1 );
+				int listSize = dataChildList.size();
+				if (listSize > 0) {
+					for (int j = 0; j< listSize; j++){
+						dataList.add(i+j+1, dataChildList.get(j));
+					}
+				}
+			}			
+			return dataList;
+			
 		}
+		
 		@Override
 		protected void onPostExecute(ArrayList<YouRoomChildEntry> dataChildList){
 			synchronized (objLock){
-				if ( dataChildList.size() > 0 && ( !resultDataListId.contains(roomChildEntry.getId())) ){
+				if (dataChildList.size() > 0) {
 					for (int i=0; i< dataChildList.size(); i++){
 						adapter.insert(dataChildList.get(i), adapter.getPosition(roomChildEntry) + i + 1);
 					}
 				}
-				resultDataListId.add(roomChildEntry.getId());
 				adapter.notifyDataSetChanged();
 			}
 
 		}			
 	}
-
 	
 }
