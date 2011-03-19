@@ -2,6 +2,7 @@ package jp.co.tokaneoka.youroomclient;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.RejectedExecutionException;
 
 import jp.co.tokaneoka.youroomclient.R;
 
@@ -12,7 +13,9 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.Intent;
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +26,9 @@ import android.widget.TextView;
 public class EntryActivity extends Activity {
 		
 	String roomId;
+	YouRoomChildEntryAdapter adapter;
+	ArrayList<Integer> requestFinishedId = new ArrayList<Integer>();
+	ArrayList<Integer> resultDataListId = new ArrayList<Integer>();
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,11 +47,10 @@ public class EntryActivity extends Activity {
         
     	//TODO if String decodeResult = "";
     	ListView listView = (ListView)findViewById(R.id.listView1);
-		ArrayList<YouRoomChildEntry> dataList = new ArrayList<YouRoomChildEntry>();
 		int level = 0;
-        dataList = getChild(roomId, entryId, level);
-        
-		YouRoomChildEntryAdapter adapter = new YouRoomChildEntryAdapter(this, R.layout.entry_list_item, dataList);
+		
+		ArrayList<YouRoomChildEntry> dataList = getChild(roomId, entryId, level);
+		adapter = new YouRoomChildEntryAdapter(this, R.layout.entry_list_item, dataList);
 		listView.setAdapter(adapter);		
 	}
 	
@@ -135,7 +140,8 @@ public class EntryActivity extends Activity {
 			super(context, textViewResourceId, items);
 			this.items = items;
 			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
+			
+/*
 			int listSize;
 			for (int i = 0; i< items.size(); i++ ){
 				String entryId = String.valueOf(items.get(i).getId());
@@ -147,8 +153,9 @@ public class EntryActivity extends Activity {
 					}
 				}
 			}
+			*/
 		}
-			
+
 		public View getView(final int position, View convertView, ViewGroup parent){
 			View view = convertView;
 			if (convertView == null) {
@@ -181,6 +188,32 @@ public class EntryActivity extends Activity {
 					commentLevel += "-> ";
 				level.setText(commentLevel);
 			}
+			
+			if ( !resultDataListId.contains(roomEntry.getId()) && !requestFinishedId.contains(roomEntry.getId())){
+				try {
+					GetChildEntryTask task = new GetChildEntryTask(roomId);
+					task.execute(roomEntry);
+				} catch (RejectedExecutionException e) {
+					/* TODO AsyncTaskでは内部的にキューを持っていますが、このキューサイズを超えるタスクをexecuteすると、ブロックされずに例外が発生します。
+					 * らしいので、一旦握りつぶしている
+					 */
+					e.printStackTrace();
+				}
+			}
+			/*
+			ArrayList<YouRoomChildEntry> dataChildList = getChild(roomId, entryId, roomEntry.getLevel() + 1 );
+			
+			if ( dataChildList.size() > 0){
+				for (int i=0; i< dataChildList.size(); i++){
+					if ( !resultDataListId.contains(dataChildList.get(i).getId()) ){
+						adapter.insert(dataChildList.get(i), position + i + 1);
+						resultDataListId.add(dataChildList.get(i).getId());
+					} else {
+					}
+				}
+				adapter.notifyDataSetChanged();
+			}
+			*/
 			
 			return view;
 		}
@@ -225,5 +258,45 @@ public class EntryActivity extends Activity {
 		}
 		return dataList;
 	}
+	
+	public class GetChildEntryTask extends AsyncTask<YouRoomChildEntry, Void, ArrayList<YouRoomChildEntry>> {
+		
+		private String roomId;
+		private YouRoomChildEntry roomChildEntry;
+		private Object objLock = new Object();
+		
+		public GetChildEntryTask(String roomId){
+			this.roomId = roomId;
+		}
 
+		@Override
+		protected ArrayList<YouRoomChildEntry> doInBackground(YouRoomChildEntry... roomChildEntries) {
+			roomChildEntry = roomChildEntries[0];
+			String entryId = String.valueOf(roomChildEntry.getId());
+			ArrayList<YouRoomChildEntry> dataChildList = new ArrayList<YouRoomChildEntry>();
+			int level = roomChildEntry.getLevel();
+			synchronized (objLock){
+			if ( !resultDataListId.contains(roomChildEntry.getId()) && !requestFinishedId.contains(roomChildEntry.getId())){
+				dataChildList = getChild(roomId, entryId, level + 1 );
+				requestFinishedId.add(roomChildEntry.getId());
+			}
+			}
+			return dataChildList;
+		}
+		@Override
+		protected void onPostExecute(ArrayList<YouRoomChildEntry> dataChildList){
+			synchronized (objLock){
+				if ( dataChildList.size() > 0 && ( !resultDataListId.contains(roomChildEntry.getId())) ){
+					for (int i=0; i< dataChildList.size(); i++){
+						adapter.insert(dataChildList.get(i), adapter.getPosition(roomChildEntry) + i + 1);
+					}
+				}
+				resultDataListId.add(roomChildEntry.getId());
+				adapter.notifyDataSetChanged();
+			}
+
+		}			
+	}
+
+	
 }
