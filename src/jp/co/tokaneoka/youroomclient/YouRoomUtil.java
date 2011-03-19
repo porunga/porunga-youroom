@@ -1,8 +1,10 @@
 package jp.co.tokaneoka.youroomclient;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.content.Context;
@@ -89,8 +91,28 @@ public class YouRoomUtil extends ContextWrapper {
     	
     	Calendar cal = new GregorianCalendar(year, month ,day, hour, minute, second);
     	cal.add(Calendar.HOUR, 9);
+
+    	Calendar currentCal = new GregorianCalendar(Locale.JAPAN);
+    	currentCal.add(Calendar.MONTH, 1);
     	
-    	return cal.get(Calendar.YEAR) + "/" + cal.get(Calendar.MONTH) +"/" + cal.get(Calendar.DAY_OF_MONTH) + " " + cal.get(Calendar.HOUR_OF_DAY) + ":" + cal.get(Calendar.MINUTE);
+    	Calendar displayCal = new GregorianCalendar();
+    	long milliseconds = currentCal.getTimeInMillis() - cal.getTimeInMillis();
+    	displayCal.setTimeInMillis(milliseconds);
+
+    	SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+    	
+    	if ( milliseconds/(1000*60) < 0) {
+    		return String.valueOf(milliseconds%(1000*60) + "•b‘O");
+    	}
+    	if ( milliseconds/(1000*60) < 60) {
+    		return String.valueOf(milliseconds/(1000*60) + "•ª‘O");
+    	} else if (milliseconds/(1000*60*60) < 24 ){
+    		return String.valueOf(milliseconds/(1000*60*60) + "ŽžŠÔ‘O");
+    	} else if (displayCal.get(Calendar.YEAR) > 1970) {
+    		return cal.get(Calendar.YEAR) + "/" + cal.get(Calendar.MONTH) +"/" + cal.get(Calendar.DAY_OF_MONTH) + " " + " " + format.format(cal.getTime());
+    	} else {
+    		return cal.get(Calendar.MONTH) +"/" + cal.get(Calendar.DAY_OF_MONTH) + " " + format.format(cal.getTime());
+    	}
     	
 	}
 
