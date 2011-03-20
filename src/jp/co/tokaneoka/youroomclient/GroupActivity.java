@@ -32,6 +32,7 @@ import android.widget.TextView;
 public class GroupActivity extends Activity {
 
 	private final int DELETE_TOKEN = 1;
+	private final int REACQUIRE_GROUP = 2;
 	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 	private YouRoomGroupAdapter adapter;
 	ProgressDialog progressDialog;	
@@ -39,12 +40,7 @@ public class GroupActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
-
-	@Override
-	public void onStart(){
-		super.onStart();
-		
+        
         if( !youRoomUtil.isLogined() ){
             setContentView(R.layout.top);
         	Button login_button = (Button)findViewById(R.id.login_button);
@@ -88,12 +84,18 @@ public class GroupActivity extends Activity {
     	            startActivity(intent);
     	        }
     	    });
-        }		
+        }        
+    }
+
+	@Override
+	public void onStart(){
+		super.onStart();		
 	}
 		
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
       menu.add(Menu.NONE, DELETE_TOKEN, DELETE_TOKEN, R.string.delete_token);
+      menu.add(Menu.NONE, REACQUIRE_GROUP, REACQUIRE_GROUP, R.string.reacquire_group);
     return super.onCreateOptionsMenu(menu);
     }
 
@@ -107,6 +109,16 @@ public class GroupActivity extends Activity {
         	}
         	ret = true;
 	    	break;
+        case REACQUIRE_GROUP:
+    		progressDialog = new ProgressDialog(this);
+    		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+    		progressDialog.setMessage("èàóùÇé¿çsíÜÇµÇƒÇ¢Ç‹Ç∑");
+    		progressDialog.setCancelable(true);
+    		progressDialog.show();
+			GetGroupTask task = new GetGroupTask();
+			task.execute();
+			ret =true;
+			break;
         default:
             ret = super.onOptionsItemSelected(item);
             break;

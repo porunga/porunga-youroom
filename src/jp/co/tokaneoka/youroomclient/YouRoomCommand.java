@@ -9,6 +9,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
 
+import android.util.Log;
+
 public class YouRoomCommand {
 	
 	private YouRoomAccess youRoomAccess;
@@ -60,6 +62,7 @@ public class YouRoomCommand {
 	*/
 	
 	public String getMyGroup(){
+		Log.i("ACCESS","getMyGroup");
 		
 		String method = "GET";
 
@@ -89,6 +92,7 @@ public class YouRoomCommand {
 	}
 		
 	public String getEntry(String roomId, String entryId){
+		Log.i("ACCESS","getEntry");
 		
 		String method = "GET";
 		String api = "https://www.youroom.in/r/" + roomId + "/entries/" + entryId;
@@ -117,6 +121,7 @@ public class YouRoomCommand {
 	}
 	
 	public String getRoomTimeLine(String roomId){
+		Log.i("ACCESS","getRoomTimeLine");
 		
     	String method = "GET";
     	String api = "https://www.youroom.in/r/" + roomId;
