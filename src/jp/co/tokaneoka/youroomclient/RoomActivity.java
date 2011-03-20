@@ -2,15 +2,19 @@ package jp.co.tokaneoka.youroomclient;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import jp.co.tokaneoka.youroomclient.R;
 import jp.co.tokaneoka.youroomclient.EntryActivity.YouRoomChildEntry;
+import jp.co.tokaneoka.youroomclient.GroupActivity.GetGroupTask;
+import jp.co.tokaneoka.youroomclient.GroupActivity.YouRoomGroup;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -28,7 +32,8 @@ public class RoomActivity extends Activity {
     /** Called when the activity is first created. */
 	
 	private String roomId;
-	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
+	YouRoomEntryAdapter adapter;
+	ProgressDialog progressDialog;	
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,43 +48,19 @@ public class RoomActivity extends Activity {
 		
         Intent intent = getIntent();
         roomId = intent.getStringExtra("roomId");
-        
-		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
-		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
-		String roomTL = "";
-		roomTL= youRoomCommand.getRoomTimeLine(roomId);
-		
 		ListView listView = (ListView)findViewById(R.id.listView1);
-		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
-        	
-		try {
-			JSONArray jsons = new JSONArray(roomTL);
-			for(int i =0 ; i< jsons.length(); i++){
-				YouRoomEntry roomEntry = new YouRoomEntry();
-				JSONObject jObject = jsons.getJSONObject(i);
-				JSONObject entryObject = jObject.getJSONObject("entry");
 
-				int id = entryObject.getInt("id");
-				String participationName = entryObject.getJSONObject("participation").getString("name");
-				String content = entryObject.getString("content");
-    		    
-				String formattedTime = "";
-				String unformattedTime = entryObject.getString("created_at");
-    		    	
-				formattedTime = YouRoomUtil.convertDatetime(unformattedTime);				
-				
-				roomEntry.setId(id);
-				roomEntry.setParticipationName(participationName);
-				roomEntry.setCreatedTime(formattedTime);
-				roomEntry.setContent(content);
-    		    	
-				dataList.add(roomEntry);
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-    		
-		YouRoomEntryAdapter adapter = new YouRoomEntryAdapter(this, R.layout.room_list_item, dataList);
+		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
+		
+		progressDialog = new ProgressDialog(this);
+		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		progressDialog.setMessage("処理を実行中しています");
+		progressDialog.setCancelable(true);
+		progressDialog.show();		
+		GetRoomEntryTask task = new GetRoomEntryTask(roomId);
+		task.execute();
+		
+		adapter = new YouRoomEntryAdapter(this, R.layout.room_list_item, dataList);
 		listView.setAdapter(adapter);
     		
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -227,6 +208,8 @@ public class RoomActivity extends Activity {
 
 		@Override
 		protected String doInBackground(Integer... entryIds) {
+			
+			YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
 			HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
 			YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
 			String entry = youRoomCommand.getEntry(roomId, String.valueOf(entryIds[0]));
@@ -244,8 +227,73 @@ public class RoomActivity extends Activity {
 		protected void onPostExecute(String count){
 			//TODO レイアウト修正直書き
 			textView.setText("[ " + count + "comments ] > ");
-		}		
+		}
 	}
+	
+	private ArrayList<YouRoomEntry> getRoomEntry(String roomId){
+		
+		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
+		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
+		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
+		String roomTL = "";
+		roomTL= youRoomCommand.getRoomTimeLine(roomId);
+		
+		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
+		
+		try {
+			JSONArray jsons = new JSONArray(roomTL);
+			for(int i =0 ; i< jsons.length(); i++){
+				YouRoomEntry roomEntry = new YouRoomEntry();
+				JSONObject jObject = jsons.getJSONObject(i);
+				JSONObject entryObject = jObject.getJSONObject("entry");
+
+				int id = entryObject.getInt("id");
+				String participationName = entryObject.getJSONObject("participation").getString("name");
+				String content = entryObject.getString("content");
+    		    
+				String formattedTime = "";
+				String unformattedTime = entryObject.getString("created_at");
+    		    	
+				formattedTime = YouRoomUtil.convertDatetime(unformattedTime);				
+				
+				roomEntry.setId(id);
+				roomEntry.setParticipationName(participationName);
+				roomEntry.setCreatedTime(formattedTime);
+				roomEntry.setContent(content);
+    		    	
+				dataList.add(roomEntry);
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return dataList;
+	}
+	
+	public class GetRoomEntryTask extends AsyncTask<Void, Void, ArrayList<YouRoomEntry>> {
+		
+		private String roomId;
+		
+		public GetRoomEntryTask(String roomId){
+			this.roomId = roomId;
+		}
+		
+		@Override
+		protected ArrayList<YouRoomEntry> doInBackground(Void... ids) {						
+			ArrayList<YouRoomEntry> dataList = getRoomEntry(roomId);
+			return dataList;
+		}
+				
+		@Override
+		protected void onPostExecute(ArrayList<YouRoomEntry> dataList){
+			Iterator iterator = dataList.iterator();
+			while( iterator.hasNext() ) {
+				adapter.add((YouRoomEntry) iterator.next());
+			}
+			adapter.notifyDataSetChanged();
+			progressDialog.dismiss();
+		}
+	}
+
 	
 }
 
