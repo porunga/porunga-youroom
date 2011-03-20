@@ -120,12 +120,11 @@ public class YouRoomCommand {
 		return decodeResult;     	
 	}
 	
-	public String getRoomTimeLine(String roomId){
+	public String getRoomTimeLine(String roomId, Map<String, String> parameterMap){
 		Log.i("ACCESS","getRoomTimeLine");
 		
     	String method = "GET";
     	String api = "https://www.youroom.in/r/" + roomId;
-	   	Map<String, String> parameterMap = new HashMap<String, String>();
     	parameterMap.put("format", "json");
     		
     	youRoomAccess.setMethod(method);    	

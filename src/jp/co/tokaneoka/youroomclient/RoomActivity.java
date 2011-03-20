@@ -3,6 +3,7 @@ package jp.co.tokaneoka.youroomclient;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import jp.co.tokaneoka.youroomclient.R;
 import jp.co.tokaneoka.youroomclient.EntryActivity.YouRoomChildEntry;
@@ -17,11 +18,13 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -33,22 +36,19 @@ public class RoomActivity extends Activity {
 	
 	private String roomId;
 	YouRoomEntryAdapter adapter;
-	ProgressDialog progressDialog;	
+	ProgressDialog progressDialog;
+	private ListView listView;
+	private int page = 1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
         
-	@Override
-	public void onStart(){
-		super.onStart();
-		
 		setContentView(R.layout.main);
 		
         Intent intent = getIntent();
         roomId = intent.getStringExtra("roomId");
-		ListView listView = (ListView)findViewById(R.id.listView1);
+		listView = (ListView)findViewById(R.id.listView1);
 
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 		
@@ -56,10 +56,21 @@ public class RoomActivity extends Activity {
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 		progressDialog.setMessage("処理を実行中しています");
 		progressDialog.setCancelable(true);
-		progressDialog.show();		
-		GetRoomEntryTask task = new GetRoomEntryTask(roomId);
-		task.execute();
+		progressDialog.show();
 		
+	   	Map<String, String> parameterMap = new HashMap<String, String>();
+    	parameterMap.put("page", String.valueOf(page));
+		GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap);
+		task.execute();
+		page ++;
+		
+		final TextView textview = new TextView(this);
+		textview.setText("-----読み込み-----");
+		textview.setMinHeight(50);
+		textview.setBackgroundColor(Color.WHITE);
+				
+		listView.addFooterView(textview);
+
 		adapter = new YouRoomEntryAdapter(this, R.layout.room_list_item, dataList);
 		listView.setAdapter(adapter);
     		
@@ -67,14 +78,29 @@ public class RoomActivity extends Activity {
 			
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				ListView listView = (ListView) parent;
-				YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
-				Intent intent = new Intent(getApplication(), EntryActivity.class);
-				intent.putExtra("roomId", String.valueOf(roomId) );
-				intent.putExtra("entryId", String.valueOf(item.getId()));
-				startActivity(intent);
+				if(view == textview){
+					progressDialog.show();
+				   	Map<String, String> parameterMap = new HashMap<String, String>();
+			    	parameterMap.put("page", String.valueOf(page));
+					GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap);
+					task.execute();
+					page ++;
+				} else {
+					ListView listView = (ListView) parent;
+					YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
+					Intent intent = new Intent(getApplication(), EntryActivity.class);
+					intent.putExtra("roomId", String.valueOf(roomId) );
+					intent.putExtra("entryId", String.valueOf(item.getId()));
+					startActivity(intent);
+				}
 			}
 		});
+        
+    }
+        
+	@Override
+	public void onStart(){
+		super.onStart();
 	}
 	    
     // ListViewカスタマイズ用のArrayAdapterに利用するクラス    
@@ -230,13 +256,13 @@ public class RoomActivity extends Activity {
 		}
 	}
 	
-	private ArrayList<YouRoomEntry> getRoomEntry(String roomId){
+	private ArrayList<YouRoomEntry> getRoomEntry(String roomId, Map<String, String> parameterMap){
 		
 		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
 		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
 		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
 		String roomTL = "";
-		roomTL= youRoomCommand.getRoomTimeLine(roomId);
+		roomTL= youRoomCommand.getRoomTimeLine(roomId, parameterMap);
 		
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 		
@@ -272,28 +298,30 @@ public class RoomActivity extends Activity {
 	public class GetRoomEntryTask extends AsyncTask<Void, Void, ArrayList<YouRoomEntry>> {
 		
 		private String roomId;
-		
-		public GetRoomEntryTask(String roomId){
+		private Map<String, String> parameterMap;
+		public GetRoomEntryTask(String roomId, Map<String, String> parameterMap){
 			this.roomId = roomId;
+			this.parameterMap = parameterMap;
 		}
 		
 		@Override
 		protected ArrayList<YouRoomEntry> doInBackground(Void... ids) {						
-			ArrayList<YouRoomEntry> dataList = getRoomEntry(roomId);
+			ArrayList<YouRoomEntry> dataList = getRoomEntry(roomId, parameterMap);
 			return dataList;
 		}
 				
 		@Override
 		protected void onPostExecute(ArrayList<YouRoomEntry> dataList){
+			int count = adapter.getCount();
 			Iterator iterator = dataList.iterator();
 			while( iterator.hasNext() ) {
 				adapter.add((YouRoomEntry) iterator.next());
 			}
 			adapter.notifyDataSetChanged();
+			listView.setSelection(count);
 			progressDialog.dismiss();
 		}
 	}
-
 	
 }
 
