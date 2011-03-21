@@ -16,7 +16,14 @@ public class YouRoomEntry implements Serializable{
 	private int descendantsCount;
 	private String participationName;
 	private String participationId;
+	private int level;
 	
+	public int getLevel() {
+		return level;
+	}
+	public void setLevel(int level) {
+		this.level = level;
+	}	
 	public int getDescendantsCount() {
 		return descendantsCount;
 	}

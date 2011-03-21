@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.Intent;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +28,7 @@ public class EntryActivity extends Activity {
 		
 	String roomId;
 	YouRoomChildEntryAdapter adapter;
+	ProgressDialog progressDialog;
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,12 +48,13 @@ public class EntryActivity extends Activity {
         
     	//TODO if String decodeResult = "";
     	ListView listView = (ListView)findViewById(R.id.listView1);
-		int level = 0;
 		
-		ArrayList<YouRoomChildEntry> dataList = getChild(roomId, entryId, level);
+		/*
+		int level = 0;
+		ArrayList<YouRoomEntry> dataList = getChild(roomId, entryId, level);
 		adapter = new YouRoomChildEntryAdapter(this, R.layout.entry_list_item, dataList);
 		listView.setAdapter(adapter);
-				
+		
 		for(int i=0; i< dataList.size(); i++){
 			try {
 				GetChildEntryTask task = new GetChildEntryTask(roomId);
@@ -61,8 +64,30 @@ public class EntryActivity extends Activity {
 				e.printStackTrace();
 			}
 		}
+		*/
+    	/*
+		progressDialog = new ProgressDialog(this);
+		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		progressDialog.setMessage("処理を実行中しています");
+		progressDialog.setCancelable(true);
+		progressDialog.show();
+    	*/
+		int level = -1;
+		youRoomEntry.setLevel(level);		
+		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
+		adapter = new YouRoomChildEntryAdapter(this, R.layout.entry_list_item, dataList);
+		listView.setAdapter(adapter);
+
+		GetChildEntryTask task = new GetChildEntryTask(roomId);
+		try {
+			task.execute(youRoomEntry);
+		} catch  (RejectedExecutionException e) {
+			// TODO AsyncTaskでは内部的にキューを持っていますが、このキューサイズを超えるタスクをexecuteすると、ブロックされずに例外が発生します。らしいので、一旦握りつぶしている
+			e.printStackTrace();
+		}	
 	}
 	
+	/*
     // ListViewカスタマイズ用のArrayAdapterに利用するクラス    
 	public class YouRoomChildEntry {
 
@@ -139,13 +164,14 @@ public class EntryActivity extends Activity {
 		}
 		
 	}
+	*/
     
     // ListViewカスタマイズ用のArrayAdapter
-	public class YouRoomChildEntryAdapter extends ArrayAdapter<YouRoomChildEntry> {
+	public class YouRoomChildEntryAdapter extends ArrayAdapter<YouRoomEntry> {
 		private LayoutInflater inflater;
-		private ArrayList<YouRoomChildEntry> items;
+		private ArrayList<YouRoomEntry> items;
 		
-		public YouRoomChildEntryAdapter( Context context, int textViewResourceId, ArrayList<YouRoomChildEntry> items) {
+		public YouRoomChildEntryAdapter( Context context, int textViewResourceId, ArrayList<YouRoomEntry> items) {
 			super(context, textViewResourceId, items);
 			this.items = items;
 			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -156,7 +182,7 @@ public class EntryActivity extends Activity {
 			if (convertView == null) {
 				view = inflater.inflate(R.layout.entry_list_item, null);				
 			}
-			YouRoomChildEntry roomEntry = (YouRoomChildEntry)this.getItem(position);
+			YouRoomEntry roomEntry = (YouRoomEntry)this.getItem(position);
 			TextView name = null;
 			TextView content = null;
 			TextView updateTime = null;
@@ -194,7 +220,7 @@ public class EntryActivity extends Activity {
 				}
 			}
 
-			ArrayList<YouRoomChildEntry> dataChildList = getChild(roomId, entryId, roomEntry.getLevel() + 1 );
+			ArrayList<YouRoomEntry> dataChildList = getChild(roomId, entryId, roomEntry.getLevel() + 1 );
 			
 			if ( dataChildList.size() > 0){
 				for (int i=0; i< dataChildList.size(); i++){
@@ -212,21 +238,21 @@ public class EntryActivity extends Activity {
 		}
 	}
 	
-	private ArrayList<YouRoomChildEntry> getChild(String roomId, String entryId, int level){
+	private ArrayList<YouRoomEntry> getChild(String roomId, String entryId, int level){
         YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());        
         HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
     	YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
     			    	
     	String entry = "";
     	entry = youRoomCommand.getEntry(roomId, entryId);
-		ArrayList<YouRoomChildEntry> dataList = new ArrayList<YouRoomChildEntry>();
+		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 		try {
 			JSONObject json = new JSONObject(entry);
 			if (json.getJSONObject("entry").has("children")){
 	    	JSONArray children = json.getJSONObject("entry").getJSONArray("children");
 	    	
 	    	for(int i =0 ; i< children.length(); i++){
-	    		YouRoomChildEntry roomChildEntry = new YouRoomChildEntry();
+	    		YouRoomEntry roomChildEntry = new YouRoomEntry();
 	    		
 		    	JSONObject childObject = children.getJSONObject(i);
 
@@ -252,10 +278,10 @@ public class EntryActivity extends Activity {
 		return dataList;
 	}
 	
-	public class GetChildEntryTask extends AsyncTask<YouRoomChildEntry, Void, ArrayList<YouRoomChildEntry>> {
+	public class GetChildEntryTask extends AsyncTask<YouRoomEntry, Void, ArrayList<YouRoomEntry>> {
 		
 		private String roomId;
-		private YouRoomChildEntry roomChildEntry;
+		private YouRoomEntry roomChildEntry;
 		private Object objLock = new Object();
 		
 		public GetChildEntryTask(String roomId){
@@ -263,12 +289,21 @@ public class EntryActivity extends Activity {
 		}
 
 		@Override
-		protected ArrayList<YouRoomChildEntry> doInBackground(YouRoomChildEntry... roomChildEntries) {
+		protected ArrayList<YouRoomEntry> doInBackground(YouRoomEntry... roomChildEntries) {
 			roomChildEntry = roomChildEntries[0];
 			String entryId = String.valueOf(roomChildEntry.getId());
 						
-			ArrayList<YouRoomChildEntry> dataList = getChild(roomId, entryId, roomChildEntry.getLevel() + 1 );
-			ArrayList<YouRoomChildEntry> dataChildList;
+			ArrayList<YouRoomEntry> dataList = getChild(roomId, entryId, roomChildEntry.getLevel() + 1 );
+			ArrayList<YouRoomEntry> dataChildList;
+			
+			if ( dataList.size() > 0){
+				for (int i=0; i< dataList.size(); i++){
+					GetChildEntryTask task = new GetChildEntryTask(roomId);
+					task.execute(dataList.get(i));
+				}
+			}
+
+			/*
 			for (int i=0; i< dataList.size(); i++){
 				String childEntryId = String.valueOf(dataList.get(i).getId());
 				Log.e("!!!","entryId = " + entryId);
@@ -279,13 +314,14 @@ public class EntryActivity extends Activity {
 						dataList.add(i+j+1, dataChildList.get(j));
 					}
 				}
-			}			
-			return dataList;
+			}
+			*/
 			
+			return dataList;			
 		}
 		
 		@Override
-		protected void onPostExecute(ArrayList<YouRoomChildEntry> dataChildList){
+		protected void onPostExecute(ArrayList<YouRoomEntry> dataChildList){
 			synchronized (objLock){
 				if (dataChildList.size() > 0) {
 					for (int i=0; i< dataChildList.size(); i++){
@@ -293,6 +329,7 @@ public class EntryActivity extends Activity {
 					}
 				}
 				adapter.notifyDataSetChanged();
+//				progressDialog.dismiss();
 			}
 
 		}			
