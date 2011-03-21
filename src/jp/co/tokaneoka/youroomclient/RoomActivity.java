@@ -134,24 +134,30 @@ public class RoomActivity extends Activity {
 			if ( content != null ){
 				content.setText(roomEntry.getContent());
 			}
-			
+
 			descendantsCount = (TextView)view.findViewById(R.id.textView4);
-			GetEntryTask task = new GetEntryTask(descendantsCount, roomId);
-			task.execute(roomEntry.getId());
-			
+			int count = roomEntry.getDescendantsCount();
+			if ( count == -1 ) {
+				GetEntryTask task = new GetEntryTask(descendantsCount, roomId, roomEntry);
+				task.execute(roomEntry.getId());
+			} else {
+				//TODO レイアウト修正直書き
+				descendantsCount.setText("[ " + count + "comments ] > ");
+			}
 			return view;
 		}
 	}
 	
 	public class GetEntryTask extends AsyncTask<Integer, Void, String> {
 		
-		private String entryId;
 		private String roomId;
 		String count;
 		private TextView textView;
+		private YouRoomEntry roomEntry;
 		
-		public GetEntryTask(TextView textView, String roomId){
+		public GetEntryTask(TextView textView, String roomId, YouRoomEntry roomEntry){
 			this.roomId = roomId;
+			this.roomEntry = roomEntry;
 			this.textView = textView;
 		}
 
@@ -169,6 +175,7 @@ public class RoomActivity extends Activity {
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
+			roomEntry.setDescendantsCount(Integer.valueOf(count));
 			return count;
 		}
 		

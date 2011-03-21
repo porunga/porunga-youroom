@@ -6,14 +6,14 @@ import java.io.Serializable;
 public class YouRoomEntry implements Serializable{
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private int id;
 	private String content;
 	private int rootId;
 	private int parentId;
 	private String createdTime;
 	private String updatedTime;
-	private int descendantsCount;
+	private int descendantsCount = -1;
 	private String participationName;
 	private String participationId;
 	private int level;

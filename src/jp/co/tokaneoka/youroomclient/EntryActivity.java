@@ -29,6 +29,8 @@ public class EntryActivity extends Activity {
 	String roomId;
 	YouRoomChildEntryAdapter adapter;
 	ProgressDialog progressDialog;
+	int parentEntryCount;
+	int requestCount;
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,39 +47,25 @@ public class EntryActivity extends Activity {
         roomId = intent.getStringExtra("roomId");
         YouRoomEntry youRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
         String entryId = String.valueOf(youRoomEntry.getId());
+        parentEntryCount = youRoomEntry.getDescendantsCount();
         
     	//TODO if String decodeResult = "";
     	ListView listView = (ListView)findViewById(R.id.listView1);
 		
-		/*
-		int level = 0;
-		ArrayList<YouRoomEntry> dataList = getChild(roomId, entryId, level);
-		adapter = new YouRoomChildEntryAdapter(this, R.layout.entry_list_item, dataList);
-		listView.setAdapter(adapter);
-		
-		for(int i=0; i< dataList.size(); i++){
-			try {
-				GetChildEntryTask task = new GetChildEntryTask(roomId);
-				task.execute(dataList.get(i));
-			} catch (RejectedExecutionException e) {
-				// TODO AsyncTaskでは内部的にキューを持っていますが、このキューサイズを超えるタスクをexecuteすると、ブロックされずに例外が発生します。らしいので、一旦握りつぶしている
-				e.printStackTrace();
-			}
-		}
-		*/
-    	/*
-		progressDialog = new ProgressDialog(this);
-		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+    	progressDialog = new ProgressDialog(this);
+		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		progressDialog.setMessage("処理を実行中しています");
+		progressDialog.setIndeterminate(false);
+		progressDialog.setMax(parentEntryCount);
 		progressDialog.setCancelable(true);
 		progressDialog.show();
-    	*/
+
 		int level = -1;
 		youRoomEntry.setLevel(level);		
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 		adapter = new YouRoomChildEntryAdapter(this, R.layout.entry_list_item, dataList);
 		listView.setAdapter(adapter);
-
+		
 		GetChildEntryTask task = new GetChildEntryTask(roomId);
 		try {
 			task.execute(youRoomEntry);
@@ -87,84 +75,6 @@ public class EntryActivity extends Activity {
 		}	
 	}
 	
-	/*
-    // ListViewカスタマイズ用のArrayAdapterに利用するクラス    
-	public class YouRoomChildEntry {
-
-		private int id;
-		private String content;
-		private int rootId;
-		private int parentId;
-		private String createdTime;
-		private String updatedTime;
-		private int descendantsCount;
-		private String participationName;
-		private String participationId;
-		private int level;
-		
-		public int getLevel() {
-			return level;
-		}
-		public void setLevel(int level) {
-			this.level = level;
-		}
-		public int getId() {
-			return id;
-		}
-		public void setId(int id) {
-			this.id = id;
-		}
-		public String getContent() {
-			return content;
-		}
-		public void setContent(String content) {
-			this.content = content;
-		}
-		public int getRootId() {
-			return rootId;
-		}
-		public void setRootId(int rootId) {
-			this.rootId = rootId;
-		}
-		public int getParentId() {
-			return parentId;
-		}
-		public void setParentId(int parentId) {
-			this.parentId = parentId;
-		}
-		public String getCreatedTime() {
-			return createdTime;
-		}
-		public void setCreatedTime(String createdTime) {
-			this.createdTime = createdTime;
-		}
-		public String getUpdatedTime() {
-			return updatedTime;
-		}
-		public void setUpdatedTime(String updatedTime) {
-			this.updatedTime = updatedTime;
-		}
-		public String getParticipationName() {
-			return participationName;
-		}
-		public void setParticipationName(String participationName) {
-			this.participationName = participationName;
-		}
-		public String getParticipationId() {
-			return participationId;
-		}
-		public void setParticipationId(String participationId) {
-			this.participationId = participationId;
-		}
-		public int getDescendantsCount() {
-			return descendantsCount;
-		}
-		public void setDescendantsCount(int descendantsCount) {
-			this.descendantsCount = descendantsCount;
-		}
-		
-	}
-	*/
     
     // ListViewカスタマイズ用のArrayAdapter
 	public class YouRoomChildEntryAdapter extends ArrayAdapter<YouRoomEntry> {
@@ -209,30 +119,6 @@ public class EntryActivity extends Activity {
 					commentLevel += "-> ";
 				level.setText(commentLevel);
 			}
-			/*
-			if ( !resultDataListId.contains(roomEntry.getId()) && !requestFinishedId.contains(roomEntry.getId())){
-				try {
-					GetChildEntryTask task = new GetChildEntryTask(roomId);
-					task.execute(roomEntry);
-				} catch (RejectedExecutionException e) {
-					// TODO AsyncTaskでは内部的にキューを持っていますが、このキューサイズを超えるタスクをexecuteすると、ブロックされずに例外が発生します。らしいので、一旦握りつぶしている
-					e.printStackTrace();
-				}
-			}
-
-			ArrayList<YouRoomEntry> dataChildList = getChild(roomId, entryId, roomEntry.getLevel() + 1 );
-			
-			if ( dataChildList.size() > 0){
-				for (int i=0; i< dataChildList.size(); i++){
-					if ( !resultDataListId.contains(dataChildList.get(i).getId()) ){
-						adapter.insert(dataChildList.get(i), position + i + 1);
-						resultDataListId.add(dataChildList.get(i).getId());
-					} else {
-					}
-				}
-				adapter.notifyDataSetChanged();
-			}
-			*/
 			
 			return view;
 		}
@@ -278,7 +164,7 @@ public class EntryActivity extends Activity {
 		return dataList;
 	}
 	
-	public class GetChildEntryTask extends AsyncTask<YouRoomEntry, Void, ArrayList<YouRoomEntry>> {
+	public class GetChildEntryTask extends AsyncTask<YouRoomEntry, Integer, ArrayList<YouRoomEntry>> {
 		
 		private String roomId;
 		private YouRoomEntry roomChildEntry;
@@ -287,14 +173,13 @@ public class EntryActivity extends Activity {
 		public GetChildEntryTask(String roomId){
 			this.roomId = roomId;
 		}
-
+		
 		@Override
 		protected ArrayList<YouRoomEntry> doInBackground(YouRoomEntry... roomChildEntries) {
 			roomChildEntry = roomChildEntries[0];
 			String entryId = String.valueOf(roomChildEntry.getId());
 						
 			ArrayList<YouRoomEntry> dataList = getChild(roomId, entryId, roomChildEntry.getLevel() + 1 );
-			ArrayList<YouRoomEntry> dataChildList;
 			
 			if ( dataList.size() > 0){
 				for (int i=0; i< dataList.size(); i++){
@@ -302,22 +187,14 @@ public class EntryActivity extends Activity {
 					task.execute(dataList.get(i));
 				}
 			}
-
-			/*
-			for (int i=0; i< dataList.size(); i++){
-				String childEntryId = String.valueOf(dataList.get(i).getId());
-				Log.e("!!!","entryId = " + entryId);
-				dataChildList = getChild(roomId, childEntryId, dataList.get(i).getLevel() + 1 );
-				int listSize = dataChildList.size();
-				if (listSize > 0) {
-					for (int j = 0; j< listSize; j++){
-						dataList.add(i+j+1, dataChildList.get(j));
-					}
-				}
-			}
-			*/
 			
-			return dataList;			
+			return dataList;
+		}
+		
+		
+		@Override
+		protected void onProgressUpdate(Integer... progress) {
+			progressDialog.setProgress(progress[0]);
 		}
 		
 		@Override
@@ -328,10 +205,14 @@ public class EntryActivity extends Activity {
 						adapter.insert(dataChildList.get(i), adapter.getPosition(roomChildEntry) + i + 1);
 					}
 				}
-				adapter.notifyDataSetChanged();
-//				progressDialog.dismiss();
+				requestCount++;
+				publishProgress(requestCount);			
+				Log.e("count", "requestCount = " + requestCount);
 			}
-
+			adapter.notifyDataSetChanged();
+			//親が一回呼ばれるので+1
+			if ( parentEntryCount <= requestCount +1 )
+				progressDialog.dismiss();
 		}			
 	}
 	
