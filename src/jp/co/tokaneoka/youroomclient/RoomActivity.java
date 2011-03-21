@@ -6,9 +6,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import jp.co.tokaneoka.youroomclient.R;
-import jp.co.tokaneoka.youroomclient.EntryActivity.YouRoomChildEntry;
-import jp.co.tokaneoka.youroomclient.GroupActivity.GetGroupTask;
-import jp.co.tokaneoka.youroomclient.GroupActivity.YouRoomGroup;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,12 +21,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class RoomActivity extends Activity {
     /** Called when the activity is first created. */
@@ -90,7 +85,7 @@ public class RoomActivity extends Activity {
 					YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
 					Intent intent = new Intent(getApplication(), EntryActivity.class);
 					intent.putExtra("roomId", String.valueOf(roomId) );
-					intent.putExtra("entryId", String.valueOf(item.getId()));
+					intent.putExtra("youRoomEntry", item);
 					startActivity(intent);
 				}
 			}
@@ -102,79 +97,7 @@ public class RoomActivity extends Activity {
 	public void onStart(){
 		super.onStart();
 	}
-	    
-    // ListViewカスタマイズ用のArrayAdapterに利用するクラス    
-	public class YouRoomEntry {
-
-		private int id;
-		private String content;
-		private int rootId;
-		private int parentId;
-		private String createdTime;
-		private String updatedTime;
-		private int descendantsCount;
-		
-		public int getDescendantsCount() {
-			return descendantsCount;
-		}
-		public void setDescendantsCount(int descendantsCount) {
-			this.descendantsCount = descendantsCount;
-		}
-		
-		private String participationName;
-		private String participationId;
-		
-		public int getId() {
-			return id;
-		}
-		public void setId(int id) {
-			this.id = id;
-		}
-		public String getContent() {
-			return content;
-		}
-		public void setContent(String content) {
-			this.content = content;
-		}
-		public int getRootId() {
-			return rootId;
-		}
-		public void setRootId(int rootId) {
-			this.rootId = rootId;
-		}
-		public int getParentId() {
-			return parentId;
-		}
-		public void setParentId(int parentId) {
-			this.parentId = parentId;
-		}
-		public String getCreatedTime() {
-			return createdTime;
-		}
-		public void setCreatedTime(String createdTime) {
-			this.createdTime = createdTime;
-		}
-		public String getUpdatedTime() {
-			return updatedTime;
-		}
-		public void setUpdatedTime(String updatedTime) {
-			this.updatedTime = updatedTime;
-		}
-		public String getParticipationName() {
-			return participationName;
-		}
-		public void setParticipationName(String participationName) {
-			this.participationName = participationName;
-		}
-		public String getParticipationId() {
-			return participationId;
-		}
-		public void setParticipationId(String participationId) {
-			this.participationId = participationId;
-		}
-		
-	}
-    
+	
     // ListViewカスタマイズ用のArrayAdapter
 	public class YouRoomEntryAdapter extends ArrayAdapter<YouRoomEntry> {
 		private LayoutInflater inflater;

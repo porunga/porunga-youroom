@@ -27,7 +27,7 @@ public class EntryActivity extends Activity {
 		
 	String roomId;
 	YouRoomChildEntryAdapter adapter;
-	
+
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,8 +40,9 @@ public class EntryActivity extends Activity {
         setContentView(R.layout.main);
 		
         Intent intent = getIntent();
-        roomId = intent.getStringExtra("roomId");        
-        String entryId = intent.getStringExtra("entryId");
+        roomId = intent.getStringExtra("roomId");
+        YouRoomEntry youRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
+        String entryId = String.valueOf(youRoomEntry.getId());
         
     	//TODO if String decodeResult = "";
     	ListView listView = (ListView)findViewById(R.id.listView1);
@@ -50,7 +51,7 @@ public class EntryActivity extends Activity {
 		ArrayList<YouRoomChildEntry> dataList = getChild(roomId, entryId, level);
 		adapter = new YouRoomChildEntryAdapter(this, R.layout.entry_list_item, dataList);
 		listView.setAdapter(adapter);
-		
+				
 		for(int i=0; i< dataList.size(); i++){
 			try {
 				GetChildEntryTask task = new GetChildEntryTask(roomId);
