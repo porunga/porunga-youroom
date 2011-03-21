@@ -15,6 +15,7 @@ import android.content.SharedPreferences.Editor;
 public class YouRoomUtil extends ContextWrapper {
 
 	private static final String PREFERENCE_KEY = "AccessToken";
+	private static final String LAST_ACCESS_TIME_KEY = "LastAccessTime";
 	SharedPreferences sharedpref;
 	String TOKEN_MAP_KEY = "oauth_token";
 	String TOKEN_SECRET_MAP_KEY = "oauth_token_secret";
@@ -59,6 +60,29 @@ public class YouRoomUtil extends ContextWrapper {
 		return check;
 	}
 
+	public boolean removeAccessTimeFromLocal(String roomId){
+		
+		boolean check = false;
+		String key = "LastAccessTime_" + roomId;
+    	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, MODE_PRIVATE);
+    	Editor editor = sharedpref.edit();
+    	editor.putString(key, null);
+    	check = editor.commit();
+    	return check;
+	}
+	
+	public boolean storeAccessTimeToLocal(String roomId, String RFC3339FormattedTime){
+		
+		boolean check = false;
+		String key = "LastAccessTime_" + roomId;
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
+		Editor editor = sharedpref.edit();
+		editor.putString(key, RFC3339FormattedTime);
+		check = editor.commit();
+		return check;
+	}
+
+	
 	public boolean isLogined() {
 		
 		boolean check = false;
@@ -75,26 +99,14 @@ public class YouRoomUtil extends ContextWrapper {
 		return check;
 	}
 
-	
 	// "2011-03-02T12:46:06Z" -> "2011/03/02 21:46:06"
     public static String convertDatetime(String unformattedTime) {
+    	//åªç›éûçèÇ∆éwíËì˙Ç∆ÇÃç∑Çï\é¶Ç∑ÇÈ
     	
-    	String[] updateTimes = unformattedTime.substring(0, unformattedTime.length() -1).split("T");
-    	String[] date = updateTimes[0].split("-");
-    	String[] times = updateTimes[1].split(":");
-    	int year = Integer.parseInt(date[0]);
-    	int month = Integer.parseInt(date[1]);
-    	int day = Integer.parseInt(date[2]);
-    	int hour = Integer.parseInt(times[0]);
-    	int minute = Integer.parseInt(times[1]);
-    	int second = Integer.parseInt(times[2]);
-    	
-    	Calendar cal = new GregorianCalendar(year, month ,day, hour, minute, second);
-    	cal.add(Calendar.HOUR, 9);
-
-    	Calendar currentCal = new GregorianCalendar(Locale.JAPAN);
+    	Calendar cal = getDesignatedCalendar(unformattedTime);
+    	Calendar currentCal = getCurrentCalendar();
     	currentCal.add(Calendar.MONTH, 1);
-    	
+
     	Calendar displayCal = new GregorianCalendar();
     	long milliseconds = currentCal.getTimeInMillis() - cal.getTimeInMillis();
     	displayCal.setTimeInMillis(milliseconds);
@@ -113,8 +125,42 @@ public class YouRoomUtil extends ContextWrapper {
     	} else {
     		return cal.get(Calendar.MONTH) +"/" + cal.get(Calendar.DAY_OF_MONTH) + " " + format.format(cal.getTime());
     	}
+    }
+        
+    public static Calendar getDesignatedCalendar(String unformattedTime) {
     	
-	}
+    	String[] updateTimes = unformattedTime.substring(0, unformattedTime.length() -1).split("T");
+    	String[] date = updateTimes[0].split("-");
+    	String[] times = updateTimes[1].split(":");
+    	int year = Integer.parseInt(date[0]);
+    	int month = Integer.parseInt(date[1]);
+    	int day = Integer.parseInt(date[2]);
+    	int hour = Integer.parseInt(times[0]);
+    	int minute = Integer.parseInt(times[1]);
+    	int second = Integer.parseInt(times[2]);
+    	
+    	Calendar cal = new GregorianCalendar(year, month ,day, hour, minute, second);
+    	cal.add(Calendar.HOUR, 9);
+    	
+    	return cal;
+    }
 
+    public static Calendar getCurrentCalendar() {
+    	
+    	Calendar currentCal = new GregorianCalendar(Locale.JAPAN);
+    	
+    	return currentCal;
+    }
+    
+    public static String getRFC3339FormattedTime() {
 
+    	Calendar calendar = getCurrentCalendar();    	
+    	calendar.add(Calendar.DAY_OF_MONTH, -1);
+    	calendar.add(Calendar.HOUR, 3);
+    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'hh:m:ss'Z'");
+    	String result = format.format(calendar.getTime());
+    	
+    	return result;
+    }
+    
 }

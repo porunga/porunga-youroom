@@ -47,11 +47,10 @@ public class LoginActivity extends Activity implements OnClickListener {
 		EditText passwordText = (EditText)findViewById(R.id.login_password);
 		password = passwordText.getText().toString();
 		intent = new Intent(this, distActivity); 
-		toast = Toast.makeText(this, "ログイン失敗", Toast.LENGTH_SHORT);
+		toast = Toast.makeText(this, "ログインに失敗しました", Toast.LENGTH_SHORT);
 		
 		dialog = new ProgressDialog(this);
-		dialog.setTitle("ログイン");
-		dialog.setMessage("ログイン中...");
+		dialog.setMessage("ログインしています");
 		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 		dialog.show();  
 		

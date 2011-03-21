@@ -53,12 +53,8 @@ public class EntryActivity extends Activity {
     	ListView listView = (ListView)findViewById(R.id.listView1);
 		
     	progressDialog = new ProgressDialog(this);
-		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		progressDialog.setMessage("処理を実行中しています");
-		progressDialog.setIndeterminate(false);
-		progressDialog.setMax(parentEntryCount);
-		progressDialog.setCancelable(true);
-		progressDialog.show();
+    	setProgressDialog(progressDialog);
+    	progressDialog.show();
 
 		int level = -1;
 		youRoomEntry.setLevel(level);		
@@ -75,7 +71,6 @@ public class EntryActivity extends Activity {
 		}	
 	}
 	
-    
     // ListViewカスタマイズ用のArrayAdapter
 	public class YouRoomChildEntryAdapter extends ArrayAdapter<YouRoomEntry> {
 		private LayoutInflater inflater;
@@ -124,7 +119,7 @@ public class EntryActivity extends Activity {
 		}
 	}
 	
-	private ArrayList<YouRoomEntry> getChild(String roomId, String entryId, int level){
+	private ArrayList<YouRoomEntry> getChildEntryList(String roomId, String entryId, int level){
         YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());        
         HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
     	YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
@@ -179,7 +174,7 @@ public class EntryActivity extends Activity {
 			roomChildEntry = roomChildEntries[0];
 			String entryId = String.valueOf(roomChildEntry.getId());
 						
-			ArrayList<YouRoomEntry> dataList = getChild(roomId, entryId, roomChildEntry.getLevel() + 1 );
+			ArrayList<YouRoomEntry> dataList = getChildEntryList(roomId, entryId, roomChildEntry.getLevel() + 1 );
 			
 			if ( dataList.size() > 0){
 				for (int i=0; i< dataList.size(); i++){
@@ -190,7 +185,6 @@ public class EntryActivity extends Activity {
 			
 			return dataList;
 		}
-		
 		
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
@@ -214,6 +208,14 @@ public class EntryActivity extends Activity {
 			if ( parentEntryCount <= requestCount +1 )
 				progressDialog.dismiss();
 		}			
+	}
+	
+	public void setProgressDialog(ProgressDialog progressDialog){
+		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		progressDialog.setMessage("処理を実行中しています");
+		progressDialog.setIndeterminate(false);
+		progressDialog.setMax(parentEntryCount);
+		progressDialog.setCancelable(true);
 	}
 	
 }

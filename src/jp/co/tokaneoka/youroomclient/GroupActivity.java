@@ -24,9 +24,7 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class GroupActivity extends Activity {
@@ -35,7 +33,7 @@ public class GroupActivity extends Activity {
 	private final int REACQUIRE_GROUP = 2;
 	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 	private YouRoomGroupAdapter adapter;
-	ProgressDialog progressDialog;	
+	private ProgressDialog progressDialog;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,16 +56,12 @@ public class GroupActivity extends Activity {
 
         } else {
             setContentView(R.layout.group_view);
-    		ListView listView = (ListView)findViewById(R.id.listView1);
- 
-    		ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
-
-    		progressDialog = new ProgressDialog(this);
-    		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-    		progressDialog.setMessage("処理を実行中しています");
-    		progressDialog.setCancelable(true);
+           	progressDialog = new ProgressDialog(this);
+    		setProgressDialog(progressDialog);
     		progressDialog.show();
-    		
+            
+    		ListView listView = (ListView)findViewById(R.id.listView1);
+    		ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();    		
 			GetGroupTask task = new GetGroupTask();
 			task.execute();
     					
@@ -110,10 +104,8 @@ public class GroupActivity extends Activity {
         	ret = true;
 	    	break;
         case REACQUIRE_GROUP:
-    		progressDialog = new ProgressDialog(this);
-    		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-    		progressDialog.setMessage("処理を実行中しています");
-    		progressDialog.setCancelable(true);
+           	progressDialog = new ProgressDialog(this);
+    		setProgressDialog(progressDialog);
     		progressDialog.show();
 			GetGroupTask task = new GetGroupTask();
 			task.execute();
@@ -125,55 +117,6 @@ public class GroupActivity extends Activity {
         }    
         return ret;
     }
-
-    // ListViewカスタマイズ用のArrayAdapterに利用するクラス    
-	public class YouRoomGroup {
-
-		private int id;
-		private int roomId;
-		private String createdTime;
-		private String updatedTime;
-		private String name;
-		private boolean opened;
-
-		public int getId() {
-			return id;
-		}
-		public void setId(int id) {
-			this.id = id;
-		}
-		public int getRoomId() {
-			return roomId;
-		}
-		public void setRoomId(int roomId) {
-			this.roomId = roomId;
-		}
-		public String getCreatedTime() {
-			return createdTime;
-		}
-		public void setCreatedTime(String createdTime) {
-			this.createdTime = createdTime;
-		}
-		public String getUpdatedTime() {
-			return updatedTime;
-		}
-		public void setUpdatedTime(String updatedTime) {
-			this.updatedTime = updatedTime;
-		}
-		public String getName() {
-			return name;
-		}
-		public void setName(String name) {
-			this.name = name;
-		}
-		public boolean isOpened() {
-			return opened;
-		}
-		public void setOpened(boolean opened) {
-			this.opened = opened;
-		}
-				
-	}
     
     // ListViewカスタマイズ用のArrayAdapter
 	public class YouRoomGroupAdapter extends ArrayAdapter<YouRoomGroup> {
@@ -210,7 +153,10 @@ public class GroupActivity extends Activity {
 		}
 	}
 	
-	private ArrayList<YouRoomGroup> getGroup(){
+	private ArrayList<YouRoomGroup> getMyGroupList(){
+		
+		// input
+		// output [YouRoomGroup...] or []
 		
         YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
         HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
@@ -249,7 +195,7 @@ public class GroupActivity extends Activity {
 				
 		@Override
 		protected ArrayList<YouRoomGroup> doInBackground(Void... ids) {						
-			ArrayList<YouRoomGroup> dataList = getGroup();
+			ArrayList<YouRoomGroup> dataList = getMyGroupList();
 			return dataList;
 		}
 				
@@ -263,6 +209,11 @@ public class GroupActivity extends Activity {
 			progressDialog.dismiss();
 		}
 	}
-
+	
+	public void setProgressDialog(ProgressDialog progressDialog){
+		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		progressDialog.setMessage("処理を実行中しています");
+		progressDialog.setCancelable(true);
+	}
 	
 }

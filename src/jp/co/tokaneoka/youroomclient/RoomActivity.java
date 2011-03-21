@@ -25,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class RoomActivity extends Activity {
     /** Called when the activity is first created. */
@@ -47,30 +48,28 @@ public class RoomActivity extends Activity {
 
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 		
-		progressDialog = new ProgressDialog(this);
-		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		progressDialog.setMessage("処理を実行中しています");
-		progressDialog.setCancelable(true);
+       	progressDialog = new ProgressDialog(this);
+		setProgressDialog(progressDialog);
 		progressDialog.show();
 		
+		// RoomEntryの取得
 	   	Map<String, String> parameterMap = new HashMap<String, String>();
     	parameterMap.put("page", String.valueOf(page));
 		GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap);
 		task.execute();
 		page ++;
 		
+		// FooterViewの設定
 		final TextView textview = new TextView(this);
 		textview.setText("-----読み込み-----");
 		textview.setMinHeight(50);
-		textview.setBackgroundColor(Color.WHITE);
-				
+		textview.setBackgroundColor(Color.WHITE);				
 		listView.addFooterView(textview);
 
 		adapter = new YouRoomEntryAdapter(this, R.layout.room_list_item, dataList);
 		listView.setAdapter(adapter);
     		
-		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {	
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				if(view == textview){
@@ -83,10 +82,14 @@ public class RoomActivity extends Activity {
 				} else {
 					ListView listView = (ListView) parent;
 					YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
-					Intent intent = new Intent(getApplication(), EntryActivity.class);
-					intent.putExtra("roomId", String.valueOf(roomId) );
-					intent.putExtra("youRoomEntry", item);
-					startActivity(intent);
+					if (item.getDescendantsCount() == -1){
+						Toast.makeText(getApplication(), "読み込み中です。もう少しおまちくださいませ。", Toast.LENGTH_SHORT).show();
+					} else {
+						Intent intent = new Intent(getApplication(), EntryActivity.class);
+						intent.putExtra("roomId", String.valueOf(roomId) );
+						intent.putExtra("youRoomEntry", item);
+						startActivity(intent);
+					}
 				}
 			}
 		});
@@ -186,7 +189,7 @@ public class RoomActivity extends Activity {
 		}
 	}
 	
-	private ArrayList<YouRoomEntry> getRoomEntry(String roomId, Map<String, String> parameterMap){
+	private ArrayList<YouRoomEntry> getRoomEntryList(String roomId, Map<String, String> parameterMap){
 		
 		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
 		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
@@ -236,7 +239,7 @@ public class RoomActivity extends Activity {
 		
 		@Override
 		protected ArrayList<YouRoomEntry> doInBackground(Void... ids) {						
-			ArrayList<YouRoomEntry> dataList = getRoomEntry(roomId, parameterMap);
+			ArrayList<YouRoomEntry> dataList = getRoomEntryList(roomId, parameterMap);
 			return dataList;
 		}
 				
@@ -252,6 +255,13 @@ public class RoomActivity extends Activity {
 			progressDialog.dismiss();
 		}
 	}
+	
+	public void setProgressDialog(ProgressDialog progressDialog){
+		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		progressDialog.setMessage("処理を実行中しています");
+		progressDialog.setCancelable(true);
+	}
+
 	
 }
 
