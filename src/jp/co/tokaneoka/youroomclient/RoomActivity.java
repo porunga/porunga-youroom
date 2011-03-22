@@ -150,8 +150,8 @@ public class RoomActivity extends Activity {
 				descendantsCount.setText("[ " + count + "comments ] > ");
 			}
 
-			int compareResult = YouRoomUtil.calendarCompareTo(group.getLastAccessTime(), roomEntry.getUpdatedTime());
 			if ( group.getLastAccessTime() != null ){
+				int compareResult = YouRoomUtil.calendarCompareTo(group.getLastAccessTime(), roomEntry.getUpdatedTime());
 				if ( compareResult < 0 ){
 					createdTime.setTextColor(Color.RED);
 				}

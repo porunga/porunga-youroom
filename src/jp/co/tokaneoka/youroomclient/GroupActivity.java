@@ -151,8 +151,8 @@ public class GroupActivity extends Activity {
 				updateTime.setText(YouRoomUtil.convertDatetime(group.getUpdatedTime()));
 			}
 
-			int compareResult = YouRoomUtil.calendarCompareTo(group.getLastAccessTime(), group.getUpdatedTime());
 			if ( group.getLastAccessTime() != null ){
+				int compareResult = YouRoomUtil.calendarCompareTo(group.getLastAccessTime(), group.getUpdatedTime());
 				if ( compareResult < 0 ){
 					updateTime.setTextColor(Color.RED);
 				}

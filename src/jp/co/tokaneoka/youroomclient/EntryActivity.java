@@ -117,9 +117,9 @@ public class EntryActivity extends Activity {
 					commentLevel += "-> ";
 				level.setText(commentLevel);
 			}
-			
-			int compareResult = YouRoomUtil.calendarCompareTo(group.getLastAccessTime(), roomEntry.getUpdatedTime());
+
 			if ( group.getLastAccessTime() != null ){
+				int compareResult = YouRoomUtil.calendarCompareTo(group.getLastAccessTime(), roomEntry.getUpdatedTime());
 				if ( compareResult < 0 ){
 					updateTime.setTextColor(Color.RED);
 				}
