@@ -35,7 +35,7 @@ public class RoomActivity extends Activity {
 	ProgressDialog progressDialog;
 	private ListView listView;
 	private int page = 1;
-
+	private YouRoomGroup group;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +44,7 @@ public class RoomActivity extends Activity {
 		
         Intent intent = getIntent();
         roomId = intent.getStringExtra("roomId");
+        group = (YouRoomGroup) intent.getSerializableExtra("group");
 		listView = (ListView)findViewById(R.id.listView1);
 
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
@@ -88,6 +89,7 @@ public class RoomActivity extends Activity {
 						Intent intent = new Intent(getApplication(), EntryActivity.class);
 						intent.putExtra("roomId", String.valueOf(roomId) );
 						intent.putExtra("youRoomEntry", item);
+						intent.putExtra("group", group);
 						startActivity(intent);
 					}
 				}
@@ -132,7 +134,7 @@ public class RoomActivity extends Activity {
 				name.setText(roomEntry.getParticipationName());
 			}
 			if ( createdTime != null ){
-				createdTime.setText(roomEntry.getCreatedTime());
+				createdTime.setText(YouRoomUtil.convertDatetime(roomEntry.getCreatedTime()));
 			}
 			if ( content != null ){
 				content.setText(roomEntry.getContent());
@@ -147,6 +149,14 @@ public class RoomActivity extends Activity {
 				//TODO レイアウト修正直書き
 				descendantsCount.setText("[ " + count + "comments ] > ");
 			}
+
+			int compareResult = YouRoomUtil.calendarCompareTo(group.getLastAccessTime(), roomEntry.getUpdatedTime());
+			if ( group.getLastAccessTime() != null ){
+				if ( compareResult < 0 ){
+					createdTime.setTextColor(Color.RED);
+				}
+			}
+			
 			return view;
 		}
 	}
@@ -210,14 +220,13 @@ public class RoomActivity extends Activity {
 				String participationName = entryObject.getJSONObject("participation").getString("name");
 				String content = entryObject.getString("content");
     		    
-				String formattedTime = "";
-				String unformattedTime = entryObject.getString("created_at");
-    		    	
-				formattedTime = YouRoomUtil.convertDatetime(unformattedTime);				
+				String createdTime = entryObject.getString("created_at");
+				String updatedTime = entryObject.getString("updated_at");
 				
 				roomEntry.setId(id);
+				roomEntry.setUpdatedTime(updatedTime);
 				roomEntry.setParticipationName(participationName);
-				roomEntry.setCreatedTime(formattedTime);
+				roomEntry.setCreatedTime(createdTime);
 				roomEntry.setContent(content);
     		    	
 				dataList.add(roomEntry);

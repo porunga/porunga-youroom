@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
@@ -31,6 +32,7 @@ public class EntryActivity extends Activity {
 	ProgressDialog progressDialog;
 	int parentEntryCount;
 	int requestCount;
+	private YouRoomGroup group;
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,7 @@ public class EntryActivity extends Activity {
 		
         Intent intent = getIntent();
         roomId = intent.getStringExtra("roomId");
+        group = (YouRoomGroup) intent.getSerializableExtra("group");
         YouRoomEntry youRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
         String entryId = String.valueOf(youRoomEntry.getId());
         parentEntryCount = youRoomEntry.getDescendantsCount();
@@ -103,7 +106,7 @@ public class EntryActivity extends Activity {
 				name.setText(roomEntry.getParticipationName());
 			}
 			if ( updateTime != null ){
-				updateTime.setText(roomEntry.getUpdatedTime());
+				updateTime.setText(YouRoomUtil.convertDatetime(roomEntry.getUpdatedTime()));
 			}
 			if ( content != null ){
 				content.setText(roomEntry.getContent());
@@ -115,6 +118,12 @@ public class EntryActivity extends Activity {
 				level.setText(commentLevel);
 			}
 			
+			int compareResult = YouRoomUtil.calendarCompareTo(group.getLastAccessTime(), roomEntry.getUpdatedTime());
+			if ( group.getLastAccessTime() != null ){
+				if ( compareResult < 0 ){
+					updateTime.setTextColor(Color.RED);
+				}
+			}			
 			return view;
 		}
 	}
@@ -140,14 +149,14 @@ public class EntryActivity extends Activity {
 		    	int id = childObject.getInt("id");
 		    	String participationName = childObject.getJSONObject("participation").getString("name");
 		    	String jcontent = childObject.getString("content");
-		    	String formattedTime = "";
-		    	String unformattedTime = childObject.getString("created_at");
-		    		
-		    	formattedTime = YouRoomUtil.convertDatetime(unformattedTime);
-
+		    	
+		    	String createdTime = childObject.getString("created_at");
+				String updatedTime = childObject.getString("updated_at");
+				
 		    	roomChildEntry.setId(id);
 		    	roomChildEntry.setParticipationName(participationName);
-		    	roomChildEntry.setUpdatedTime(formattedTime);
+		    	roomChildEntry.setCreatedTime(createdTime);
+				roomChildEntry.setUpdatedTime(updatedTime);
 		    	roomChildEntry.setContent(jcontent);
 		    	roomChildEntry.setLevel(level);
 		    	dataList.add(roomChildEntry);

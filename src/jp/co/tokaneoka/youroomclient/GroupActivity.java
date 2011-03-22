@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -59,7 +60,7 @@ public class GroupActivity extends Activity {
            	progressDialog = new ProgressDialog(this);
     		setProgressDialog(progressDialog);
     		progressDialog.show();
-            
+    		
     		ListView listView = (ListView)findViewById(R.id.listView1);
     		ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();    		
 			GetGroupTask task = new GetGroupTask();
@@ -75,6 +76,7 @@ public class GroupActivity extends Activity {
     	            YouRoomGroup item = (YouRoomGroup) listView.getItemAtPosition(position);
     	            Intent intent = new Intent(getApplication(), RoomActivity.class);
     	            intent.putExtra("roomId", String.valueOf(item.getId()));
+    	            intent.putExtra("group", item);
     	            startActivity(intent);
     	        }
     	    });
@@ -146,9 +148,15 @@ public class GroupActivity extends Activity {
 				name.setText(group.getName());
 			}
 			if ( updateTime != null ){
-				updateTime.setText(group.getUpdatedTime());
+				updateTime.setText(YouRoomUtil.convertDatetime(group.getUpdatedTime()));
 			}
-			
+
+			int compareResult = YouRoomUtil.calendarCompareTo(group.getLastAccessTime(), group.getUpdatedTime());
+			if ( group.getLastAccessTime() != null ){
+				if ( compareResult < 0 ){
+					updateTime.setTextColor(Color.RED);
+				}
+			}
 			return view;
 		}
 	}
@@ -174,20 +182,26 @@ public class GroupActivity extends Activity {
 		    	int id = groupObject.getInt("id");
 		    	String name = groupObject.getString("name");
 		    	
-		    	String formattedTime = "";
-		    	String unformattedTime = groupObject.getString("updated_at");
-		    	
-		    	formattedTime = YouRoomUtil.convertDatetime(unformattedTime);
+		    	String createdTime = groupObject.getString("created_at");
+		    	String updatedTime = groupObject.getString("updated_at");
 
 		    	group.setId(id);
 		    	group.setName(name);
-		    	group.setUpdatedTime(formattedTime);
+		    	group.setUpdatedTime(updatedTime);
+		    	group.setCreatedTime(createdTime);
+		    	
+		    	//暫定的なチェック
+		    	String lastAccessTime = youRoomUtil.getAccessTimeFromLocal(id);
+		    	group.setLastAccessTime(lastAccessTime);
+		    	String time = YouRoomUtil.getRFC3339FormattedTime();
+		    	youRoomUtil.storeAccessTimeToLocal(id, time);
 		    	
 	    		dataList.add(group);
 	    	}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+				
 		return dataList;
 	}
 

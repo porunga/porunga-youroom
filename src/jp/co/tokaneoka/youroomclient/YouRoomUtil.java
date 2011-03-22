@@ -60,7 +60,17 @@ public class YouRoomUtil extends ContextWrapper {
 		return check;
 	}
 
-	public boolean removeAccessTimeFromLocal(String roomId){
+	
+	public String getAccessTimeFromLocal(int roomId){
+				
+		String key = "LastAccessTime_" + roomId;
+    	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
+		String lastAccessTime = sharedpref.getString(key, null);		
+		
+		return lastAccessTime;
+	}
+	
+	public boolean removeAccessTimeFromLocal(int roomId){
 		
 		boolean check = false;
 		String key = "LastAccessTime_" + roomId;
@@ -71,7 +81,7 @@ public class YouRoomUtil extends ContextWrapper {
     	return check;
 	}
 	
-	public boolean storeAccessTimeToLocal(String roomId, String RFC3339FormattedTime){
+	public boolean storeAccessTimeToLocal(int roomId, String RFC3339FormattedTime){
 		
 		boolean check = false;
 		String key = "LastAccessTime_" + roomId;
@@ -156,11 +166,20 @@ public class YouRoomUtil extends ContextWrapper {
 
     	Calendar calendar = getCurrentCalendar();    	
     	calendar.add(Calendar.DAY_OF_MONTH, -1);
-    	calendar.add(Calendar.HOUR, 3);
-    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'hh:m:ss'Z'");
+    	calendar.add(Calendar.HOUR_OF_DAY, 15);
+    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:m:ss'Z'");
     	String result = format.format(calendar.getTime());
     	
     	return result;
     }
+    
+    public static int calendarCompareTo(String unformattedTime1, String unformattedTime2) {
+
+    	int result = 0;
+    	Calendar cal1 = getDesignatedCalendar(unformattedTime1);
+    	Calendar cal2 = getDesignatedCalendar(unformattedTime2);
+    	result = cal1.compareTo(cal2); // cal1‚ªŽžŠÔ“I‚É‘O‚È‚ç-1
+		return result;
+     }
     
 }

@@ -1,7 +1,9 @@
 package jp.co.tokaneoka.youroomclient;
 
+import java.io.Serializable;
+
 // ListViewカスタマイズ用のArrayAdapterに利用するクラス    
-public class YouRoomGroup {
+public class YouRoomGroup implements Serializable{
 
 	private int id;
 	private int roomId;
@@ -9,7 +11,14 @@ public class YouRoomGroup {
 	private String updatedTime;
 	private String name;
 	private boolean opened;
-
+	private String lastAccessTime = null;
+	
+	public String getLastAccessTime() {
+		return lastAccessTime;
+	}
+	public void setLastAccessTime(String lastAccessTime) {
+		this.lastAccessTime = lastAccessTime;
+	}
 	public int getId() {
 		return id;
 	}
