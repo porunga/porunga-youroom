@@ -167,7 +167,7 @@ public class YouRoomUtil extends ContextWrapper {
     	Calendar calendar = getCurrentCalendar();    	
     	calendar.add(Calendar.DAY_OF_MONTH, -1);
     	calendar.add(Calendar.HOUR_OF_DAY, 15);
-    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:m:ss'Z'");
+    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     	String result = format.format(calendar.getTime());
     	
     	return result;

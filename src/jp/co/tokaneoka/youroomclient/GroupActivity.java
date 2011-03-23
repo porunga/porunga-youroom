@@ -109,6 +109,7 @@ public class GroupActivity extends Activity {
            	progressDialog = new ProgressDialog(this);
     		setProgressDialog(progressDialog);
     		progressDialog.show();
+    		adapter.clear();
 			GetGroupTask task = new GetGroupTask();
 			task.execute();
 			ret =true;
