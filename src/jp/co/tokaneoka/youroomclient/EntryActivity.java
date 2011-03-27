@@ -114,7 +114,7 @@ public class EntryActivity extends Activity {
 			if ( level != null ){
 				String commentLevel = "";
 				for(int i=0; i < roomEntry.getLevel(); i++)
-					commentLevel += "-> ";
+					commentLevel += "> ";
 				level.setText(commentLevel);
 			}
 

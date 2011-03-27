@@ -45,7 +45,7 @@ public class CheckUpdateService extends Service {
 		}
 		
 		CheckUpdateEntryTask task = new CheckUpdateEntryTask();
-		Toast.makeText(this, checkTime + "(昨日まで)の更新をチェックします。", Toast.LENGTH_LONG).show();
+		Toast.makeText(this, "24時間前から現在までの間に更新のあったエントリをチェックします。", Toast.LENGTH_LONG).show();
 		task.execute(encodedCheckTime);
 		
 	}
