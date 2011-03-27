@@ -32,6 +32,8 @@ public class GroupActivity extends Activity {
 
 	private final int DELETE_TOKEN = 1;
 	private final int REACQUIRE_GROUP = 2;
+	private final int CHECK_UPDATE = 3;
+	
 	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 	private YouRoomGroupAdapter adapter;
 	private ProgressDialog progressDialog;
@@ -57,6 +59,7 @@ public class GroupActivity extends Activity {
 
         } else {
             setContentView(R.layout.group_view);
+            
            	progressDialog = new ProgressDialog(this);
     		setProgressDialog(progressDialog);
     		progressDialog.show();
@@ -85,13 +88,14 @@ public class GroupActivity extends Activity {
 
 	@Override
 	public void onStart(){
-		super.onStart();		
+		super.onStart();
 	}
 		
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
       menu.add(Menu.NONE, DELETE_TOKEN, DELETE_TOKEN, R.string.delete_token);
       menu.add(Menu.NONE, REACQUIRE_GROUP, REACQUIRE_GROUP, R.string.reacquire_group);
+      menu.add(Menu.NONE, CHECK_UPDATE, CHECK_UPDATE, R.string.check_update);
     return super.onCreateOptionsMenu(menu);
     }
 
@@ -114,6 +118,11 @@ public class GroupActivity extends Activity {
 			task.execute();
 			ret =true;
 			break;
+        case CHECK_UPDATE:
+    		Intent intent = new Intent(this, CheckUpdateService.class);
+    		startService(intent);
+    		ret = true;
+    		break;
         default:
             ret = super.onOptionsItemSelected(item);
             break;

@@ -5,4 +5,5 @@
     <string name="delete_token">ログアウト</string>
     <string name="login_button">ログイン</string>
     <string name="reacquire_group">更新</string>
+    <string name="check_update">更新を確認する</string>
 </resources>

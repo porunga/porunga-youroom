@@ -181,5 +181,18 @@ public class YouRoomUtil extends ContextWrapper {
     	result = cal1.compareTo(cal2); // cal1‚ªŠÔ“I‚É‘O‚È‚ç-1
 		return result;
      }
+
+	// TODO For Debugging ğ“ú‚ÌŠÔ‚ğRFC3339Œ`®‚Åæ“¾
+    public static String getYesterdayFormattedTime() {
+
+    	Calendar calendar = getCurrentCalendar();
+    	calendar.add(Calendar.DAY_OF_MONTH, -1);
+    	calendar.add(Calendar.HOUR_OF_DAY, -9);
+    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    	String result = format.format(calendar.getTime());
+    	
+    	return result;
+    }
+
     
 }

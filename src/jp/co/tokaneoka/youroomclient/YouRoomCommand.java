@@ -149,4 +149,32 @@ public class YouRoomCommand {
 		return decodeResult; 
 	}
 	
+	public String acquireHomeTimeline(Map<String, String> parameterMap){
+		Log.i("ACCESS", "acquireHomeTimeline");
+		
+		String method = "GET";
+
+		String api = "https://www.youroom.in/";
+    	parameterMap.put("format", "json");
+    	
+    	youRoomAccess.setMethod(method);    	
+    	youRoomAccess.setApi(api);
+    	youRoomAccess.setParameter(parameterMap);    	
+    	HttpResponse objResponse = youRoomAccess.requestGet();
+    	
+	 	int statusCode = objResponse.getStatusLine().getStatusCode();
+	 	String decodeResult = "";
+	   	if (statusCode == HttpURLConnection.HTTP_OK) {
+			String result;
+			try {
+				result = EntityUtils.toString(objResponse.getEntity(), "UTF-8");
+				decodeResult = UnicodeEscape.decode(result);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+	   	}
+		return decodeResult;     	
+	}
 }
