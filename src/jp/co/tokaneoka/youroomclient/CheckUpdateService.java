@@ -34,7 +34,7 @@ public class CheckUpdateService extends Service {
 	@Override
 	public void onStart(Intent intent, int StartId){
 		// require 2005-08-09T10:57:00-08:00
-		// actual 2011-03-24T04:28:39+0900
+		// actual  2011-03-24T04:28:39+09:00
 		String checkTime = YouRoomUtil.getYesterdayFormattedTime();		
 		String encodedCheckTime = "";
 	   	try {
@@ -53,7 +53,7 @@ public class CheckUpdateService extends Service {
 	@Override
 	public void onDestroy(){
 		// For Debugging
-		// Toast.makeText(this, "Service Stop", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, "更新確認を終了しました。", Toast.LENGTH_LONG).show();
 	}
 
 	private ArrayList<YouRoomEntry> acquireHomeEntryList(Map<String, String> parameterMap){
@@ -122,7 +122,7 @@ public class CheckUpdateService extends Service {
 			}
 			Toast.makeText(getApplication(), result, Toast.LENGTH_LONG).show();
 
-			stopSelf();
+//			stopSelf();
 		}
 	}
 	

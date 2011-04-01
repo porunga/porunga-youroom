@@ -33,11 +33,13 @@ public class GroupActivity extends Activity {
 	private final int DELETE_TOKEN = 1;
 	private final int REACQUIRE_GROUP = 2;
 	private final int CHECK_UPDATE = 3;
+	private final int UNCHECK_UPDATE = 4;
 	
 	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 	private YouRoomGroupAdapter adapter;
 	private ProgressDialog progressDialog;
-	
+	private Intent serviceIntent = null;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,6 +98,7 @@ public class GroupActivity extends Activity {
       menu.add(Menu.NONE, DELETE_TOKEN, DELETE_TOKEN, R.string.delete_token);
       menu.add(Menu.NONE, REACQUIRE_GROUP, REACQUIRE_GROUP, R.string.reacquire_group);
       menu.add(Menu.NONE, CHECK_UPDATE, CHECK_UPDATE, R.string.check_update);
+      menu.add(Menu.NONE, UNCHECK_UPDATE, UNCHECK_UPDATE, R.string.uncheck_update);
     return super.onCreateOptionsMenu(menu);
     }
 
@@ -119,8 +122,16 @@ public class GroupActivity extends Activity {
 			ret =true;
 			break;
         case CHECK_UPDATE:
-    		Intent intent = new Intent(this, CheckUpdateService.class);
-    		startService(intent);
+        	if (serviceIntent == null ){
+        		serviceIntent = new Intent(this, CheckUpdateService.class);
+        	}
+    		startService(serviceIntent);
+    		ret = true;
+    		break;
+        case UNCHECK_UPDATE:
+        	if (serviceIntent != null ){
+        		stopService(serviceIntent);
+        	}
     		ret = true;
     		break;
         default:
@@ -236,7 +247,7 @@ public class GroupActivity extends Activity {
 	
 	public void setProgressDialog(ProgressDialog progressDialog){
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		progressDialog.setMessage("èàóùÇé¿çsíÜÇµÇƒÇ¢Ç‹Ç∑");
+		progressDialog.setMessage("èàóùÇé¿çsÇµÇƒÇ¢Ç‹Ç∑");
 		progressDialog.setCancelable(true);
 	}
 	
