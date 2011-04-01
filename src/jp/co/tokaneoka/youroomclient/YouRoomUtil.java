@@ -139,7 +139,9 @@ public class YouRoomUtil extends ContextWrapper {
         
     public static Calendar getDesignatedCalendar(String unformattedTime) {
     	
-    	String[] updateTimes = unformattedTime.substring(0, unformattedTime.length() -1).split("T");
+    	// ( "2011-03-02T12:46:06Z" | "2011-03-02T12:46:06+09:00" ) -> "2011/03/02 21:46:06"
+    	unformattedTime = unformattedTime.replaceAll("(\\+[0-9+:]+)|Z", "");
+    	String[] updateTimes = unformattedTime.substring(0, unformattedTime.length()).split("T");
     	String[] date = updateTimes[0].split("-");
     	String[] times = updateTimes[1].split(":");
     	int year = Integer.parseInt(date[0]);
@@ -164,15 +166,15 @@ public class YouRoomUtil extends ContextWrapper {
     
     public static String getRFC3339FormattedTime() {
 
-    	Calendar calendar = getCurrentCalendar();    	
-    	calendar.add(Calendar.DAY_OF_MONTH, -1);
-    	calendar.add(Calendar.HOUR_OF_DAY, 15);
-    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    	Calendar calendar = getCurrentCalendar();
+    	calendar.add(Calendar.HOUR_OF_DAY, -9);
+    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
     	String result = format.format(calendar.getTime());
-    	
+    	result = result.replaceAll("GMT", "");
+    
     	return result;
     }
-    
+
     public static int calendarCompareTo(String unformattedTime1, String unformattedTime2) {
 
     	int result = 0;
@@ -186,10 +188,11 @@ public class YouRoomUtil extends ContextWrapper {
     public static String getYesterdayFormattedTime() {
 
     	Calendar calendar = getCurrentCalendar();
-    	calendar.add(Calendar.DAY_OF_MONTH, -1);
     	calendar.add(Calendar.HOUR_OF_DAY, -9);
-    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    	calendar.add(Calendar.DAY_OF_MONTH, -1);
+    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
     	String result = format.format(calendar.getTime());
+    	result = result.replaceAll("GMT", "");
     	
     	return result;
     }
