@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,11 +16,14 @@ import org.json.JSONObject;
 import android.app.Service;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.IBinder;
 import android.widget.Toast;
 
 public class CheckUpdateService extends Service {
 
+	Timer timer;
+	
 	@Override
 	public IBinder onBind(Intent arg0) {
 		// TODO Auto-generated method stub
@@ -33,6 +38,53 @@ public class CheckUpdateService extends Service {
 	
 	@Override
 	public void onStart(Intent intent, int StartId){
+				
+		final Handler handler = new Handler();
+		long delay = 1000;
+		long period = 15000;
+		
+		timer = new Timer(false);		
+		timer.schedule( new TimerTask(){		
+			@Override
+			public void run(){				
+			   	Map<String, String> parameterMap = new HashMap<String, String>();
+
+			   	String checkTime = YouRoomUtil.getYesterdayFormattedTime();		
+				String encodedCheckTime = "";
+			   	try {
+			   		encodedCheckTime = URLEncoder.encode(checkTime, "UTF-8");
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			   	parameterMap.put("since", encodedCheckTime);
+				final ArrayList<YouRoomEntry> dataList = acquireHomeEntryList(parameterMap);
+				
+				handler.post(new Runnable(){
+					@Override
+					public void run(){
+						String message = "";
+						if ( dataList.size() > 0) {
+							message = dataList.size() + "件の更新があります。";
+						} else {
+							message = "更新はありません。";
+						}
+						Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
+						String result = "";
+						Iterator iterator = dataList.iterator();
+						while( iterator.hasNext() ) {
+							YouRoomEntry entry = ((YouRoomEntry) iterator.next());
+							result += "[" + entry.getUpdatedTime() + "] " + entry.getContent() + "\n";
+							result += " -------------------- \n" ;
+						}
+						Toast.makeText(getApplication(), result, Toast.LENGTH_LONG).show();
+					}	
+				});
+			}
+		}, delay, period);
+	
+		/*
 		// require 2005-08-09T10:57:00-08:00
 		// actual  2011-03-24T04:28:39+09:00
 		String checkTime = YouRoomUtil.getYesterdayFormattedTime();		
@@ -47,12 +99,14 @@ public class CheckUpdateService extends Service {
 		CheckUpdateEntryTask task = new CheckUpdateEntryTask();
 		Toast.makeText(this, "24時間前から現在までの間に更新のあったエントリをチェックします。", Toast.LENGTH_LONG).show();
 		task.execute(encodedCheckTime);
+		*/
 		
 	}
 	
 	@Override
 	public void onDestroy(){
 		// For Debugging
+		timer.cancel();
 		Toast.makeText(this, "更新確認を終了しました。", Toast.LENGTH_LONG).show();
 	}
 

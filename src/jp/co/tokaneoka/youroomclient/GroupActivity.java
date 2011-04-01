@@ -38,7 +38,7 @@ public class GroupActivity extends Activity {
 	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 	private YouRoomGroupAdapter adapter;
 	private ProgressDialog progressDialog;
-	private Intent serviceIntent = null;
+	private Intent serviceIntent;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -122,16 +122,13 @@ public class GroupActivity extends Activity {
 			ret =true;
 			break;
         case CHECK_UPDATE:
-        	if (serviceIntent == null ){
-        		serviceIntent = new Intent(this, CheckUpdateService.class);
-        	}
+        	serviceIntent = new Intent(this, CheckUpdateService.class);
     		startService(serviceIntent);
     		ret = true;
     		break;
         case UNCHECK_UPDATE:
-        	if (serviceIntent != null ){
-        		stopService(serviceIntent);
-        	}
+        	serviceIntent = new Intent(this, CheckUpdateService.class);
+      		stopService(serviceIntent);
     		ret = true;
     		break;
         default:
