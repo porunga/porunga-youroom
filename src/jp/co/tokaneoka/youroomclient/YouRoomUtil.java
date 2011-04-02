@@ -60,8 +60,7 @@ public class YouRoomUtil extends ContextWrapper {
 		return check;
 	}
 
-	
-	public String getAccessTimeFromLocal(int roomId){
+	public String getRoomAccessTime(int roomId){
 				
 		String key = "LastAccessTime_" + roomId;
     	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
@@ -70,7 +69,7 @@ public class YouRoomUtil extends ContextWrapper {
 		return lastAccessTime;
 	}
 	
-	public boolean removeAccessTimeFromLocal(int roomId){
+	public boolean removeRoomAccessTime(int roomId){
 		
 		boolean check = false;
 		String key = "LastAccessTime_" + roomId;
@@ -81,10 +80,41 @@ public class YouRoomUtil extends ContextWrapper {
     	return check;
 	}
 	
-	public boolean storeAccessTimeToLocal(int roomId, String RFC3339FormattedTime){
+	public boolean storeRoomAccessTime(int roomId, String RFC3339FormattedTime){
 		
 		boolean check = false;
 		String key = "LastAccessTime_" + roomId;
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
+		Editor editor = sharedpref.edit();
+		editor.putString(key, RFC3339FormattedTime);
+		check = editor.commit();
+		return check;
+	}
+
+	public String getAccessTime(){
+		
+		String key = "LastAccessTime";
+    	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
+		String lastAccessTime = sharedpref.getString(key, null);		
+		
+		return lastAccessTime;
+	}
+	
+	public boolean removeAccessTime(){
+		
+		boolean check = false;
+		String key = "LastAccessTime";
+    	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, MODE_PRIVATE);
+    	Editor editor = sharedpref.edit();
+    	editor.putString(key, null);
+    	check = editor.commit();
+    	return check;
+	}
+	
+	public boolean storeAccessTime(String RFC3339FormattedTime){
+		
+		boolean check = false;
+		String key = "LastAccessTime";
 		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
 		Editor editor = sharedpref.edit();
 		editor.putString(key, RFC3339FormattedTime);

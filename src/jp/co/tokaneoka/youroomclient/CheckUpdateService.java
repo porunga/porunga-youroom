@@ -36,23 +36,29 @@ public class CheckUpdateService extends Service {
 	@Override
 	public void onCreate(){
 		// For Debugging
-		// Toast.makeText(this, "Service Start", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, "更新確認を開始しました。", Toast.LENGTH_SHORT).show();
 	}
 	
 	@Override
 	public void onStart(Intent intent, int StartId){
 				
 		final Handler handler = new Handler();
-		long delay = 1000;
-		long period = 15000;
+		long delay = 1*1000;
+		long period = 3*60*60*1000;
 		
 		timer = new Timer(false);		
 		timer.schedule( new TimerTask(){		
 			@Override
 			public void run(){				
 			   	Map<String, String> parameterMap = new HashMap<String, String>();
-
-			   	String checkTime = YouRoomUtil.getYesterdayFormattedTime();		
+			   	
+			   	UserSession session = UserSession.getInstance();
+			   	String checkTime = session.getLastAccessTime();
+			   	// ファーストアクセス時はチェックしない
+			   	if ( checkTime == null ) {
+			   		return;
+			   	}
+			   	
 				String encodedCheckTime = "";
 			   	try {
 			   		encodedCheckTime = URLEncoder.encode(checkTime, "UTF-8");
@@ -60,7 +66,7 @@ public class CheckUpdateService extends Service {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
+				
 			   	parameterMap.put("since", encodedCheckTime);
 				final ArrayList<YouRoomEntry> dataList = acquireHomeEntryList(parameterMap);
 				
@@ -80,21 +86,8 @@ public class CheckUpdateService extends Service {
 							notification.setLatestEventInfo(getApplicationContext(), "youRoomClient", message, contentIntent);
 							notificationManager.notify(R.string.app_name, notification);
 							
-						} else {
-							message = "更新はありません。";
 						}
-						Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
 						
-						/*
-						String result = "";
-						Iterator iterator = dataList.iterator();
-						while( iterator.hasNext() ) {
-							YouRoomEntry entry = ((YouRoomEntry) iterator.next());
-							result += "[" + entry.getUpdatedTime() + "] " + entry.getContent() + "\n";
-							result += " -------------------- \n" ;
-						}
-						Toast.makeText(getApplication(), result, Toast.LENGTH_LONG).show();
-						*/
 					}	
 				});
 			}

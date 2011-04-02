@@ -207,18 +207,26 @@ public class GroupActivity extends Activity {
 		    	group.setName(name);
 		    	group.setUpdatedTime(updatedTime);
 		    	group.setCreatedTime(createdTime);
-		    	
-		    	//暫定的なチェック
-		    	String lastAccessTime = youRoomUtil.getAccessTimeFromLocal(id);
+		    			    	
+		    	/*
+		    	String lastAccessTime = youRoomUtil.getRoomAccessTime(id);
 		    	group.setLastAccessTime(lastAccessTime);
 		    	String time = YouRoomUtil.getRFC3339FormattedTime();
-		    	youRoomUtil.storeAccessTimeToLocal(id, time);
+		    	youRoomUtil.storeRoomAccessTime(id, time);
+		    	*/
 		    	
 	    		dataList.add(group);
 	    	}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+		
+    	//暫定的なチェック
+    	String lastAccessTime = youRoomUtil.getAccessTime();
+    	UserSession session = UserSession.getInstance();
+    	session.setLastAccessTime(lastAccessTime);
+    	String currentTime = YouRoomUtil.getRFC3339FormattedTime();
+    	youRoomUtil.storeAccessTime(currentTime);
 				
 		return dataList;
 	}
