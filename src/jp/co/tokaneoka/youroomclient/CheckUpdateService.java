@@ -13,6 +13,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -67,10 +70,22 @@ public class CheckUpdateService extends Service {
 						String message = "";
 						if ( dataList.size() > 0) {
 							message = dataList.size() + "件の更新があります。";
+							
+							Class distActivity = GroupActivity.class;
+							NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+							Notification notification = new Notification(R.drawable.myrooms, message, System.currentTimeMillis());
+							notification.flags = Notification.FLAG_AUTO_CANCEL;
+							Intent intent = new Intent(getApplication(), distActivity);
+							PendingIntent contentIntent = PendingIntent.getActivity(getApplication(), 0, intent, 0);
+							notification.setLatestEventInfo(getApplicationContext(), "youRoomClient", message, contentIntent);
+							notificationManager.notify(R.string.app_name, notification);
+							
 						} else {
 							message = "更新はありません。";
 						}
 						Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
+						
+						/*
 						String result = "";
 						Iterator iterator = dataList.iterator();
 						while( iterator.hasNext() ) {
@@ -79,6 +94,7 @@ public class CheckUpdateService extends Service {
 							result += " -------------------- \n" ;
 						}
 						Toast.makeText(getApplication(), result, Toast.LENGTH_LONG).show();
+						*/
 					}	
 				});
 			}

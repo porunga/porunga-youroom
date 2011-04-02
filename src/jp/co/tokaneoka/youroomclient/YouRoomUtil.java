@@ -170,8 +170,14 @@ public class YouRoomUtil extends ContextWrapper {
     	calendar.add(Calendar.HOUR_OF_DAY, -9);
     	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
     	String result = format.format(calendar.getTime());
-    	result = result.replaceAll("GMT", "");
-    
+    	String standardName = "";
+    	if ( result.contains("JST") ){
+    		standardName = "JST";
+        	result = result.replaceAll(standardName, "+09:00");
+    	} else if (result.contains("GMT")){
+    		standardName = "GMT";
+        	result = result.replaceAll(standardName, "");
+    	}    	
     	return result;
     }
 
@@ -189,13 +195,18 @@ public class YouRoomUtil extends ContextWrapper {
 
     	Calendar calendar = getCurrentCalendar();
     	calendar.add(Calendar.HOUR_OF_DAY, -9);
-    	calendar.add(Calendar.DAY_OF_MONTH, -1);
+    	calendar.add(Calendar.DAY_OF_MONTH, -1);    	
     	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
     	String result = format.format(calendar.getTime());
-    	result = result.replaceAll("GMT", "");
-    	
+    	String standardName = "";
+    	if ( result.contains("JST") ){
+    		standardName = "JST";
+        	result = result.replaceAll(standardName, "+09:00");
+    	} else if (result.contains("GMT")){
+    		standardName = "GMT";
+        	result = result.replaceAll(standardName, "");
+    	}    	
     	return result;
     }
-
     
 }
