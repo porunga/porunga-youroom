@@ -32,7 +32,6 @@ public class EntryActivity extends Activity {
 	ProgressDialog progressDialog;
 	int parentEntryCount;
 	int requestCount;
-	private YouRoomGroup group;
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,7 +46,6 @@ public class EntryActivity extends Activity {
 		
         Intent intent = getIntent();
         roomId = intent.getStringExtra("roomId");
-        group = (YouRoomGroup) intent.getSerializableExtra("group");
         YouRoomEntry youRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
         String entryId = String.valueOf(youRoomEntry.getId());
         parentEntryCount = youRoomEntry.getDescendantsCount();
@@ -117,13 +115,16 @@ public class EntryActivity extends Activity {
 					commentLevel += "> ";
 				level.setText(commentLevel);
 			}
-
-			if ( group.getLastAccessTime() != null ){
-				int compareResult = YouRoomUtil.calendarCompareTo(group.getLastAccessTime(), roomEntry.getUpdatedTime());
+			
+	    	UserSession session = UserSession.getInstance();
+	    	String roomAccessTime = session.getRoomAccessTime(roomId);
+	    	if ( roomAccessTime != null ) {
+				int compareResult = YouRoomUtil.calendarCompareTo(roomAccessTime, roomEntry.getUpdatedTime());
 				if ( compareResult < 0 ){
 					updateTime.setTextColor(Color.RED);
 				}
-			}			
+	    	}
+
 			return view;
 		}
 	}
@@ -221,7 +222,7 @@ public class EntryActivity extends Activity {
 	
 	public void setProgressDialog(ProgressDialog progressDialog){
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		progressDialog.setMessage("ˆ—‚ðŽÀs’†‚µ‚Ä‚¢‚Ü‚·");
+		progressDialog.setMessage("ˆ—‚ðŽÀs‚µ‚Ä‚¢‚Ü‚·");
 		progressDialog.setIndeterminate(false);
 		progressDialog.setMax(parentEntryCount);
 		progressDialog.setCancelable(true);

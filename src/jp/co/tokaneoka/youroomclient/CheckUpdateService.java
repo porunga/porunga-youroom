@@ -26,6 +26,7 @@ import android.widget.Toast;
 public class CheckUpdateService extends Service {
 
 	Timer timer;
+	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -52,7 +53,13 @@ public class CheckUpdateService extends Service {
 			public void run(){				
 			   	Map<String, String> parameterMap = new HashMap<String, String>();
 			   	
-			   	UserSession session = UserSession.getInstance();
+		    	String lastAccessTime = youRoomUtil.getAccessTime();
+		    	UserSession session = UserSession.getInstance();
+		    	session.setLastAccessTime(lastAccessTime);
+		    	String currentTime = YouRoomUtil.getRFC3339FormattedTime();
+		    	youRoomUtil.storeAccessTime(currentTime);
+			   	
+//			   	UserSession session = UserSession.getInstance();
 			   	String checkTime = session.getLastAccessTime();
 			   	// ファーストアクセス時はチェックしない
 			   	if ( checkTime == null ) {

@@ -35,7 +35,8 @@ public class RoomActivity extends Activity {
 	ProgressDialog progressDialog;
 	private ListView listView;
 	private int page = 1;
-	private YouRoomGroup group;
+	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +45,6 @@ public class RoomActivity extends Activity {
 		
         Intent intent = getIntent();
         roomId = intent.getStringExtra("roomId");
-        group = (YouRoomGroup) intent.getSerializableExtra("group");
 		listView = (ListView)findViewById(R.id.listView1);
 
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
@@ -84,12 +84,18 @@ public class RoomActivity extends Activity {
 					ListView listView = (ListView) parent;
 					YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
 					if (item.getDescendantsCount() == -1){
-						Toast.makeText(getApplication(), "読み込み中です。もう少しおまちくださいませ。", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplication(), "読み込み中です。もう少しおまちください。", Toast.LENGTH_SHORT).show();
 					} else {
+						/*
+				    	UserSession session = UserSession.getInstance();
+				    	String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
+				    	session.setRoomAccessTime(roomId, lastAccessTime);						
+				    	String time = YouRoomUtil.getRFC3339FormattedTime();						
+				    	youRoomUtil.storeRoomAccessTime(roomId, time);
+						*/
 						Intent intent = new Intent(getApplication(), EntryActivity.class);
 						intent.putExtra("roomId", String.valueOf(roomId) );
-						intent.putExtra("youRoomEntry", item);
-						intent.putExtra("group", group);
+						intent.putExtra("youRoomEntry", item);				    	
 						startActivity(intent);
 					}
 				}
@@ -119,6 +125,7 @@ public class RoomActivity extends Activity {
 			if (convertView == null) {
 				view = inflater.inflate(R.layout.room_list_item, null);				
 			}
+			
 			YouRoomEntry roomEntry = (YouRoomEntry)this.getItem(position);
 			TextView name = null;
 			TextView content = null;
@@ -149,13 +156,15 @@ public class RoomActivity extends Activity {
 				//TODO レイアウト修正直書き
 				descendantsCount.setText("[ " + count + "comments ] > ");
 			}
-
-			if ( group.getLastAccessTime() != null ){
-				int compareResult = YouRoomUtil.calendarCompareTo(group.getLastAccessTime(), roomEntry.getUpdatedTime());
+			
+	    	UserSession session = UserSession.getInstance();
+	    	String roomAccessTime = session.getRoomAccessTime(roomId);
+	    	if ( roomAccessTime != null ) {
+				int compareResult = YouRoomUtil.calendarCompareTo(roomAccessTime, roomEntry.getUpdatedTime());
 				if ( compareResult < 0 ){
 					createdTime.setTextColor(Color.RED);
 				}
-			}
+	    	}
 			
 			return view;
 		}
@@ -267,7 +276,7 @@ public class RoomActivity extends Activity {
 	
 	public void setProgressDialog(ProgressDialog progressDialog){
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		progressDialog.setMessage("処理を実行中しています");
+		progressDialog.setMessage("処理を実行しています");
 		progressDialog.setCancelable(true);
 	}
 

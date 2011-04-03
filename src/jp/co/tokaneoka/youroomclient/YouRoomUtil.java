@@ -60,7 +60,7 @@ public class YouRoomUtil extends ContextWrapper {
 		return check;
 	}
 
-	public String getRoomAccessTime(int roomId){
+	public String getRoomAccessTime(String roomId){
 				
 		String key = "LastAccessTime_" + roomId;
     	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
@@ -69,7 +69,7 @@ public class YouRoomUtil extends ContextWrapper {
 		return lastAccessTime;
 	}
 	
-	public boolean removeRoomAccessTime(int roomId){
+	public boolean removeRoomAccessTime(String roomId){
 		
 		boolean check = false;
 		String key = "LastAccessTime_" + roomId;
@@ -80,7 +80,7 @@ public class YouRoomUtil extends ContextWrapper {
     	return check;
 	}
 	
-	public boolean storeRoomAccessTime(int roomId, String RFC3339FormattedTime){
+	public boolean storeRoomAccessTime(String roomId, String RFC3339FormattedTime){
 		
 		boolean check = false;
 		String key = "LastAccessTime_" + roomId;

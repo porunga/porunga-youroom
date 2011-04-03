@@ -1,5 +1,7 @@
 package jp.co.tokaneoka.youroomclient;
 
+import java.util.HashMap;
+
 public class UserSession {
 	
 	// Begin -- Singleton Pattern --
@@ -12,7 +14,16 @@ public class UserSession {
 	// End -- Singleton Pattern --
 	
 	private String lastAccessTime;
+	private HashMap<String, String> roomAccessTimeMap = new HashMap<String, String>();
 	
+	public String getRoomAccessTime(String roomId) {
+		return roomAccessTimeMap.get(roomId);
+	}
+
+	public void setRoomAccessTime(String roomId, String lastAccessTime) {
+		this.roomAccessTimeMap.put(roomId, lastAccessTime);
+	}
+
 	public String getLastAccessTime() {
 		return lastAccessTime;
 	}
