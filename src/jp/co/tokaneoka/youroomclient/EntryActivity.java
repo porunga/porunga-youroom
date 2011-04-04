@@ -104,6 +104,7 @@ public class EntryActivity extends Activity {
 				name.setText(roomEntry.getParticipationName());
 			}
 			if ( updateTime != null ){
+				updateTime.setTextColor(Color.LTGRAY);
 				updateTime.setText(YouRoomUtil.convertDatetime(roomEntry.getUpdatedTime()));
 			}
 			if ( content != null ){

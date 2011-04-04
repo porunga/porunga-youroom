@@ -1,7 +1,5 @@
 package jp.co.tokaneoka.youroomclient;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,7 +43,7 @@ public class CheckUpdateService extends Service {
 				
 		final Handler handler = new Handler();
 		long delay = 1*1000;
-		long period = 3*60*60*1000;
+		long period = 1*60*60*1000;
 		
 		timer = new Timer(false);		
 		timer.schedule( new TimerTask(){		
@@ -56,25 +54,7 @@ public class CheckUpdateService extends Service {
 		    	String lastAccessTime = youRoomUtil.getAccessTime();
 		    	UserSession session = UserSession.getInstance();
 		    	session.setLastAccessTime(lastAccessTime);
-		    	String currentTime = YouRoomUtil.getRFC3339FormattedTime();
-		    	youRoomUtil.storeAccessTime(currentTime);
 			   	
-//			   	UserSession session = UserSession.getInstance();
-			   	String checkTime = session.getLastAccessTime();
-			   	// ファーストアクセス時はチェックしない
-			   	if ( checkTime == null ) {
-			   		return;
-			   	}
-			   	
-				String encodedCheckTime = "";
-			   	try {
-			   		encodedCheckTime = URLEncoder.encode(checkTime, "UTF-8");
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-			   	parameterMap.put("since", encodedCheckTime);
 				final ArrayList<YouRoomEntry> dataList = acquireHomeEntryList(parameterMap);
 				
 				handler.post(new Runnable(){
@@ -92,11 +72,12 @@ public class CheckUpdateService extends Service {
 							PendingIntent contentIntent = PendingIntent.getActivity(getApplication(), 0, intent, 0);
 							notification.setLatestEventInfo(getApplicationContext(), "youRoomClient", message, contentIntent);
 							notificationManager.notify(R.string.app_name, notification);
-							
-						}
-						
+														
+						} 
 					}	
 				});
+		    	String currentTime = YouRoomUtil.getRFC3339FormattedTime();
+		    	youRoomUtil.storeAccessTime(currentTime);
 			}
 		}, delay, period);
 	
@@ -154,8 +135,12 @@ public class CheckUpdateService extends Service {
 				roomEntry.setParticipationName(participationName);
 				roomEntry.setCreatedTime(createdTime);
 				roomEntry.setContent(content);
-    		    	
-				dataList.add(roomEntry);
+    		    
+			   	UserSession session = UserSession.getInstance();
+				int compareResult = YouRoomUtil.calendarCompareTo(session.getLastAccessTime(), updatedTime);
+				if ( compareResult < 0 ){
+					dataList.add(roomEntry);
+				}
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();

@@ -86,7 +86,7 @@ public class GroupActivity extends Activity {
 			    	UserSession session = UserSession.getInstance();
 			    	String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
 			    	session.setRoomAccessTime(roomId, lastAccessTime);						
-			    	String time = YouRoomUtil.getRFC3339FormattedTime();						
+			    	String time = YouRoomUtil.getRFC3339FormattedTime();
 			    	youRoomUtil.storeRoomAccessTime(roomId, time);
     	            
     	            startActivity(intent);
@@ -167,12 +167,13 @@ public class GroupActivity extends Activity {
 			
 			if ( group != null ){
 				name = (TextView)view.findViewById(R.id.textView1);
-				updateTime = (TextView)view.findViewById(R.id.textView2);
+				updateTime = (TextView)view.findViewById(R.id.textView2);				
 			}
 			if ( name != null ){
 				name.setText(group.getName());
 			}
 			if ( updateTime != null ){
+				updateTime.setTextColor(Color.LTGRAY);
 				updateTime.setText(YouRoomUtil.convertDatetime(group.getUpdatedTime()));
 			}
 
@@ -220,8 +221,12 @@ public class GroupActivity extends Activity {
 		    	
 		    	String roomId = String.valueOf(id);
 		    	String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
+		    	String time;
 		    	if (lastAccessTime == null){
-			    	String time = YouRoomUtil.getRFC3339FormattedTime();						
+		    		time = youRoomUtil.getAccessTime();
+		    		if ( time == null) { //Ç±Ç±Ç…ì¸ÇÈÇ±Ç∆ÇÕÇ»Ç¢ÇÕÇ∏ÅB
+				    	time = YouRoomUtil.getRFC3339FormattedTime();		    			
+		    		}
 			    	youRoomUtil.storeRoomAccessTime(roomId, time);
 		    	}
 		    	

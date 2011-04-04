@@ -141,6 +141,7 @@ public class RoomActivity extends Activity {
 				name.setText(roomEntry.getParticipationName());
 			}
 			if ( createdTime != null ){
+				createdTime.setTextColor(Color.LTGRAY);
 				createdTime.setText(YouRoomUtil.convertDatetime(roomEntry.getCreatedTime()));
 			}
 			if ( content != null ){
