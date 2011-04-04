@@ -61,13 +61,18 @@ public class CheckUpdateService extends Service {
 					@Override
 					public void run(){
 						String message = "";
-						if ( dataList.size() > 0) {
-							message = dataList.size() + "件の更新があります。";
+						int updateItemCount = dataList.size();						
+						if ( updateItemCount > 0) {
+							if ( updateItemCount == 10 ) {
+								message = updateItemCount + "件以上の更新があります。";
+							}
+							message = updateItemCount + "件の更新があります。";
 							
 							Class distActivity = GroupActivity.class;
 							NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 							Notification notification = new Notification(R.drawable.myrooms, message, System.currentTimeMillis());
 							notification.flags = Notification.FLAG_AUTO_CANCEL;
+							notification.number = updateItemCount;
 							Intent intent = new Intent(getApplication(), distActivity);
 							PendingIntent contentIntent = PendingIntent.getActivity(getApplication(), 0, intent, 0);
 							notification.setLatestEventInfo(getApplicationContext(), "youRoomClient", message, contentIntent);
@@ -76,8 +81,8 @@ public class CheckUpdateService extends Service {
 						} 
 					}	
 				});
-		    	String currentTime = YouRoomUtil.getRFC3339FormattedTime();
-		    	youRoomUtil.storeAccessTime(currentTime);
+//		    	String currentTime = YouRoomUtil.getRFC3339FormattedTime();
+//		    	youRoomUtil.storeAccessTime(currentTime);
 			}
 		}, delay, period);
 	
