@@ -13,7 +13,6 @@ public class UserSession {
 	}
 	// End -- Singleton Pattern --
 	
-	private String lastAccessTime;
 	private HashMap<String, String> roomAccessTimeMap = new HashMap<String, String>();
 	
 	public String getRoomAccessTime(String roomId) {
@@ -24,6 +23,8 @@ public class UserSession {
 		this.roomAccessTimeMap.put(roomId, lastAccessTime);
 	}
 
+	/*
+	private String lastAccessTime;
 	public String getLastAccessTime() {
 		return lastAccessTime;
 	}
@@ -31,5 +32,6 @@ public class UserSession {
 	public void setLastAccessTime(String lastAccessTime) {
 		this.lastAccessTime = lastAccessTime;
 	}
+	*/
 	
 }

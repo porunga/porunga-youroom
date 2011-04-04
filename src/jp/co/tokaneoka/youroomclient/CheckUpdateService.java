@@ -52,8 +52,9 @@ public class CheckUpdateService extends Service {
 			   	Map<String, String> parameterMap = new HashMap<String, String>();
 			   	
 		    	String lastAccessTime = youRoomUtil.getAccessTime();
-		    	UserSession session = UserSession.getInstance();
-		    	session.setLastAccessTime(lastAccessTime);
+//		    	UserSession session = UserSession.getInstance();
+//		    	session.setLastAccessTime(lastAccessTime);
+		    	youRoomUtil.storeUpdateCheckTime(lastAccessTime);
 			   	
 				final ArrayList<YouRoomEntry> dataList = acquireHomeEntryList(parameterMap);
 				
@@ -65,8 +66,9 @@ public class CheckUpdateService extends Service {
 						if ( updateItemCount > 0) {
 							if ( updateItemCount == 10 ) {
 								message = updateItemCount + "件以上の更新があります。";
+							} else {
+								message = updateItemCount + "件の更新があります。";
 							}
-							message = updateItemCount + "件の更新があります。";
 							
 							Class distActivity = GroupActivity.class;
 							NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -141,8 +143,8 @@ public class CheckUpdateService extends Service {
 				roomEntry.setCreatedTime(createdTime);
 				roomEntry.setContent(content);
     		    
-			   	UserSession session = UserSession.getInstance();
-				int compareResult = YouRoomUtil.calendarCompareTo(session.getLastAccessTime(), updatedTime);
+//			   	UserSession session = UserSession.getInstance();
+				int compareResult = YouRoomUtil.calendarCompareTo(youRoomUtil.getUpdateCheckTime(), updatedTime);
 				if ( compareResult < 0 ){
 					dataList.add(roomEntry);
 				}

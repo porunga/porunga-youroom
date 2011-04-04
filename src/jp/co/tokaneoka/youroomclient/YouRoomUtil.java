@@ -122,6 +122,37 @@ public class YouRoomUtil extends ContextWrapper {
 		return check;
 	}
 
+	public String getUpdateCheckTime(){
+		
+		String key = "UpdateCheckTime";
+    	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
+		String lastAccessTime = sharedpref.getString(key, null);		
+		
+		return lastAccessTime;
+	}
+	
+	public boolean removeUpdateCheckTime(){
+		
+		boolean check = false;
+		String key = "UpdateCheckTime";
+    	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, MODE_PRIVATE);
+    	Editor editor = sharedpref.edit();
+    	editor.putString(key, null);
+    	check = editor.commit();
+    	return check;
+	}
+	
+	public boolean storeUpdateCheckTime(String RFC3339FormattedTime){
+		
+		boolean check = false;
+		String key = "UpdateCheckTime";
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
+		Editor editor = sharedpref.edit();
+		editor.putString(key, RFC3339FormattedTime);
+		check = editor.commit();
+		return check;
+	}
+
 	
 	public boolean isLogined() {
 		
