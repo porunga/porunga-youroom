@@ -36,8 +36,10 @@ public class EntryActivity extends Activity {
 	ProgressDialog progressDialog;
 	int parentEntryCount;
 	int requestCount;
+
 	private final static int SHOW_ENTRY_LIST = 99;
 	private final static int MAX_LEVEL = 5;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,7 @@ public class EntryActivity extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
+
 
 		setContentView(R.layout.main);
 
@@ -64,6 +67,7 @@ public class EntryActivity extends Activity {
 		progressDialog = new ProgressDialog(this);
 		setProgressDialog(progressDialog);
 		progressDialog.show();
+
 
 		int level = -1;
 		youRoomEntry.setLevel(level);
@@ -138,10 +142,11 @@ public class EntryActivity extends Activity {
 			if (name != null) {
 				name.setText(roomEntry.getParticipationName());
 			}
-			if (updateTime != null) {
+
+			if ( updateTime != null ){
 				updateTime.setTextColor(Color.LTGRAY);
-				updateTime.setText(YouRoomUtil.convertDatetime(roomEntry
-						.getUpdatedTime()));
+				updateTime.setText(YouRoomUtil.convertDatetime(roomEntry.getUpdatedTime()));
+
 			}
 			if (content != null) {
 				content.setText(roomEntry.getContent());
@@ -153,15 +158,15 @@ public class EntryActivity extends Activity {
 				level.setText(commentLevel);
 			}
 
-			UserSession session = UserSession.getInstance();
-			String roomAccessTime = session.getRoomAccessTime(roomId);
-			if (roomAccessTime != null) {
-				int compareResult = YouRoomUtil.calendarCompareTo(
-						roomAccessTime, roomEntry.getUpdatedTime());
-				if (compareResult < 0) {
+			
+	    	UserSession session = UserSession.getInstance();
+	    	String roomAccessTime = session.getRoomAccessTime(roomId);
+	    	if ( roomAccessTime != null ) {
+				int compareResult = YouRoomUtil.calendarCompareTo(roomAccessTime, roomEntry.getUpdatedTime());
+				if ( compareResult < 0 ){
 					updateTime.setTextColor(Color.RED);
 				}
-			}
+	    	}
 
 			return view;
 		}

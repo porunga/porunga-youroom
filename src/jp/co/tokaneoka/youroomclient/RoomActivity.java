@@ -38,6 +38,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 	private ListView listView;
 	private int page = 1;
 	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
+
 	private YouRoomGroup group;
 	private EditText entryContentText;
 
@@ -55,6 +56,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 		roomId = intent.getStringExtra("roomId");
 		listView = (ListView) findViewById(R.id.listView1);
 	
+
 
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 
@@ -97,6 +99,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 					YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
 					if (item.getDescendantsCount() == -1){
 						Toast.makeText(getApplication(), "読み込み中です。もう少しおまちください。", Toast.LENGTH_SHORT).show();
+
 					} else if(item.getDescendantsCount() == 0){
 						Intent intent = new Intent(getApplication(),
 								CreateEntryActivity.class);
@@ -106,6 +109,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 						startActivity(intent);
 					}else {
 					
+
 						/*
 				    	UserSession session = UserSession.getInstance();
 				    	String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
@@ -113,7 +117,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 				    	String time = YouRoomUtil.getRFC3339FormattedTime();						
 				    	youRoomUtil.storeRoomAccessTime(roomId, time);
 						*/
-						
+
 						Intent intent = new Intent(getApplication(), EntryActivity.class);
 						intent.putExtra("roomId", String.valueOf(roomId) );
 						intent.putExtra("youRoomEntry", item);				    	
@@ -182,6 +186,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 				// TODO レイアウト修正直書き
 				descendantsCount.setText("[ " + count + "comments ] > ");
 			}
+
 	    	UserSession session = UserSession.getInstance();
 	    	String roomAccessTime = session.getRoomAccessTime(roomId);
 	    	if ( roomAccessTime != null ) {
@@ -326,22 +331,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 		intent.putExtra("youRoomEntry", new YouRoomEntry());
 
 		startActivity(intent);
-//		entryContentText = (EditText) findViewById(R.id.entry_content);
-		
-//		String entryContent = entryContentText.getText().toString();
-//	
-//		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-//		HashMap<String, String> oAuthTokenMap = youRoomUtil
-//				.getOauthTokenFromLocal();
-//		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
-//
-//		String status = youRoomCommand.createEntry(roomId, null, entryContent);
-//		if (status.equals("201")) {
-//			entryContentText.setText("");
-//			Toast.makeText(this, getString(R.string.post_ok), Toast.LENGTH_SHORT).show();
-//		} else
-//			Toast.makeText(this, getString(R.string.post_ng), Toast.LENGTH_SHORT).show();
-////			Toast.makeText(this, status, Toast.LENGTH_SHORT).show();
+
 
 	}
 
