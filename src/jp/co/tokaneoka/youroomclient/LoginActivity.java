@@ -62,6 +62,9 @@ public class LoginActivity extends Activity implements OnClickListener {
 					@Override
 					public void run() {
 						if (loginCheck){
+							// ログイン時間を起点とするため、ログイン時間を最終アクセス時間として記録
+					    	String currentTime = YouRoomUtil.getRFC3339FormattedTime();
+					    	youRoomUtil.storeAccessTime(currentTime);
 					    	startActivity(intent);
 					    	dialog.dismiss();
 					    	finish();

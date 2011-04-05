@@ -3,8 +3,6 @@
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 
-		<EditText android:id="@+id/entry_content" android:text=""
-			android:layout_height="wrap_content" android:layout_width="fill_parent" android:singleLine="false" android:gravity="top" android:maxLength="140" android:layout_gravity="top"></EditText>
 		<Button android:id="@+id/post_button"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
 

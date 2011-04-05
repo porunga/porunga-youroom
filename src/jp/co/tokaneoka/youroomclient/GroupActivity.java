@@ -80,8 +80,15 @@ public class GroupActivity extends Activity {
     	            ListView listView = (ListView) parent;
     	            YouRoomGroup item = (YouRoomGroup) listView.getItemAtPosition(position);
     	            Intent intent = new Intent(getApplication(), RoomActivity.class);
-    	            intent.putExtra("roomId", String.valueOf(item.getId()));
-    	            intent.putExtra("group", item);
+    	            String roomId = String.valueOf(item.getId());
+    	            intent.putExtra("roomId", roomId);
+    	            
+			    	UserSession session = UserSession.getInstance();
+			    	String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
+			    	session.setRoomAccessTime(roomId, lastAccessTime);						
+			    	String time = YouRoomUtil.getRFC3339FormattedTime();
+			    	youRoomUtil.storeRoomAccessTime(roomId, time);
+    	            
     	            startActivity(intent);
     	        }
     	    });
@@ -119,7 +126,7 @@ public class GroupActivity extends Activity {
     		adapter.clear();
 			GetGroupTask task = new GetGroupTask();
 			task.execute();
-			ret =true;
+			ret = true;
 			break;
         case CHECK_UPDATE:
         	serviceIntent = new Intent(this, CheckUpdateService.class);
@@ -160,21 +167,25 @@ public class GroupActivity extends Activity {
 			
 			if ( group != null ){
 				name = (TextView)view.findViewById(R.id.textView1);
-				updateTime = (TextView)view.findViewById(R.id.textView2);
+				updateTime = (TextView)view.findViewById(R.id.textView2);				
 			}
 			if ( name != null ){
 				name.setText(group.getName());
 			}
 			if ( updateTime != null ){
+				updateTime.setTextColor(Color.LTGRAY);
 				updateTime.setText(YouRoomUtil.convertDatetime(group.getUpdatedTime()));
 			}
 
-			if ( group.getLastAccessTime() != null ){
-				int compareResult = YouRoomUtil.calendarCompareTo(group.getLastAccessTime(), group.getUpdatedTime());
+	    	UserSession session = UserSession.getInstance();
+	    	String roomAccessTime = session.getRoomAccessTime(String.valueOf(group.getId()));
+	    	if ( roomAccessTime != null ) {
+				int compareResult = YouRoomUtil.calendarCompareTo(roomAccessTime, group.getUpdatedTime());
 				if ( compareResult < 0 ){
 					updateTime.setTextColor(Color.RED);
 				}
-			}
+	    	}
+	    	
 			return view;
 		}
 	}
@@ -207,13 +218,22 @@ public class GroupActivity extends Activity {
 		    	group.setName(name);
 		    	group.setUpdatedTime(updatedTime);
 		    	group.setCreatedTime(createdTime);
-		    			    	
-		    	/*
-		    	String lastAccessTime = youRoomUtil.getRoomAccessTime(id);
-		    	group.setLastAccessTime(lastAccessTime);
-		    	String time = YouRoomUtil.getRFC3339FormattedTime();
-		    	youRoomUtil.storeRoomAccessTime(id, time);
-		    	*/
+		    	
+		    	String roomId = String.valueOf(id);
+		    	String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
+		    	String time;
+		    	if (lastAccessTime == null){
+		    		time = youRoomUtil.getAccessTime();
+		    		if ( time == null) { //ここに入ることはないはず。
+				    	time = YouRoomUtil.getRFC3339FormattedTime();		    			
+		    		}
+			    	youRoomUtil.storeRoomAccessTime(roomId, time);
+		    	}
+		    	
+		    	UserSession session = UserSession.getInstance();
+		    	roomId = String.valueOf(id);
+		    	lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
+		    	session.setRoomAccessTime(roomId, lastAccessTime);
 		    	
 	    		dataList.add(group);
 	    	}
@@ -222,10 +242,10 @@ public class GroupActivity extends Activity {
 		}
 		
     	//暫定的なチェック
-    	String lastAccessTime = youRoomUtil.getAccessTime();
-    	UserSession session = UserSession.getInstance();
-    	session.setLastAccessTime(lastAccessTime);
-    	String currentTime = YouRoomUtil.getRFC3339FormattedTime();
+//    	String lastAccessTime = youRoomUtil.getAccessTime();
+//    	UserSession session = UserSession.getInstance();
+//    	session.setLastAccessTime(lastAccessTime);
+		String currentTime = YouRoomUtil.getRFC3339FormattedTime();
     	youRoomUtil.storeAccessTime(currentTime);
 				
 		return dataList;

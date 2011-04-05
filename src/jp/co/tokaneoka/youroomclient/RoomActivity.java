@@ -37,6 +37,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 	ProgressDialog progressDialog;
 	private ListView listView;
 	private int page = 1;
+	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 	private YouRoomGroup group;
 	private EditText entryContentText;
 
@@ -52,8 +53,8 @@ public class RoomActivity extends Activity implements OnClickListener {
 
 		Intent intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
-		group = (YouRoomGroup) intent.getSerializableExtra("group");
 		listView = (ListView) findViewById(R.id.listView1);
+	
 
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 
@@ -93,18 +94,29 @@ public class RoomActivity extends Activity implements OnClickListener {
 					page++;
 				} else {
 					ListView listView = (ListView) parent;
-					YouRoomEntry item = (YouRoomEntry) listView
-							.getItemAtPosition(position);
-					if (item.getDescendantsCount() == -1) {
-						Toast.makeText(getApplication(),
-								"読み込み中です。もう少しおまちくださいませ。", Toast.LENGTH_SHORT)
-								.show();
-					} else {
+					YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
+					if (item.getDescendantsCount() == -1){
+						Toast.makeText(getApplication(), "読み込み中です。もう少しおまちください。", Toast.LENGTH_SHORT).show();
+					} else if(item.getDescendantsCount() == 0){
 						Intent intent = new Intent(getApplication(),
-								EntryActivity.class);
+								CreateEntryActivity.class);
 						intent.putExtra("roomId", String.valueOf(roomId));
 						intent.putExtra("youRoomEntry", item);
-						intent.putExtra("group", group);
+						
+						startActivity(intent);
+					}else {
+					
+						/*
+				    	UserSession session = UserSession.getInstance();
+				    	String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
+				    	session.setRoomAccessTime(roomId, lastAccessTime);						
+				    	String time = YouRoomUtil.getRFC3339FormattedTime();						
+				    	youRoomUtil.storeRoomAccessTime(roomId, time);
+						*/
+						
+						Intent intent = new Intent(getApplication(), EntryActivity.class);
+						intent.putExtra("roomId", String.valueOf(roomId) );
+						intent.putExtra("youRoomEntry", item);				    	
 						startActivity(intent);
 					}
 				}
@@ -137,7 +149,8 @@ public class RoomActivity extends Activity implements OnClickListener {
 			if (convertView == null) {
 				view = inflater.inflate(R.layout.room_list_item, null);
 			}
-			YouRoomEntry roomEntry = (YouRoomEntry) this.getItem(position);
+			
+			YouRoomEntry roomEntry = (YouRoomEntry)this.getItem(position);
 			TextView name = null;
 			TextView content = null;
 			TextView createdTime = null;
@@ -151,9 +164,9 @@ public class RoomActivity extends Activity implements OnClickListener {
 			if (name != null) {
 				name.setText(roomEntry.getParticipationName());
 			}
-			if (createdTime != null) {
-				createdTime.setText(YouRoomUtil.convertDatetime(roomEntry
-						.getCreatedTime()));
+			if ( createdTime != null ){
+				createdTime.setTextColor(Color.LTGRAY);
+				createdTime.setText(YouRoomUtil.convertDatetime(roomEntry.getCreatedTime()));
 			}
 			if (content != null) {
 				content.setText(roomEntry.getContent());
@@ -169,15 +182,15 @@ public class RoomActivity extends Activity implements OnClickListener {
 				// TODO レイアウト修正直書き
 				descendantsCount.setText("[ " + count + "comments ] > ");
 			}
-
-			if (group.getLastAccessTime() != null) {
-				int compareResult = YouRoomUtil.calendarCompareTo(
-						group.getLastAccessTime(), roomEntry.getUpdatedTime());
-				if (compareResult < 0) {
+	    	UserSession session = UserSession.getInstance();
+	    	String roomAccessTime = session.getRoomAccessTime(roomId);
+	    	if ( roomAccessTime != null ) {
+				int compareResult = YouRoomUtil.calendarCompareTo(roomAccessTime, roomEntry.getUpdatedTime());
+				if ( compareResult < 0 ){
 					createdTime.setTextColor(Color.RED);
 				}
-			}
-
+	    	}
+			
 			return view;
 		}
 	}
@@ -298,7 +311,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 
 	public void setProgressDialog(ProgressDialog progressDialog) {
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		progressDialog.setMessage("処理を実行中しています");
+		progressDialog.setMessage("処理を実行しています");
 		progressDialog.setCancelable(true);
 	}
 
@@ -306,22 +319,29 @@ public class RoomActivity extends Activity implements OnClickListener {
 	public void onClick(View arg0) {
 		
 		// TODO Auto-generated method stub
-		entryContentText = (EditText) findViewById(R.id.entry_content);
-		
-		String entryContent = entryContentText.getText().toString();
-	
-		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-		HashMap<String, String> oAuthTokenMap = youRoomUtil
-				.getOauthTokenFromLocal();
-		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
 
-		String status = youRoomCommand.createEntry(roomId, null, entryContent);
-		if (status.equals("201")) {
-			entryContentText.setText("");
-			Toast.makeText(this, getString(R.string.post_ok), Toast.LENGTH_SHORT).show();
-		} else
-			Toast.makeText(this, getString(R.string.post_ng), Toast.LENGTH_SHORT).show();
-//			Toast.makeText(this, status, Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent(getApplication(),
+				CreateEntryActivity.class);
+		intent.putExtra("roomId", String.valueOf(roomId));
+		intent.putExtra("youRoomEntry", new YouRoomEntry());
+
+		startActivity(intent);
+//		entryContentText = (EditText) findViewById(R.id.entry_content);
+		
+//		String entryContent = entryContentText.getText().toString();
+//	
+//		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
+//		HashMap<String, String> oAuthTokenMap = youRoomUtil
+//				.getOauthTokenFromLocal();
+//		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
+//
+//		String status = youRoomCommand.createEntry(roomId, null, entryContent);
+//		if (status.equals("201")) {
+//			entryContentText.setText("");
+//			Toast.makeText(this, getString(R.string.post_ok), Toast.LENGTH_SHORT).show();
+//		} else
+//			Toast.makeText(this, getString(R.string.post_ng), Toast.LENGTH_SHORT).show();
+////			Toast.makeText(this, status, Toast.LENGTH_SHORT).show();
 
 	}
 

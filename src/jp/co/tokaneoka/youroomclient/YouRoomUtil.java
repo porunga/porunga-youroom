@@ -60,7 +60,7 @@ public class YouRoomUtil extends ContextWrapper {
 		return check;
 	}
 
-	public String getRoomAccessTime(int roomId){
+	public String getRoomAccessTime(String roomId){
 				
 		String key = "LastAccessTime_" + roomId;
     	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
@@ -69,7 +69,7 @@ public class YouRoomUtil extends ContextWrapper {
 		return lastAccessTime;
 	}
 	
-	public boolean removeRoomAccessTime(int roomId){
+	public boolean removeRoomAccessTime(String roomId){
 		
 		boolean check = false;
 		String key = "LastAccessTime_" + roomId;
@@ -80,7 +80,7 @@ public class YouRoomUtil extends ContextWrapper {
     	return check;
 	}
 	
-	public boolean storeRoomAccessTime(int roomId, String RFC3339FormattedTime){
+	public boolean storeRoomAccessTime(String roomId, String RFC3339FormattedTime){
 		
 		boolean check = false;
 		String key = "LastAccessTime_" + roomId;
@@ -115,6 +115,37 @@ public class YouRoomUtil extends ContextWrapper {
 		
 		boolean check = false;
 		String key = "LastAccessTime";
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
+		Editor editor = sharedpref.edit();
+		editor.putString(key, RFC3339FormattedTime);
+		check = editor.commit();
+		return check;
+	}
+
+	public String getUpdateCheckTime(){
+		
+		String key = "UpdateCheckTime";
+    	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
+		String lastAccessTime = sharedpref.getString(key, null);		
+		
+		return lastAccessTime;
+	}
+	
+	public boolean removeUpdateCheckTime(){
+		
+		boolean check = false;
+		String key = "UpdateCheckTime";
+    	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, MODE_PRIVATE);
+    	Editor editor = sharedpref.edit();
+    	editor.putString(key, null);
+    	check = editor.commit();
+    	return check;
+	}
+	
+	public boolean storeUpdateCheckTime(String RFC3339FormattedTime){
+		
+		boolean check = false;
+		String key = "UpdateCheckTime";
 		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
 		Editor editor = sharedpref.edit();
 		editor.putString(key, RFC3339FormattedTime);
