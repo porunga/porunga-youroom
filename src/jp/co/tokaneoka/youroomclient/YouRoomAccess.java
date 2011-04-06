@@ -30,8 +30,8 @@ import org.apache.http.protocol.HTTP;
 
 public class YouRoomAccess {
 
-	private static final String CONSUMER_KEY = "***";
-	private static final String CONSUMER_SECRET = "***";
+	private static final String CONSUMER_KEY = "****";
+	private static final String CONSUMER_SECRET = "****";
 
 	private static final String SIGNATURE_METHOD = "HMAC-SHA1";
 	private static final String OAUTH_VERSION = "1.0";
@@ -71,22 +71,47 @@ public class YouRoomAccess {
 		this.oauthTokenSecret = oauthTokenSecret;
 	}
 
+	public HttpResponse authentication() {
+		oauthParametersMap = createParametersMap();
+		String apiParamter = createParameters();
+		HttpResponse objResponse = null;
+
+		HttpClient objHttp = new DefaultHttpClient();
+		HttpPost objPost = new HttpPost(api
+				+ (apiParamter.length() > 0 ? "?" + apiParamter : ""));
+		try {
+			objPost.addHeader("Authorization", createAuthorizationValue());
+			objResponse = objHttp.execute(objPost);
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return objResponse;
+	}
+
 	public HttpResponse requestPost() {
 		oauthParametersMap = createParametersMap();
 		String apiParamter = createParameters();
 		HttpResponse objResponse = null;
 
 		HttpClient objHttp = new DefaultHttpClient();
-		// String post_str = api + (apiParamter.length() > 0 ? "?" + apiParamter
-		// : "");
+
 		HttpPost objPost = new HttpPost(api);
 
 		if (parameterMap != null && parameterMap.size() > 0) {
 			HttpEntity entity = null;
 			final List<NameValuePair> params = new ArrayList<NameValuePair>();
-	
+
 			for (Map.Entry<String, String> param : parameterMap.entrySet()) {
-				params.add(new BasicNameValuePair(param.getKey(),param.getValue()));
+				params.add(new BasicNameValuePair(param.getKey(), param
+						.getValue()));
 			}
 
 			try {
@@ -174,11 +199,15 @@ public class YouRoomAccess {
 		}
 		StringBuilder builder = new StringBuilder();
 		for (Map.Entry<String, String> param : parameterMap.entrySet()) {
+
 			builder.append(param.getKey() + "=");
 			builder.append(param.getValue());
 			builder.append("&");
+
 		}
+
 		return builder.toString().substring(0, builder.length() - 1);
+
 	}
 
 	private String createAuthorizationValue() throws InvalidKeyException,
@@ -220,7 +249,12 @@ public class YouRoomAccess {
 	private String getRequestParameters() {
 		if (parameterMap != null && parameterMap.size() > 0) {
 			for (Map.Entry<String, String> param : parameterMap.entrySet()) {
-				oauthParametersMap.put(param.getKey(), param.getValue());
+				try {
+					oauthParametersMap.put(SignatureEncode.encode(param.getKey()), SignatureEncode.encode(param.getValue()));
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		StringBuilder builder = new StringBuilder();

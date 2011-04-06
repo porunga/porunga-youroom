@@ -85,12 +85,9 @@ public class LoginActivity extends Activity implements OnClickListener {
 		Map<String, String> xauthParameterMap = new HashMap<String, String>();		
     	HashMap<String, String> resultMap = new HashMap<String, String>();
     	
-    	try {
-    		xauthParameterMap.put("x_auth_mode", SignatureEncode.encode("client_auth"));
-    		xauthParameterMap.put("x_auth_username", SignatureEncode.encode(username));
-    		xauthParameterMap.put("x_auth_password", SignatureEncode.encode(password));
-    	} catch (UnsupportedEncodingException ignore) {
-    	}
+    		xauthParameterMap.put("x_auth_mode", "client_auth");
+    		xauthParameterMap.put("x_auth_username", username);
+    		xauthParameterMap.put("x_auth_password", password);
     	    	
 		Xauth xAuth = new Xauth(xauthParameterMap);
 		resultMap = xAuth.getAccessToken();

@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class CreateEntryActivity extends Activity {
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
