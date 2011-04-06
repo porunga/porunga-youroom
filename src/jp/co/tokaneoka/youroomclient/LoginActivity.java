@@ -18,86 +18,86 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class LoginActivity extends Activity implements OnClickListener {
-	
-    Handler  mHandler = new Handler();  
-    boolean loginCheck = false;
-    String email = "";
-    String password = "";
-    Intent intent;
-    Toast toast;
-    ProgressDialog dialog;
-    YouRoomUtil youRoomUtil = new YouRoomUtil(this);
-    
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.login_view);
-        
-        Button button = (Button) findViewById(R.id.login_submit);
-        button.setOnClickListener(this);
-        
-    }
+
+	Handler mHandler = new Handler();
+	boolean loginCheck = false;
+	String email = "";
+	String password = "";
+	Intent intent;
+	Toast toast;
+	ProgressDialog dialog;
+	YouRoomUtil youRoomUtil = new YouRoomUtil(this);
+
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.login_view);
+
+		Button button = (Button) findViewById(R.id.login_submit);
+		button.setOnClickListener(this);
+
+	}
 
 	@Override
 	public void onClick(View v) {
-		
+
 		Class distActivity = GroupActivity.class;
-		EditText emailText = (EditText)findViewById(R.id.login_email);
+		EditText emailText = (EditText) findViewById(R.id.login_email);
 		email = emailText.getText().toString();
-		
-		EditText passwordText = (EditText)findViewById(R.id.login_password);
+
+		EditText passwordText = (EditText) findViewById(R.id.login_password);
 		password = passwordText.getText().toString();
-		intent = new Intent(this, distActivity); 
-		toast = Toast.makeText(this, "ƒƒOƒCƒ“‚É¸”s‚µ‚Ü‚µ‚½", Toast.LENGTH_SHORT);
-		
+		intent = new Intent(this, distActivity);
+		toast = Toast.makeText(this, "ãƒ­ã‚°ã‚¤ãƒ³ã«å¤±æ•—ã—ã¾ã—ãŸ", Toast.LENGTH_SHORT);
+
 		dialog = new ProgressDialog(this);
-		dialog.setMessage("ƒƒOƒCƒ“‚µ‚Ä‚¢‚Ü‚·");
+		dialog.setMessage("ãƒ­ã‚°ã‚¤ãƒ³ã—ã¦ã„ã¾ã™");
 		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		dialog.show();  
-		
+		dialog.show();
+
 		(new Thread(new Runnable() {
 			@Override
-			public void run(){
+			public void run() {
 				loginCheck = Login(email, password);
 				mHandler.post(new Runnable() {
 					@Override
 					public void run() {
-						if (loginCheck){
-							// ƒƒOƒCƒ“ŠÔ‚ğ‹N“_‚Æ‚·‚é‚½‚ßAƒƒOƒCƒ“ŠÔ‚ğÅIƒAƒNƒZƒXŠÔ‚Æ‚µ‚Ä‹L˜^
-					    	String currentTime = YouRoomUtil.getRFC3339FormattedTime();
-					    	youRoomUtil.storeAccessTime(currentTime);
-					    	startActivity(intent);
-					    	dialog.dismiss();
-					    	finish();
+						if (loginCheck) {
+							// ãƒ­ã‚°ã‚¤ãƒ³æ™‚é–“ã‚’èµ·ç‚¹ã¨ã™ã‚‹ãŸã‚ã€ãƒ­ã‚°ã‚¤ãƒ³æ™‚é–“ã‚’æœ€çµ‚ã‚¢ã‚¯ã‚»ã‚¹æ™‚é–“ã¨ã—ã¦è¨˜éŒ²
+							String currentTime = YouRoomUtil.getRFC3339FormattedTime();
+							youRoomUtil.storeAccessTime(currentTime);
+							startActivity(intent);
+							dialog.dismiss();
+							finish();
 						} else {
-					    	dialog.dismiss();
+							dialog.dismiss();
 							toast.show();
 						}
 					}
 				});
 			}
-		})).start();		
+		})).start();
 	}
-	
+
 	private boolean Login(String username, String password) {
-		
+
 		boolean check = false;
-		
-		Map<String, String> xauthParameterMap = new HashMap<String, String>();		
-    	HashMap<String, String> resultMap = new HashMap<String, String>();
-    	
-    	try {
-    		xauthParameterMap.put("x_auth_mode", SignatureEncode.encode("client_auth"));
-    		xauthParameterMap.put("x_auth_username", SignatureEncode.encode(username));
-    		xauthParameterMap.put("x_auth_password", SignatureEncode.encode(password));
-    	} catch (UnsupportedEncodingException ignore) {
-    	}
-    	    	
+
+		Map<String, String> xauthParameterMap = new HashMap<String, String>();
+		HashMap<String, String> resultMap = new HashMap<String, String>();
+
+		try {
+			xauthParameterMap.put("x_auth_mode", SignatureEncode.encode("client_auth"));
+			xauthParameterMap.put("x_auth_username", SignatureEncode.encode(username));
+			xauthParameterMap.put("x_auth_password", SignatureEncode.encode(password));
+		} catch (UnsupportedEncodingException ignore) {
+		}
+
 		Xauth xAuth = new Xauth(xauthParameterMap);
 		resultMap = xAuth.getAccessToken();
-		
-		if ( resultMap.size() > 0 ){
+
+		if (resultMap.size() > 0) {
 			check = youRoomUtil.storeOauthTokenToLocal(resultMap);
 		}
 		return check;
-	}	
+	}
 }

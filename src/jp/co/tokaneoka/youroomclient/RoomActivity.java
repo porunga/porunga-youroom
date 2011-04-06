@@ -28,157 +28,158 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class RoomActivity extends Activity {
-    /** Called when the activity is first created. */
-	
+	/** Called when the activity is first created. */
+
 	private String roomId;
 	YouRoomEntryAdapter adapter;
 	ProgressDialog progressDialog;
 	private ListView listView;
 	private int page = 1;
 	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
-	
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.main);
-		
-        Intent intent = getIntent();
-        roomId = intent.getStringExtra("roomId");
-		listView = (ListView)findViewById(R.id.listView1);
+
+		Intent intent = getIntent();
+		roomId = intent.getStringExtra("roomId");
+		listView = (ListView) findViewById(R.id.listView1);
 
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
-		
-       	progressDialog = new ProgressDialog(this);
+
+		progressDialog = new ProgressDialog(this);
 		setProgressDialog(progressDialog);
 		progressDialog.show();
-		
-		// RoomEntryÇÃéÊìæ
-	   	Map<String, String> parameterMap = new HashMap<String, String>();
-    	parameterMap.put("page", String.valueOf(page));
+
+		// RoomEntryÔøΩÃéÊìæ
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("page", String.valueOf(page));
 		GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap);
 		task.execute();
-		page ++;
-		
-		// FooterViewÇÃê›íË
+		page++;
+
+		// FooterViewÔøΩÃê›íÔøΩ
 		final TextView textview = new TextView(this);
-		textview.setText("-----ì«Ç›çûÇ›-----");
+		textview.setText("-----Ë™≠„ÅøËæº„Åø-----");
 		textview.setMinHeight(50);
-		textview.setBackgroundColor(Color.WHITE);				
+		textview.setBackgroundColor(Color.WHITE);
 		listView.addFooterView(textview);
 
 		adapter = new YouRoomEntryAdapter(this, R.layout.room_list_item, dataList);
 		listView.setAdapter(adapter);
-    		
-		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {	
+
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				if(view == textview){
+				if (view == textview) {
 					progressDialog.show();
-				   	Map<String, String> parameterMap = new HashMap<String, String>();
-			    	parameterMap.put("page", String.valueOf(page));
+					Map<String, String> parameterMap = new HashMap<String, String>();
+					parameterMap.put("page", String.valueOf(page));
 					GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap);
 					task.execute();
-					page ++;
+					page++;
 				} else {
 					ListView listView = (ListView) parent;
 					YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
-					if (item.getDescendantsCount() == -1){
-						Toast.makeText(getApplication(), "ì«Ç›çûÇ›íÜÇ≈Ç∑ÅBÇ‡Ç§è≠ÇµÇ®Ç‹ÇøÇ≠ÇæÇ≥Ç¢ÅB", Toast.LENGTH_SHORT).show();
+					if (item.getDescendantsCount() == -1) {
+						Toast.makeText(getApplication(), "Ë™≠„ÅøËæº„Åø‰∏≠„Åß„Åô„ÄÇ„ÇÇ„ÅÜÂ∞ë„Åó„Åä„Åæ„Å°„Åè„Å†„Åï„ÅÑ„ÄÇ", Toast.LENGTH_SHORT).show();
 					} else {
 						/*
-				    	UserSession session = UserSession.getInstance();
-				    	String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
-				    	session.setRoomAccessTime(roomId, lastAccessTime);						
-				    	String time = YouRoomUtil.getRFC3339FormattedTime();						
-				    	youRoomUtil.storeRoomAccessTime(roomId, time);
-						*/
+						 * UserSession session = UserSession.getInstance();
+						 * String lastAccessTime =
+						 * youRoomUtil.getRoomAccessTime(roomId);
+						 * session.setRoomAccessTime(roomId, lastAccessTime);
+						 * String time = YouRoomUtil.getRFC3339FormattedTime();
+						 * youRoomUtil.storeRoomAccessTime(roomId, time);
+						 */
 						Intent intent = new Intent(getApplication(), EntryActivity.class);
-						intent.putExtra("roomId", String.valueOf(roomId) );
-						intent.putExtra("youRoomEntry", item);				    	
+						intent.putExtra("roomId", String.valueOf(roomId));
+						intent.putExtra("youRoomEntry", item);
 						startActivity(intent);
 					}
 				}
 			}
 		});
-        
-    }
-        
+
+	}
+
 	@Override
-	public void onStart(){
+	public void onStart() {
 		super.onStart();
 	}
-	
-    // ListViewÉJÉXÉ^É}ÉCÉYópÇÃArrayAdapter
+
+	// ListView„Ç´„Çπ„Çø„Éû„Ç§„Ç∫Áî®„ÅÆArrayAdapter
 	public class YouRoomEntryAdapter extends ArrayAdapter<YouRoomEntry> {
 		private LayoutInflater inflater;
 		private ArrayList<YouRoomEntry> items;
-		
-		public YouRoomEntryAdapter( Context context, int textViewResourceId, ArrayList<YouRoomEntry> items) {
+
+		public YouRoomEntryAdapter(Context context, int textViewResourceId, ArrayList<YouRoomEntry> items) {
 			super(context, textViewResourceId, items);
 			this.items = items;
 			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
-		
-		public View getView(final int position, View convertView, ViewGroup parent){
+
+		public View getView(final int position, View convertView, ViewGroup parent) {
 			View view = convertView;
 			if (convertView == null) {
-				view = inflater.inflate(R.layout.room_list_item, null);				
+				view = inflater.inflate(R.layout.room_list_item, null);
 			}
-			
-			YouRoomEntry roomEntry = (YouRoomEntry)this.getItem(position);
+
+			YouRoomEntry roomEntry = (YouRoomEntry) this.getItem(position);
 			TextView name = null;
 			TextView content = null;
 			TextView createdTime = null;
 			TextView descendantsCount = null;
-			
-			if ( roomEntry != null ){
-				name = (TextView)view.findViewById(R.id.textView1);
-				createdTime = (TextView)view.findViewById(R.id.textView2);
-				content = (TextView)view.findViewById(R.id.textView3);
+
+			if (roomEntry != null) {
+				name = (TextView) view.findViewById(R.id.textView1);
+				createdTime = (TextView) view.findViewById(R.id.textView2);
+				content = (TextView) view.findViewById(R.id.textView3);
 			}
-			if ( name != null ){
+			if (name != null) {
 				name.setText(roomEntry.getParticipationName());
 			}
-			if ( createdTime != null ){
+			if (createdTime != null) {
 				createdTime.setTextColor(Color.LTGRAY);
 				createdTime.setText(YouRoomUtil.convertDatetime(roomEntry.getCreatedTime()));
 			}
-			if ( content != null ){
+			if (content != null) {
 				content.setText(roomEntry.getContent());
 			}
 
-			descendantsCount = (TextView)view.findViewById(R.id.textView4);
+			descendantsCount = (TextView) view.findViewById(R.id.textView4);
 			int count = roomEntry.getDescendantsCount();
-			if ( count == -1 ) {
+			if (count == -1) {
 				GetEntryTask task = new GetEntryTask(descendantsCount, roomId, roomEntry);
 				task.execute(roomEntry.getId());
 			} else {
-				//TODO ÉåÉCÉAÉEÉgèCê≥íºèëÇ´
+				// TODO „É¨„Ç§„Ç¢„Ç¶„Éà‰øÆÊ≠£Áõ¥Êõ∏„Åç
 				descendantsCount.setText("[ " + count + "comments ] > ");
 			}
-			
-	    	UserSession session = UserSession.getInstance();
-	    	String roomAccessTime = session.getRoomAccessTime(roomId);
-	    	if ( roomAccessTime != null ) {
+
+			UserSession session = UserSession.getInstance();
+			String roomAccessTime = session.getRoomAccessTime(roomId);
+			if (roomAccessTime != null) {
 				int compareResult = YouRoomUtil.calendarCompareTo(roomAccessTime, roomEntry.getUpdatedTime());
-				if ( compareResult < 0 ){
+				if (compareResult < 0) {
 					createdTime.setTextColor(Color.RED);
 				}
-	    	}
-			
+			}
+
 			return view;
 		}
 	}
-	
+
 	public class GetEntryTask extends AsyncTask<Integer, Void, String> {
-		
+
 		private String roomId;
 		String count;
 		private TextView textView;
 		private YouRoomEntry roomEntry;
-		
-		public GetEntryTask(TextView textView, String roomId, YouRoomEntry roomEntry){
+
+		public GetEntryTask(TextView textView, String roomId, YouRoomEntry roomEntry) {
 			this.roomId = roomId;
 			this.roomEntry = roomEntry;
 			this.textView = textView;
@@ -186,42 +187,42 @@ public class RoomActivity extends Activity {
 
 		@Override
 		protected String doInBackground(Integer... entryIds) {
-			
+
 			YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
 			HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
 			YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
 			String entry = youRoomCommand.getEntry(roomId, String.valueOf(entryIds[0]));
-			
+
 			try {
-				JSONObject json = new JSONObject(entry);    			
-		    	count = json.getJSONObject("entry").getString("descendants_count");
+				JSONObject json = new JSONObject(entry);
+				count = json.getJSONObject("entry").getString("descendants_count");
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 			roomEntry.setDescendantsCount(Integer.valueOf(count));
 			return count;
 		}
-		
+
 		@Override
-		protected void onPostExecute(String count){
-			//TODO ÉåÉCÉAÉEÉgèCê≥íºèëÇ´
+		protected void onPostExecute(String count) {
+			// TODO „É¨„Ç§„Ç¢„Ç¶„Éà‰øÆÊ≠£Áõ¥Êõ∏„Åç
 			textView.setText("[ " + count + "comments ] > ");
 		}
 	}
-	
-	private ArrayList<YouRoomEntry> getRoomEntryList(String roomId, Map<String, String> parameterMap){
-		
+
+	private ArrayList<YouRoomEntry> getRoomEntryList(String roomId, Map<String, String> parameterMap) {
+
 		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
 		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
 		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
 		String roomTL = "";
-		roomTL= youRoomCommand.getRoomTimeLine(roomId, parameterMap);
-		
+		roomTL = youRoomCommand.getRoomTimeLine(roomId, parameterMap);
+
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
-		
+
 		try {
 			JSONArray jsons = new JSONArray(roomTL);
-			for(int i =0 ; i< jsons.length(); i++){
+			for (int i = 0; i < jsons.length(); i++) {
 				YouRoomEntry roomEntry = new YouRoomEntry();
 				JSONObject jObject = jsons.getJSONObject(i);
 				JSONObject entryObject = jObject.getJSONObject("entry");
@@ -229,16 +230,16 @@ public class RoomActivity extends Activity {
 				int id = entryObject.getInt("id");
 				String participationName = entryObject.getJSONObject("participation").getString("name");
 				String content = entryObject.getString("content");
-    		    
+
 				String createdTime = entryObject.getString("created_at");
 				String updatedTime = entryObject.getString("updated_at");
-				
+
 				roomEntry.setId(id);
 				roomEntry.setUpdatedTime(updatedTime);
 				roomEntry.setParticipationName(participationName);
 				roomEntry.setCreatedTime(createdTime);
 				roomEntry.setContent(content);
-    		    	
+
 				dataList.add(roomEntry);
 			}
 		} catch (JSONException e) {
@@ -246,27 +247,28 @@ public class RoomActivity extends Activity {
 		}
 		return dataList;
 	}
-	
+
 	public class GetRoomEntryTask extends AsyncTask<Void, Void, ArrayList<YouRoomEntry>> {
-		
+
 		private String roomId;
 		private Map<String, String> parameterMap;
-		public GetRoomEntryTask(String roomId, Map<String, String> parameterMap){
+
+		public GetRoomEntryTask(String roomId, Map<String, String> parameterMap) {
 			this.roomId = roomId;
 			this.parameterMap = parameterMap;
 		}
-		
+
 		@Override
-		protected ArrayList<YouRoomEntry> doInBackground(Void... ids) {						
+		protected ArrayList<YouRoomEntry> doInBackground(Void... ids) {
 			ArrayList<YouRoomEntry> dataList = getRoomEntryList(roomId, parameterMap);
 			return dataList;
 		}
-				
+
 		@Override
-		protected void onPostExecute(ArrayList<YouRoomEntry> dataList){
+		protected void onPostExecute(ArrayList<YouRoomEntry> dataList) {
 			int count = adapter.getCount();
 			Iterator iterator = dataList.iterator();
-			while( iterator.hasNext() ) {
+			while (iterator.hasNext()) {
 				adapter.add((YouRoomEntry) iterator.next());
 			}
 			adapter.notifyDataSetChanged();
@@ -274,13 +276,11 @@ public class RoomActivity extends Activity {
 			progressDialog.dismiss();
 		}
 	}
-	
-	public void setProgressDialog(ProgressDialog progressDialog){
+
+	public void setProgressDialog(ProgressDialog progressDialog) {
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		progressDialog.setMessage("èàóùÇé¿çsÇµÇƒÇ¢Ç‹Ç∑");
+		progressDialog.setMessage("Âá¶ÁêÜ„ÇíÂÆüË°å„Åó„Å¶„ÅÑ„Åæ„Åô");
 		progressDialog.setCancelable(true);
 	}
 
-	
 }
-

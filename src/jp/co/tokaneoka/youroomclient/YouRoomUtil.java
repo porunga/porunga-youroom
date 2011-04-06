@@ -23,36 +23,36 @@ public class YouRoomUtil extends ContextWrapper {
 	public YouRoomUtil(Context base) {
 		super(base);
 	}
-	    
-	public HashMap<String, String> getOauthTokenFromLocal(){
-		
+
+	public HashMap<String, String> getOauthTokenFromLocal() {
+
 		HashMap<String, String> oAuthTokenMap = new HashMap<String, String>();
-		
-    	sharedpref = getSharedPreferences(PREFERENCE_KEY, Activity.MODE_APPEND );
+
+		sharedpref = getSharedPreferences(PREFERENCE_KEY, Activity.MODE_APPEND);
 		String oauthToken = sharedpref.getString(TOKEN_MAP_KEY, null);
 		String oauthTokenSecret = sharedpref.getString(TOKEN_SECRET_MAP_KEY, null);
-		
+
 		oAuthTokenMap.put(TOKEN_MAP_KEY, oauthToken);
 		oAuthTokenMap.put(TOKEN_SECRET_MAP_KEY, oauthTokenSecret);
-		
+
 		return oAuthTokenMap;
 	}
-	
-	public boolean removeOauthTokenFromLocal(){
-		
+
+	public boolean removeOauthTokenFromLocal() {
+
 		boolean check = false;
-    	sharedpref = getSharedPreferences(PREFERENCE_KEY, MODE_PRIVATE);
-    	Editor editor = sharedpref.edit();
-    	editor.putString(TOKEN_MAP_KEY, null);
-    	editor.putString(TOKEN_SECRET_MAP_KEY, null);
-    	check = editor.commit();
-    	return check;
+		sharedpref = getSharedPreferences(PREFERENCE_KEY, MODE_PRIVATE);
+		Editor editor = sharedpref.edit();
+		editor.putString(TOKEN_MAP_KEY, null);
+		editor.putString(TOKEN_SECRET_MAP_KEY, null);
+		check = editor.commit();
+		return check;
 	}
-	
-	public boolean storeOauthTokenToLocal(HashMap<String, String> oAuthTokenMap){
-		
+
+	public boolean storeOauthTokenToLocal(HashMap<String, String> oAuthTokenMap) {
+
 		boolean check = false;
-		sharedpref = getSharedPreferences(PREFERENCE_KEY, Activity.MODE_APPEND );
+		sharedpref = getSharedPreferences(PREFERENCE_KEY, Activity.MODE_APPEND);
 		Editor editor = sharedpref.edit();
 		editor.putString(TOKEN_MAP_KEY, oAuthTokenMap.get("oauth_token"));
 		editor.putString(TOKEN_SECRET_MAP_KEY, oAuthTokenMap.get(TOKEN_SECRET_MAP_KEY));
@@ -60,214 +60,214 @@ public class YouRoomUtil extends ContextWrapper {
 		return check;
 	}
 
-	public String getRoomAccessTime(String roomId){
-				
+	public String getRoomAccessTime(String roomId) {
+
 		String key = "LastAccessTime_" + roomId;
-    	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
-		String lastAccessTime = sharedpref.getString(key, null);		
-		
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND);
+		String lastAccessTime = sharedpref.getString(key, null);
+
 		return lastAccessTime;
 	}
-	
-	public boolean removeRoomAccessTime(String roomId){
-		
+
+	public boolean removeRoomAccessTime(String roomId) {
+
 		boolean check = false;
 		String key = "LastAccessTime_" + roomId;
-    	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, MODE_PRIVATE);
-    	Editor editor = sharedpref.edit();
-    	editor.putString(key, null);
-    	check = editor.commit();
-    	return check;
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, MODE_PRIVATE);
+		Editor editor = sharedpref.edit();
+		editor.putString(key, null);
+		check = editor.commit();
+		return check;
 	}
-	
-	public boolean storeRoomAccessTime(String roomId, String RFC3339FormattedTime){
-		
+
+	public boolean storeRoomAccessTime(String roomId, String RFC3339FormattedTime) {
+
 		boolean check = false;
 		String key = "LastAccessTime_" + roomId;
-		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND);
 		Editor editor = sharedpref.edit();
 		editor.putString(key, RFC3339FormattedTime);
 		check = editor.commit();
 		return check;
 	}
 
-	public String getAccessTime(){
-		
+	public String getAccessTime() {
+
 		String key = "LastAccessTime";
-    	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
-		String lastAccessTime = sharedpref.getString(key, null);		
-		
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND);
+		String lastAccessTime = sharedpref.getString(key, null);
+
 		return lastAccessTime;
 	}
-	
-	public boolean removeAccessTime(){
-		
+
+	public boolean removeAccessTime() {
+
 		boolean check = false;
 		String key = "LastAccessTime";
-    	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, MODE_PRIVATE);
-    	Editor editor = sharedpref.edit();
-    	editor.putString(key, null);
-    	check = editor.commit();
-    	return check;
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, MODE_PRIVATE);
+		Editor editor = sharedpref.edit();
+		editor.putString(key, null);
+		check = editor.commit();
+		return check;
 	}
-	
-	public boolean storeAccessTime(String RFC3339FormattedTime){
-		
+
+	public boolean storeAccessTime(String RFC3339FormattedTime) {
+
 		boolean check = false;
 		String key = "LastAccessTime";
-		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND);
 		Editor editor = sharedpref.edit();
 		editor.putString(key, RFC3339FormattedTime);
 		check = editor.commit();
 		return check;
 	}
 
-	public String getUpdateCheckTime(){
-		
+	public String getUpdateCheckTime() {
+
 		String key = "UpdateCheckTime";
-    	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
-		String lastAccessTime = sharedpref.getString(key, null);		
-		
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND);
+		String lastAccessTime = sharedpref.getString(key, null);
+
 		return lastAccessTime;
 	}
-	
-	public boolean removeUpdateCheckTime(){
-		
+
+	public boolean removeUpdateCheckTime() {
+
 		boolean check = false;
 		String key = "UpdateCheckTime";
-    	sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, MODE_PRIVATE);
-    	Editor editor = sharedpref.edit();
-    	editor.putString(key, null);
-    	check = editor.commit();
-    	return check;
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, MODE_PRIVATE);
+		Editor editor = sharedpref.edit();
+		editor.putString(key, null);
+		check = editor.commit();
+		return check;
 	}
-	
-	public boolean storeUpdateCheckTime(String RFC3339FormattedTime){
-		
+
+	public boolean storeUpdateCheckTime(String RFC3339FormattedTime) {
+
 		boolean check = false;
 		String key = "UpdateCheckTime";
-		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND );
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND);
 		Editor editor = sharedpref.edit();
 		editor.putString(key, RFC3339FormattedTime);
 		check = editor.commit();
 		return check;
 	}
 
-	
 	public boolean isLogined() {
-		
+
 		boolean check = false;
-        String oauthToken = null;
-        String oauthTokenSecret = null;
-        HashMap<String, String> oAuthTokenMap = getOauthTokenFromLocal();
-        
-        oauthToken = oAuthTokenMap.get(TOKEN_MAP_KEY);
-        oauthTokenSecret = oAuthTokenMap.get(TOKEN_SECRET_MAP_KEY);        
-		//Ç∆ÇËÇ†Ç¶Ç∏ÅAoauthTokenÇ™Ç†ÇÈÇ©Ç«Ç§Ç©ÇÃÇ›É`ÉFÉbÉN
-		if (oauthToken != null && oauthTokenSecret != null ){
+		String oauthToken = null;
+		String oauthTokenSecret = null;
+		HashMap<String, String> oAuthTokenMap = getOauthTokenFromLocal();
+
+		oauthToken = oAuthTokenMap.get(TOKEN_MAP_KEY);
+		oauthTokenSecret = oAuthTokenMap.get(TOKEN_SECRET_MAP_KEY);
+		// „Å®„Çä„ÅÇ„Åà„Åö„ÄÅoauthToken„Åå„ÅÇ„Çã„Åã„Å©„ÅÜ„Åã„ÅÆ„Åø„ÉÅ„Çß„ÉÉ„ÇØ
+		if (oauthToken != null && oauthTokenSecret != null) {
 			check = true;
 		}
 		return check;
 	}
 
 	// "2011-03-02T12:46:06Z" -> "2011/03/02 21:46:06"
-    public static String convertDatetime(String unformattedTime) {
-    	//åªç›éûçèÇ∆éwíËì˙Ç∆ÇÃç∑Çï\é¶Ç∑ÇÈ
-    	
-    	Calendar cal = getDesignatedCalendar(unformattedTime);
-    	Calendar currentCal = getCurrentCalendar();
-    	currentCal.add(Calendar.MONTH, 1);
+	public static String convertDatetime(String unformattedTime) {
+		// ÁèæÂú®ÊôÇÂàª„Å®ÊåáÂÆöÊó•„Å®„ÅÆÂ∑Æ„ÇíË°®Á§∫„Åô„Çã
 
-    	Calendar displayCal = new GregorianCalendar();
-    	long milliseconds = currentCal.getTimeInMillis() - cal.getTimeInMillis();
-    	displayCal.setTimeInMillis(milliseconds);
+		Calendar cal = getDesignatedCalendar(unformattedTime);
+		Calendar currentCal = getCurrentCalendar();
+		currentCal.add(Calendar.MONTH, 1);
 
-    	SimpleDateFormat format = new SimpleDateFormat("HH:mm");
-    	
-    	if ( milliseconds/(1000*60) < 0) {
-    		return String.valueOf(milliseconds%(1000*60) + "ïbëO");
-    	}
-    	if ( milliseconds/(1000*60) < 60) {
-    		return String.valueOf(milliseconds/(1000*60) + "ï™ëO");
-    	} else if (milliseconds/(1000*60*60) < 24 ){
-    		return String.valueOf(milliseconds/(1000*60*60) + "éûä‘ëO");
-    	} else if (displayCal.get(Calendar.YEAR) > 1970) {
-    		return cal.get(Calendar.YEAR) + "/" + cal.get(Calendar.MONTH) +"/" + cal.get(Calendar.DAY_OF_MONTH) + " " + " " + format.format(cal.getTime());
-    	} else {
-    		return cal.get(Calendar.MONTH) +"/" + cal.get(Calendar.DAY_OF_MONTH) + " " + format.format(cal.getTime());
-    	}
-    }
-        
-    public static Calendar getDesignatedCalendar(String unformattedTime) {
-    	
-    	// ( "2011-03-02T12:46:06Z" | "2011-03-02T12:46:06+09:00" ) -> "2011/03/02 21:46:06"
-    	unformattedTime = unformattedTime.replaceAll("(\\+[0-9+:]+)|Z", "");
-    	String[] updateTimes = unformattedTime.substring(0, unformattedTime.length()).split("T");
-    	String[] date = updateTimes[0].split("-");
-    	String[] times = updateTimes[1].split(":");
-    	int year = Integer.parseInt(date[0]);
-    	int month = Integer.parseInt(date[1]);
-    	int day = Integer.parseInt(date[2]);
-    	int hour = Integer.parseInt(times[0]);
-    	int minute = Integer.parseInt(times[1]);
-    	int second = Integer.parseInt(times[2]);
-    	
-    	Calendar cal = new GregorianCalendar(year, month ,day, hour, minute, second);
-    	cal.add(Calendar.HOUR, 9);
-    	
-    	return cal;
-    }
+		Calendar displayCal = new GregorianCalendar();
+		long milliseconds = currentCal.getTimeInMillis() - cal.getTimeInMillis();
+		displayCal.setTimeInMillis(milliseconds);
 
-    public static Calendar getCurrentCalendar() {
-    	
-    	Calendar currentCal = new GregorianCalendar(Locale.JAPAN);
-    	
-    	return currentCal;
-    }
-    
-    public static String getRFC3339FormattedTime() {
+		SimpleDateFormat format = new SimpleDateFormat("HH:mm");
 
-    	Calendar calendar = getCurrentCalendar();
-    	calendar.add(Calendar.HOUR_OF_DAY, -9);
-    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
-    	String result = format.format(calendar.getTime());
-    	String standardName = "";
-    	if ( result.contains("JST") ){
-    		standardName = "JST";
-        	result = result.replaceAll(standardName, "+09:00");
-    	} else if (result.contains("GMT")){
-    		standardName = "GMT";
-        	result = result.replaceAll(standardName, "");
-    	}    	
-    	return result;
-    }
+		if (milliseconds / (1000 * 60) < 0) {
+			return String.valueOf(milliseconds % (1000 * 60) + "ÁßíÂâç");
+		}
+		if (milliseconds / (1000 * 60) < 60) {
+			return String.valueOf(milliseconds / (1000 * 60) + "ÂàÜÂâç");
+		} else if (milliseconds / (1000 * 60 * 60) < 24) {
+			return String.valueOf(milliseconds / (1000 * 60 * 60) + "ÊôÇÈñìÂâç");
+		} else if (displayCal.get(Calendar.YEAR) > 1970) {
+			return cal.get(Calendar.YEAR) + "/" + cal.get(Calendar.MONTH) + "/" + cal.get(Calendar.DAY_OF_MONTH) + " " + " " + format.format(cal.getTime());
+		} else {
+			return cal.get(Calendar.MONTH) + "/" + cal.get(Calendar.DAY_OF_MONTH) + " " + format.format(cal.getTime());
+		}
+	}
 
-    public static int calendarCompareTo(String unformattedTime1, String unformattedTime2) {
+	public static Calendar getDesignatedCalendar(String unformattedTime) {
 
-    	int result = 0;
-    	Calendar cal1 = getDesignatedCalendar(unformattedTime1);
-    	Calendar cal2 = getDesignatedCalendar(unformattedTime2);
-    	result = cal1.compareTo(cal2); // cal1Ç™éûä‘ìIÇ…ëOÇ»ÇÁ-1
+		// ( "2011-03-02T12:46:06Z" | "2011-03-02T12:46:06+09:00" ) ->
+		// "2011/03/02 21:46:06"
+		unformattedTime = unformattedTime.replaceAll("(\\+[0-9+:]+)|Z", "");
+		String[] updateTimes = unformattedTime.substring(0, unformattedTime.length()).split("T");
+		String[] date = updateTimes[0].split("-");
+		String[] times = updateTimes[1].split(":");
+		int year = Integer.parseInt(date[0]);
+		int month = Integer.parseInt(date[1]);
+		int day = Integer.parseInt(date[2]);
+		int hour = Integer.parseInt(times[0]);
+		int minute = Integer.parseInt(times[1]);
+		int second = Integer.parseInt(times[2]);
+
+		Calendar cal = new GregorianCalendar(year, month, day, hour, minute, second);
+		cal.add(Calendar.HOUR, 9);
+
+		return cal;
+	}
+
+	public static Calendar getCurrentCalendar() {
+
+		Calendar currentCal = new GregorianCalendar(Locale.JAPAN);
+
+		return currentCal;
+	}
+
+	public static String getRFC3339FormattedTime() {
+
+		Calendar calendar = getCurrentCalendar();
+		calendar.add(Calendar.HOUR_OF_DAY, -9);
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
+		String result = format.format(calendar.getTime());
+		String standardName = "";
+		if (result.contains("JST")) {
+			standardName = "JST";
+			result = result.replaceAll(standardName, "+09:00");
+		} else if (result.contains("GMT")) {
+			standardName = "GMT";
+			result = result.replaceAll(standardName, "");
+		}
 		return result;
-     }
+	}
 
-	// TODO For Debugging çì˙ÇÃéûä‘ÇRFC3339å`éÆÇ≈éÊìæ
-    public static String getYesterdayFormattedTime() {
+	public static int calendarCompareTo(String unformattedTime1, String unformattedTime2) {
 
-    	Calendar calendar = getCurrentCalendar();
-    	calendar.add(Calendar.HOUR_OF_DAY, -9);
-    	calendar.add(Calendar.DAY_OF_MONTH, -1);    	
-    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
-    	String result = format.format(calendar.getTime());
-    	String standardName = "";
-    	if ( result.contains("JST") ){
-    		standardName = "JST";
-        	result = result.replaceAll(standardName, "+09:00");
-    	} else if (result.contains("GMT")){
-    		standardName = "GMT";
-        	result = result.replaceAll(standardName, "");
-    	}    	
-    	return result;
-    }
-    
+		int result = 0;
+		Calendar cal1 = getDesignatedCalendar(unformattedTime1);
+		Calendar cal2 = getDesignatedCalendar(unformattedTime2);
+		result = cal1.compareTo(cal2); // cal1„ÅåÊôÇÈñìÁöÑ„Å´Ââç„Å™„Çâ-1
+		return result;
+	}
+
+	// TODO For Debugging Êò®Êó•„ÅÆÊôÇÈñì„ÇíRFC3339ÂΩ¢Âºè„ÅßÂèñÂæó
+	public static String getYesterdayFormattedTime() {
+
+		Calendar calendar = getCurrentCalendar();
+		calendar.add(Calendar.HOUR_OF_DAY, -9);
+		calendar.add(Calendar.DAY_OF_MONTH, -1);
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
+		String result = format.format(calendar.getTime());
+		String standardName = "";
+		if (result.contains("JST")) {
+			standardName = "JST";
+			result = result.replaceAll(standardName, "+09:00");
+		} else if (result.contains("GMT")) {
+			standardName = "GMT";
+			result = result.replaceAll(standardName, "");
+		}
+		return result;
+	}
+
 }

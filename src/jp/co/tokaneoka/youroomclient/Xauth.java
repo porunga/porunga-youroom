@@ -1,8 +1,8 @@
 package jp.co.tokaneoka.youroomclient;
 
 /*
- * http://d.hatena.ne.jp/lynmock/20100502/‚ÌuJava‚Å‚ÌXauth AccessTokenæ“¾ƒTƒ“ƒvƒ‹v
- * ‚ğQl‚Éi‚Ù‚Ú‚»‚Ì‚Ü‚Üjì¬
+ * http://d.hatena.ne.jp/lynmock/20100502/ã®ã€ŒJavaã§ã®Xauth AccessTokenå–å¾—ã‚µãƒ³ãƒ—ãƒ«ã€
+ * ã‚’å‚è€ƒã«ï¼ˆã»ã¼ãã®ã¾ã¾ï¼‰ä½œæˆ
  */
 
 import java.io.IOException;
@@ -15,29 +15,29 @@ import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
 
 public class Xauth {
-	
-	private Map<String, String> xauthParameterMap;	
+
+	private Map<String, String> xauthParameterMap;
 	private YouRoomAccess youRoomAccess;
-	
-	public Xauth(Map<String, String> xauthParameterMap){
+
+	public Xauth(Map<String, String> xauthParameterMap) {
 		this.youRoomAccess = new YouRoomAccess();
 		this.xauthParameterMap = xauthParameterMap;
 	}
-		
-	public HashMap<String,String> getAccessToken() {
+
+	public HashMap<String, String> getAccessToken() {
 
 		String method = "POST";
 		String api = "https://www.youroom.in/oauth/access_token";
-		HashMap<String, String> oAuthTokenMap = new HashMap<String, String>(); 
+		HashMap<String, String> oAuthTokenMap = new HashMap<String, String>();
 		youRoomAccess.setMethod(method);
 		youRoomAccess.setApi(api);
 		youRoomAccess.setParameter(xauthParameterMap);
-		
+
 		HttpResponse objResponse = youRoomAccess.requestPost();
-		//TODO if (objResponse == null )
-		
+		// TODO if (objResponse == null )
+
 		int statusCode = objResponse.getStatusLine().getStatusCode();
-		
+
 		if (statusCode == HttpURLConnection.HTTP_OK) {
 			try {
 				String result = EntityUtils.toString(objResponse.getEntity(), "UTF-8");
@@ -49,8 +49,8 @@ public class Xauth {
 					}
 					String key = keyAndValue[0];
 					String value = keyAndValue[1];
-					if("oauth_token".equals(key) || "oauth_token_secret".equals(key)){
-						oAuthTokenMap.put(key,value);
+					if ("oauth_token".equals(key) || "oauth_token_secret".equals(key)) {
+						oAuthTokenMap.put(key, value);
 					}
 				}
 			} catch (ParseException e) {
@@ -59,6 +59,6 @@ public class Xauth {
 				e.printStackTrace();
 			}
 		}
-		return oAuthTokenMap;	
+		return oAuthTokenMap;
 	}
 }

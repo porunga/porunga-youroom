@@ -37,258 +37,258 @@ public class GroupActivity extends Activity {
 	private final int REACQUIRE_GROUP = 2;
 	private final int CHECK_UPDATE = 3;
 	private final int UNCHECK_UPDATE = 4;
-	
+
 	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 	private YouRoomGroupAdapter adapter;
 	private ProgressDialog progressDialog;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        
-        if( !youRoomUtil.isLogined() ){
-            setContentView(R.layout.top);
-        	Button login_button = (Button)findViewById(R.id.login_button);
-        	
-            OnClickListener loginClickListener = new OnClickListener(){
-            	public void onClick(View v) {
-                	if ( v.getId() == R.id.login_button){
-                		Intent intent = new Intent(getApplication(), LoginActivity.class); 
-                		startActivity(intent);
-                	}
-            	}		    	
-            };
-        	
-        	login_button.setOnClickListener(loginClickListener);
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-        } else {
-            setContentView(R.layout.group_view);
-            
-           	progressDialog = new ProgressDialog(this);
-    		setProgressDialog(progressDialog);
-    		progressDialog.show();
-    		
-    		ListView listView = (ListView)findViewById(R.id.listView1);
-    		ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();    		
+		if (!youRoomUtil.isLogined()) {
+			setContentView(R.layout.top);
+			Button login_button = (Button) findViewById(R.id.login_button);
+
+			OnClickListener loginClickListener = new OnClickListener() {
+				public void onClick(View v) {
+					if (v.getId() == R.id.login_button) {
+						Intent intent = new Intent(getApplication(), LoginActivity.class);
+						startActivity(intent);
+					}
+				}
+			};
+
+			login_button.setOnClickListener(loginClickListener);
+
+		} else {
+			setContentView(R.layout.group_view);
+
+			progressDialog = new ProgressDialog(this);
+			setProgressDialog(progressDialog);
+			progressDialog.show();
+
+			ListView listView = (ListView) findViewById(R.id.listView1);
+			ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
 			GetGroupTask task = new GetGroupTask();
 			task.execute();
-    					
-    		adapter = new YouRoomGroupAdapter(this, R.layout.group_list_item, dataList);
-    		listView.setAdapter(adapter);
-    		
-    		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-    	        @Override
-    	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    	            ListView listView = (ListView) parent;
-    	            YouRoomGroup item = (YouRoomGroup) listView.getItemAtPosition(position);
-    	            Intent intent = new Intent(getApplication(), RoomActivity.class);
-    	            String roomId = String.valueOf(item.getId());
-    	            intent.putExtra("roomId", roomId);
-    	            
-			    	UserSession session = UserSession.getInstance();
-			    	String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
-			    	session.setRoomAccessTime(roomId, lastAccessTime);						
-			    	String time = YouRoomUtil.getRFC3339FormattedTime();
-			    	youRoomUtil.storeRoomAccessTime(roomId, time);
-    	            
-    	            startActivity(intent);
-    	        }
-    	    });
-        }        
-    }
+
+			adapter = new YouRoomGroupAdapter(this, R.layout.group_list_item, dataList);
+			listView.setAdapter(adapter);
+
+			listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					ListView listView = (ListView) parent;
+					YouRoomGroup item = (YouRoomGroup) listView.getItemAtPosition(position);
+					Intent intent = new Intent(getApplication(), RoomActivity.class);
+					String roomId = String.valueOf(item.getId());
+					intent.putExtra("roomId", roomId);
+
+					UserSession session = UserSession.getInstance();
+					String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
+					session.setRoomAccessTime(roomId, lastAccessTime);
+					String time = YouRoomUtil.getRFC3339FormattedTime();
+					youRoomUtil.storeRoomAccessTime(roomId, time);
+
+					startActivity(intent);
+				}
+			});
+		}
+	}
 
 	@Override
-	public void onStart(){
+	public void onStart() {
 		super.onStart();
 	}
-		
+
 	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-      menu.add(Menu.NONE, DELETE_TOKEN, DELETE_TOKEN, R.string.delete_token);
-      menu.add(Menu.NONE, REACQUIRE_GROUP, REACQUIRE_GROUP, R.string.reacquire_group);
-      menu.add(Menu.NONE, CHECK_UPDATE, CHECK_UPDATE, R.string.check_update);
-      menu.add(Menu.NONE, UNCHECK_UPDATE, UNCHECK_UPDATE, R.string.uncheck_update);
-    return super.onCreateOptionsMenu(menu);
-    }
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(Menu.NONE, DELETE_TOKEN, DELETE_TOKEN, R.string.delete_token);
+		menu.add(Menu.NONE, REACQUIRE_GROUP, REACQUIRE_GROUP, R.string.reacquire_group);
+		menu.add(Menu.NONE, CHECK_UPDATE, CHECK_UPDATE, R.string.check_update);
+		menu.add(Menu.NONE, UNCHECK_UPDATE, UNCHECK_UPDATE, R.string.uncheck_update);
+		return super.onCreateOptionsMenu(menu);
+	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {
-        boolean ret = true;
-    	AlarmManager alarmManager;
-    	Intent serviceIntent;
-    	PendingIntent pendingIntent;
+		boolean ret = true;
+		AlarmManager alarmManager;
+		Intent serviceIntent;
+		PendingIntent pendingIntent;
 
-        switch (item.getItemId()) {
-        case DELETE_TOKEN:
-        	if ( youRoomUtil.removeOauthTokenFromLocal() ){
-        		Intent intent = new Intent(this, LoginActivity.class); 
-        		startActivity(intent);
-        	}
-        	ret = true;
-	    	break;
-        case REACQUIRE_GROUP:
-           	progressDialog = new ProgressDialog(this);
-    		setProgressDialog(progressDialog);
-    		progressDialog.show();
-    		adapter.clear();
+		switch (item.getItemId()) {
+		case DELETE_TOKEN:
+			if (youRoomUtil.removeOauthTokenFromLocal()) {
+				Intent intent = new Intent(this, LoginActivity.class);
+				startActivity(intent);
+			}
+			ret = true;
+			break;
+		case REACQUIRE_GROUP:
+			progressDialog = new ProgressDialog(this);
+			setProgressDialog(progressDialog);
+			progressDialog.show();
+			adapter.clear();
 			GetGroupTask task = new GetGroupTask();
 			task.execute();
 			ret = true;
 			break;
-        case CHECK_UPDATE:
-        	serviceIntent = new Intent(this, CheckUpdateService.class);
-        	alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        	pendingIntent = PendingIntent.getService(getApplicationContext(), 0, serviceIntent, 0);
-        	Calendar cal = Calendar.getInstance();
-        	cal.setTimeInMillis(System.currentTimeMillis());
-        	cal.add(Calendar.SECOND, 1);
-        	alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, pendingIntent);
-    		ret = true;
-    		break;
-        case UNCHECK_UPDATE:
-        	serviceIntent = new Intent(this, CheckUpdateService.class);
-        	alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        	pendingIntent = PendingIntent.getService(getApplicationContext(), 0, serviceIntent, 0);
-        	pendingIntent.cancel();
-        	alarmManager.cancel(pendingIntent);
-    		ret = true;
-    		break;
-        default:
-            ret = super.onOptionsItemSelected(item);
-            break;
-        }    
-        return ret;
-    }
-    
-    // ListViewÉJÉXÉ^É}ÉCÉYópÇÃArrayAdapter
+		case CHECK_UPDATE:
+			serviceIntent = new Intent(this, CheckUpdateService.class);
+			alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+			pendingIntent = PendingIntent.getService(getApplicationContext(), 0, serviceIntent, 0);
+			Calendar cal = Calendar.getInstance();
+			cal.setTimeInMillis(System.currentTimeMillis());
+			cal.add(Calendar.SECOND, 1);
+			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, pendingIntent);
+			ret = true;
+			break;
+		case UNCHECK_UPDATE:
+			serviceIntent = new Intent(this, CheckUpdateService.class);
+			alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+			pendingIntent = PendingIntent.getService(getApplicationContext(), 0, serviceIntent, 0);
+			pendingIntent.cancel();
+			alarmManager.cancel(pendingIntent);
+			ret = true;
+			break;
+		default:
+			ret = super.onOptionsItemSelected(item);
+			break;
+		}
+		return ret;
+	}
+
+	// ListView„Ç´„Çπ„Çø„Éû„Ç§„Ç∫Áî®„ÅÆArrayAdapter
 	public class YouRoomGroupAdapter extends ArrayAdapter<YouRoomGroup> {
 		private LayoutInflater inflater;
 		private ArrayList<YouRoomGroup> items;
-		
-		public YouRoomGroupAdapter( Context context, int textViewResourceId, ArrayList<YouRoomGroup> items) {
+
+		public YouRoomGroupAdapter(Context context, int textViewResourceId, ArrayList<YouRoomGroup> items) {
 			super(context, textViewResourceId, items);
 			this.items = items;
 			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
-		
-		public View getView(final int position, View convertView, ViewGroup parent){
+
+		public View getView(final int position, View convertView, ViewGroup parent) {
 			View view = convertView;
 			if (convertView == null) {
-				view = inflater.inflate(R.layout.group_list_item, null);				
+				view = inflater.inflate(R.layout.group_list_item, null);
 			}
-			YouRoomGroup group = (YouRoomGroup)this.getItem(position);
+			YouRoomGroup group = (YouRoomGroup) this.getItem(position);
 			TextView name = null;
 			TextView updateTime = null;
-			
-			if ( group != null ){
-				name = (TextView)view.findViewById(R.id.textView1);
-				updateTime = (TextView)view.findViewById(R.id.textView2);				
+
+			if (group != null) {
+				name = (TextView) view.findViewById(R.id.textView1);
+				updateTime = (TextView) view.findViewById(R.id.textView2);
 			}
-			if ( name != null ){
+			if (name != null) {
 				name.setText(group.getName());
 			}
-			if ( updateTime != null ){
+			if (updateTime != null) {
 				updateTime.setTextColor(Color.LTGRAY);
 				updateTime.setText(YouRoomUtil.convertDatetime(group.getUpdatedTime()));
 			}
 
-	    	UserSession session = UserSession.getInstance();
-	    	String roomAccessTime = session.getRoomAccessTime(String.valueOf(group.getId()));
-	    	if ( roomAccessTime != null ) {
+			UserSession session = UserSession.getInstance();
+			String roomAccessTime = session.getRoomAccessTime(String.valueOf(group.getId()));
+			if (roomAccessTime != null) {
 				int compareResult = YouRoomUtil.calendarCompareTo(roomAccessTime, group.getUpdatedTime());
-				if ( compareResult < 0 ){
+				if (compareResult < 0) {
 					updateTime.setTextColor(Color.RED);
 				}
-	    	}
-	    	
+			}
+
 			return view;
 		}
 	}
-	
-	private ArrayList<YouRoomGroup> getMyGroupList(){
-		
+
+	private ArrayList<YouRoomGroup> getMyGroupList() {
+
 		// input
 		// output [YouRoomGroup...] or []
-		
-        YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-        HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
-    	YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
-    	String myGroups = youRoomCommand.getMyGroup();
-  		ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
-		
+
+		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
+		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
+		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
+		String myGroups = youRoomCommand.getMyGroup();
+		ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
+
 		try {
-	    	JSONArray jsons = new JSONArray(myGroups);
-	    	for(int i =0 ; i< jsons.length(); i++){
-	    		YouRoomGroup group = new YouRoomGroup();
-		    	JSONObject jObject = jsons.getJSONObject(i);
-		    	JSONObject groupObject = jObject.getJSONObject("group");
+			JSONArray jsons = new JSONArray(myGroups);
+			for (int i = 0; i < jsons.length(); i++) {
+				YouRoomGroup group = new YouRoomGroup();
+				JSONObject jObject = jsons.getJSONObject(i);
+				JSONObject groupObject = jObject.getJSONObject("group");
 
-		    	int id = groupObject.getInt("id");
-		    	String name = groupObject.getString("name");
-		    	
-		    	String createdTime = groupObject.getString("created_at");
-		    	String updatedTime = groupObject.getString("updated_at");
+				int id = groupObject.getInt("id");
+				String name = groupObject.getString("name");
 
-		    	group.setId(id);
-		    	group.setName(name);
-		    	group.setUpdatedTime(updatedTime);
-		    	group.setCreatedTime(createdTime);
-		    	
-		    	String roomId = String.valueOf(id);
-		    	String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
-		    	String time;
-		    	if (lastAccessTime == null){
-		    		time = youRoomUtil.getAccessTime();
-		    		if ( time == null) { //Ç±Ç±Ç…ì¸ÇÈÇ±Ç∆ÇÕÇ»Ç¢ÇÕÇ∏ÅB
-				    	time = YouRoomUtil.getRFC3339FormattedTime();		    			
-		    		}
-			    	youRoomUtil.storeRoomAccessTime(roomId, time);
-		    	}
-		    	
-		    	UserSession session = UserSession.getInstance();
-		    	roomId = String.valueOf(id);
-		    	lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
-		    	session.setRoomAccessTime(roomId, lastAccessTime);
-		    	
-	    		dataList.add(group);
-	    	}
+				String createdTime = groupObject.getString("created_at");
+				String updatedTime = groupObject.getString("updated_at");
+
+				group.setId(id);
+				group.setName(name);
+				group.setUpdatedTime(updatedTime);
+				group.setCreatedTime(createdTime);
+
+				String roomId = String.valueOf(id);
+				String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
+				String time;
+				if (lastAccessTime == null) {
+					time = youRoomUtil.getAccessTime();
+					if (time == null) { // „Åì„Åì„Å´ÂÖ•„Çã„Åì„Å®„ÅØ„Å™„ÅÑ„ÅØ„Åö„ÄÇ
+						time = YouRoomUtil.getRFC3339FormattedTime();
+					}
+					youRoomUtil.storeRoomAccessTime(roomId, time);
+				}
+
+				UserSession session = UserSession.getInstance();
+				roomId = String.valueOf(id);
+				lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
+				session.setRoomAccessTime(roomId, lastAccessTime);
+
+				dataList.add(group);
+			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		
-    	//ébíËìIÇ»É`ÉFÉbÉN
-//    	String lastAccessTime = youRoomUtil.getAccessTime();
-//    	UserSession session = UserSession.getInstance();
-//    	session.setLastAccessTime(lastAccessTime);
-//		String currentTime = YouRoomUtil.getYesterdayFormattedTime();
+
+		// Êö´ÂÆöÁöÑ„Å™„ÉÅ„Çß„ÉÉ„ÇØ
+		// String lastAccessTime = youRoomUtil.getAccessTime();
+		// UserSession session = UserSession.getInstance();
+		// session.setLastAccessTime(lastAccessTime);
+		// String currentTime = YouRoomUtil.getYesterdayFormattedTime();
 		String currentTime = YouRoomUtil.getRFC3339FormattedTime();
-    	youRoomUtil.storeAccessTime(currentTime);
-				
+		youRoomUtil.storeAccessTime(currentTime);
+
 		return dataList;
 	}
 
 	public class GetGroupTask extends AsyncTask<Void, Void, ArrayList<YouRoomGroup>> {
-				
+
 		@Override
-		protected ArrayList<YouRoomGroup> doInBackground(Void... ids) {						
+		protected ArrayList<YouRoomGroup> doInBackground(Void... ids) {
 			ArrayList<YouRoomGroup> dataList = getMyGroupList();
 			return dataList;
 		}
-				
+
 		@Override
-		protected void onPostExecute(ArrayList<YouRoomGroup> dataList){
+		protected void onPostExecute(ArrayList<YouRoomGroup> dataList) {
 			Iterator iterator = dataList.iterator();
-			while( iterator.hasNext() ) {
+			while (iterator.hasNext()) {
 				adapter.add((YouRoomGroup) iterator.next());
 			}
 			adapter.notifyDataSetChanged();
 			progressDialog.dismiss();
 		}
 	}
-	
-	public void setProgressDialog(ProgressDialog progressDialog){
+
+	public void setProgressDialog(ProgressDialog progressDialog) {
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		progressDialog.setMessage("èàóùÇé¿çsÇµÇƒÇ¢Ç‹Ç∑");
+		progressDialog.setMessage("Âá¶ÁêÜ„ÇíÂÆüË°å„Åó„Å¶„ÅÑ„Åæ„Åô");
 		progressDialog.setCancelable(true);
 	}
-	
+
 }

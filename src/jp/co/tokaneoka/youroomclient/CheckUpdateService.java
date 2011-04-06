@@ -25,66 +25,62 @@ public class CheckUpdateService extends Service {
 
 	Timer timer;
 	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
-	
+
 	@Override
 	public IBinder onBind(Intent arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
-	public void onCreate(){
+	public void onCreate() {
 		// For Debugging
-		Toast.makeText(this, "XVŠm”F‚ğŠJn‚µ‚Ü‚µ‚½B", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, "æ›´æ–°ç¢ºèªã‚’é–‹å§‹ã—ã¾ã—ãŸã€‚", Toast.LENGTH_SHORT).show();
 	}
-	
+
 	@Override
-	public void onStart(Intent intent, int StartId){
-		
-    	String lastAccessTime = youRoomUtil.getAccessTime();
-    	youRoomUtil.storeUpdateCheckTime(lastAccessTime);
-		
-    	CheckUpdateEntryTask task = new CheckUpdateEntryTask();
-		task.execute();
-				
-		/*
-		// require 2005-08-09T10:57:00-08:00
-		// actual  2011-03-24T04:28:39+09:00
-		String checkTime = YouRoomUtil.getYesterdayFormattedTime();		
-		String encodedCheckTime = "";
-	   	try {
-	   		encodedCheckTime = URLEncoder.encode(checkTime, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+	public void onStart(Intent intent, int StartId) {
+
+		String lastAccessTime = youRoomUtil.getAccessTime();
+		youRoomUtil.storeUpdateCheckTime(lastAccessTime);
+
 		CheckUpdateEntryTask task = new CheckUpdateEntryTask();
-		Toast.makeText(this, "24ŠÔ‘O‚©‚çŒ»İ‚Ü‚Å‚ÌŠÔ‚ÉXV‚Ì‚ ‚Á‚½ƒGƒ“ƒgƒŠ‚ğƒ`ƒFƒbƒN‚µ‚Ü‚·B", Toast.LENGTH_LONG).show();
-		task.execute(encodedCheckTime);
-		*/
-		
+		task.execute();
+
+		/*
+		 * // require 2005-08-09T10:57:00-08:00 // actual
+		 * 2011-03-24T04:28:39+09:00 String checkTime =
+		 * YouRoomUtil.getYesterdayFormattedTime(); String encodedCheckTime =
+		 * ""; try { encodedCheckTime = URLEncoder.encode(checkTime, "UTF-8"); }
+		 * catch (UnsupportedEncodingException e) { // TODO Auto-generated catch
+		 * block e.printStackTrace(); }
+		 * 
+		 * CheckUpdateEntryTask task = new CheckUpdateEntryTask();
+		 * Toast.makeText(this, "24æ™‚é–“å‰ã‹ã‚‰ç¾åœ¨ã¾ã§ã®é–“ã«æ›´æ–°ã®ã‚ã£ãŸã‚¨ãƒ³ãƒˆãƒªã‚’ãƒã‚§ãƒƒã‚¯ã—ã¾ã™ã€‚",
+		 * Toast.LENGTH_LONG).show(); task.execute(encodedCheckTime);
+		 */
+
 	}
-	
+
 	@Override
-	public void onDestroy(){
+	public void onDestroy() {
 		// For Debugging
 		timer.cancel();
-		Toast.makeText(this, "XVŠm”F‚ğI—¹‚µ‚Ü‚µ‚½B", Toast.LENGTH_LONG).show();
+		Toast.makeText(this, "æ›´æ–°ç¢ºèªã‚’çµ‚äº†ã—ã¾ã—ãŸã€‚", Toast.LENGTH_LONG).show();
 	}
 
-	private ArrayList<YouRoomEntry> acquireHomeEntryList(Map<String, String> parameterMap){
-		
-        YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-        HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
-    	YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
-    	String homeTimeline = youRoomCommand.acquireHomeTimeline(parameterMap);
+	private ArrayList<YouRoomEntry> acquireHomeEntryList(Map<String, String> parameterMap) {
+
+		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
+		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
+		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
+		String homeTimeline = youRoomCommand.acquireHomeTimeline(parameterMap);
 
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
-    	
+
 		try {
 			JSONArray jsons = new JSONArray(homeTimeline);
-			for(int i =0 ; i< jsons.length(); i++){
+			for (int i = 0; i < jsons.length(); i++) {
 				YouRoomEntry roomEntry = new YouRoomEntry();
 				JSONObject jObject = jsons.getJSONObject(i);
 				JSONObject entryObject = jObject.getJSONObject("entry");
@@ -92,50 +88,50 @@ public class CheckUpdateService extends Service {
 				int id = entryObject.getInt("id");
 				String participationName = entryObject.getJSONObject("participation").getString("name");
 				String content = entryObject.getString("content");
-    		    
+
 				String createdTime = entryObject.getString("created_at");
 				String updatedTime = entryObject.getString("updated_at");
-				
+
 				roomEntry.setId(id);
 				roomEntry.setUpdatedTime(updatedTime);
 				roomEntry.setParticipationName(participationName);
 				roomEntry.setCreatedTime(createdTime);
 				roomEntry.setContent(content);
-    		    
+
 				int compareResult = YouRoomUtil.calendarCompareTo(youRoomUtil.getUpdateCheckTime(), updatedTime);
-				if ( compareResult < 0 ){
+				if (compareResult < 0) {
 					dataList.add(roomEntry);
 				}
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		
+
 		return dataList;
 	}
 
 	public class CheckUpdateEntryTask extends AsyncTask<String, Void, ArrayList<YouRoomEntry>> {
-				
+
 		@Override
 		protected ArrayList<YouRoomEntry> doInBackground(String... times) {
-		   	Map<String, String> parameterMap = new HashMap<String, String>();
+			Map<String, String> parameterMap = new HashMap<String, String>();
 			ArrayList<YouRoomEntry> dataList = acquireHomeEntryList(parameterMap);
 			return dataList;
 		}
-				
+
 		@Override
-		protected void onPostExecute(ArrayList<YouRoomEntry> dataList){
-			
+		protected void onPostExecute(ArrayList<YouRoomEntry> dataList) {
+
 			String message = "";
-			
-			int updateItemCount = dataList.size();						
-			if ( updateItemCount > 0) {
-				if ( updateItemCount == 10 ) {
-					message = updateItemCount + "ŒˆÈã‚ÌXV‚ª‚ ‚è‚Ü‚·B";
+
+			int updateItemCount = dataList.size();
+			if (updateItemCount > 0) {
+				if (updateItemCount == 10) {
+					message = updateItemCount + "ä»¶ä»¥ä¸Šã®æ›´æ–°ãŒã‚ã‚Šã¾ã™ã€‚";
 				} else {
-					message = updateItemCount + "Œ‚ÌXV‚ª‚ ‚è‚Ü‚·B";
+					message = updateItemCount + "ä»¶ã®æ›´æ–°ãŒã‚ã‚Šã¾ã™ã€‚";
 				}
-				
+
 				Class distActivity = GroupActivity.class;
 				NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 				Notification notification = new Notification(R.drawable.myrooms, message, System.currentTimeMillis());
