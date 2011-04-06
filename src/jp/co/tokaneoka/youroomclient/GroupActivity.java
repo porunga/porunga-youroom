@@ -1,6 +1,7 @@
 package jp.co.tokaneoka.youroomclient;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -9,6 +10,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -38,7 +41,6 @@ public class GroupActivity extends Activity {
 	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 	private YouRoomGroupAdapter adapter;
 	private ProgressDialog progressDialog;
-	private Intent serviceIntent;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -111,6 +113,10 @@ public class GroupActivity extends Activity {
 
 	public boolean onOptionsItemSelected(MenuItem item) {
         boolean ret = true;
+    	AlarmManager alarmManager;
+    	Intent serviceIntent;
+    	PendingIntent pendingIntent;
+
         switch (item.getItemId()) {
         case DELETE_TOKEN:
         	if ( youRoomUtil.removeOauthTokenFromLocal() ){
@@ -130,12 +136,20 @@ public class GroupActivity extends Activity {
 			break;
         case CHECK_UPDATE:
         	serviceIntent = new Intent(this, CheckUpdateService.class);
-    		startService(serviceIntent);
+        	alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        	pendingIntent = PendingIntent.getService(getApplicationContext(), 0, serviceIntent, 0);
+        	Calendar cal = Calendar.getInstance();
+        	cal.setTimeInMillis(System.currentTimeMillis());
+        	cal.add(Calendar.SECOND, 1);
+        	alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, pendingIntent);
     		ret = true;
     		break;
         case UNCHECK_UPDATE:
         	serviceIntent = new Intent(this, CheckUpdateService.class);
-      		stopService(serviceIntent);
+        	alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        	pendingIntent = PendingIntent.getService(getApplicationContext(), 0, serviceIntent, 0);
+        	pendingIntent.cancel();
+        	alarmManager.cancel(pendingIntent);
     		ret = true;
     		break;
         default:
@@ -245,6 +259,7 @@ public class GroupActivity extends Activity {
 //    	String lastAccessTime = youRoomUtil.getAccessTime();
 //    	UserSession session = UserSession.getInstance();
 //    	session.setLastAccessTime(lastAccessTime);
+//		String currentTime = YouRoomUtil.getYesterdayFormattedTime();
 		String currentTime = YouRoomUtil.getRFC3339FormattedTime();
     	youRoomUtil.storeAccessTime(currentTime);
 				
