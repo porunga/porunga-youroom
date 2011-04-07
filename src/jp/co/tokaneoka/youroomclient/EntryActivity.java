@@ -22,20 +22,23 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class EntryActivity extends Activity {
+public class EntryActivity extends Activity implements OnClickListener {
 
 	String roomId;
 	YouRoomChildEntryAdapter adapter;
 	ProgressDialog progressDialog;
 	int parentEntryCount;
 	int requestCount;
+	Intent intent;
 
 	private final static int SHOW_ENTRY_LIST = 99;
 	private final static int MAX_LEVEL = 5;
@@ -44,6 +47,8 @@ public class EntryActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		setContentView(R.layout.entry_list);
 
 	}
 
@@ -51,14 +56,14 @@ public class EntryActivity extends Activity {
 	public void onStart() {
 		super.onStart();
 
-
-		setContentView(R.layout.main);
-
-		Intent intent = getIntent();
+		intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
 		YouRoomEntry youRoomEntry = (YouRoomEntry) intent
 				.getSerializableExtra("youRoomEntry");
 		String entryId = String.valueOf(youRoomEntry.getId());
+		Button postButton = (Button) findViewById(R.id.post_button);
+		postButton.setText(getString(R.string.post_button));
+		postButton.setOnClickListener(this);
 		parentEntryCount = youRoomEntry.getDescendantsCount();
 
 		// TODO if String decodeResult = "";
@@ -88,10 +93,10 @@ public class EntryActivity extends Activity {
 							getString(R.string.deps_max), Toast.LENGTH_SHORT)
 							.show();
 				else {
-					Intent intent = new Intent(getApplication(),
+					Intent intentCreateEntry = new Intent(getApplication(),
 							CreateEntryActivity.class);
-					intent.putExtra("roomId", String.valueOf(roomId));
-					intent.putExtra("youRoomEntry", item);
+					intentCreateEntry.putExtra("roomId", String.valueOf(roomId));
+					intentCreateEntry.putExtra("youRoomEntry", item);
 
 					startActivity(intent);
 				}
@@ -103,12 +108,12 @@ public class EntryActivity extends Activity {
 			task.execute(youRoomEntry);
 		} catch (RejectedExecutionException e) {
 			// TODO
-			// AsyncTask‚Å‚Í“à•”“I‚ÉƒLƒ…[‚ğ‚Á‚Ä‚¢‚Ü‚·‚ªA‚±‚ÌƒLƒ…[ƒTƒCƒY‚ğ’´‚¦‚éƒ^ƒXƒN‚ğexecute‚·‚é‚ÆAƒuƒƒbƒN‚³‚ê‚¸‚É—áŠO‚ª”­¶‚µ‚Ü‚·B‚ç‚µ‚¢‚Ì‚ÅAˆê’Uˆ¬‚è‚Â‚Ô‚µ‚Ä‚¢‚é
+			// AsyncTaskï¿½ï½½ï¾…ã¯é›£ï½¿ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½Iï¿½ï½½ï¾‰ã‚­ï¿½ï½½ï¿½ï½½ï¿½ï½½[ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¾„ã‚‘ï½¿ï½½ï¿½ï½½ï¾œã‚‘ï½¿ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½Aï¿½ï½½ï¿½ï½½ï¿½ï½½ï¾Œã‚­ï¿½ï½½ï¿½ï½½ï¿½ï½½[ï¿½ï½½Tï¿½ï½½Cï¿½ï½½Yï¿½ï½½ï¿½ï½´ã‚‘ï½¿ï½½ï¿½ï½½ï¿½ï½½^ï¿½ï½½Xï¿½ï½½Nï¿½ï½½ï¿½ï½½executeï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¾†ã€ï¿½ï½½uï¿½ï½½ï¿½ï½½ï¿½ï½½bï¿½ï½½Nï¿½ï½½ï¿½ï½½ï¿½ï½½é»·ï½¸ï¿½ï½½ï¾‰æš¦ï½¿ï½½Oï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¾œã‚‘ï½¿ï½½ï¿½ï½½Bï¿½ï½½è½¤ï½µï¿½ï½½ï¿½ï½½ï¿½ï½½ï¾Œã§ã€ï¿½ï½½ï¿½ï½½Uï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¾‚ã¶ã‚‘ï½¿ï½½ï¿½ï½½ï¾„ã‚‘ï½¿ï½½ï¿½ï½½ï¿½ï½½
 			e.printStackTrace();
 		}
 	}
 
-	// ListViewƒJƒXƒ^ƒ}ƒCƒY—p‚ÌArrayAdapter
+	// ListViewï¿½ï½½Jï¿½ï½½Xï¿½ï½½^ï¿½ï½½}ï¿½ï½½Cï¿½ï½½Yï¿½ï½½pï¿½ï½½ï¿½ï½½ArrayAdapter
 	public class YouRoomChildEntryAdapter extends ArrayAdapter<YouRoomEntry> {
 		private LayoutInflater inflater;
 		private ArrayList<YouRoomEntry> items;
@@ -265,7 +270,7 @@ public class EntryActivity extends Activity {
 				Log.e("count", "requestCount = " + requestCount);
 			}
 			adapter.notifyDataSetChanged();
-			// e‚ªˆê‰ñŒÄ‚Î‚ê‚é‚Ì‚Å+1
+			// ï¿½ï½½eï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¾„ã°ã‚‘ï½¿ï½½ï¿½ï½½ï¾Œã‚‘ï½¿ï½½+1
 			if (parentEntryCount <= requestCount + 1)
 				progressDialog.dismiss();
 		}
@@ -273,10 +278,24 @@ public class EntryActivity extends Activity {
 
 	public void setProgressDialog(ProgressDialog progressDialog) {
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		progressDialog.setMessage("ˆ—‚ğÀs‚µ‚Ä‚¢‚Ü‚·");
+		progressDialog.setMessage("ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½ï¿½ï½½sï¿½ï½½ï¿½ï½½ï¿½ï½½ï¾„ã‚‘ï½¿ï½½ï¿½ï½½ï¾œã‚‘ï½¿ï½½");
 		progressDialog.setIndeterminate(false);
 		progressDialog.setMax(parentEntryCount);
 		progressDialog.setCancelable(true);
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		YouRoomEntry youRoomEntry = (YouRoomEntry) intent
+		.getSerializableExtra("youRoomEntry");
+		Intent intentCreateEntry = new Intent(getApplication(),
+				CreateEntryActivity.class);
+		intentCreateEntry.putExtra("roomId", String.valueOf(roomId));
+		intentCreateEntry.putExtra("youRoomEntry", youRoomEntry);
+
+		startActivity(intentCreateEntry);
+
 	}
 
 }

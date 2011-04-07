@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class CreateEntryActivity extends Activity {
+	private static final String POST_OK = "201";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +43,7 @@ public class CreateEntryActivity extends Activity {
 				YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
 
 				String status = youRoomCommand.createEntry(roomId, parentId, entryContent);
-				if (status.equals("201")) {
+				if (status.equals(POST_OK)) {
 					entryContentText.setText("");
 					Toast.makeText(getBaseContext(), getString(R.string.post_ok), Toast.LENGTH_SHORT).show();
 				} else

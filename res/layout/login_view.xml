@@ -7,7 +7,7 @@
         <EditText android:layout_height="wrap_content" android:id="@+id/login_password" android:inputType="textPassword" android:layout_width="fill_parent"></EditText>
 		</LinearLayout>
         <LinearLayout android:id="@+id/linearLayout2" android:layout_width="fill_parent" android:layout_height="wrap_content">
-        <Button android:id="@+id/login_submit" android:text="@string/login_submit" android:layout_gravity="bottom" android:layout_width="fill_parent" android:layout_height="fill_parent"></Button>
+        <Button android:id="@+id/login_submit" android:text="@string/login_submit" android:layout_gravity="bottom" android:layout_width="wrap_content" android:layout_height="fill_parent"></Button>
         </LinearLayout>
     </TableLayout>
  
