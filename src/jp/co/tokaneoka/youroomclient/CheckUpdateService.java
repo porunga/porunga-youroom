@@ -40,54 +40,13 @@ public class CheckUpdateService extends Service {
 	
 	@Override
 	public void onStart(Intent intent, int StartId){
-				
-		final Handler handler = new Handler();
-		long delay = 1*1000;
-		long period = 1*60*60*1000;
 		
-		timer = new Timer(false);		
-		timer.schedule( new TimerTask(){		
-			@Override
-			public void run(){				
-			   	Map<String, String> parameterMap = new HashMap<String, String>();
-			   	
-		    	String lastAccessTime = youRoomUtil.getAccessTime();
-//		    	UserSession session = UserSession.getInstance();
-//		    	session.setLastAccessTime(lastAccessTime);
-		    	youRoomUtil.storeUpdateCheckTime(lastAccessTime);
-			   	
-				final ArrayList<YouRoomEntry> dataList = acquireHomeEntryList(parameterMap);
+    	String lastAccessTime = youRoomUtil.getAccessTime();
+    	youRoomUtil.storeUpdateCheckTime(lastAccessTime);
+		
+    	CheckUpdateEntryTask task = new CheckUpdateEntryTask();
+		task.execute();
 				
-				handler.post(new Runnable(){
-					@Override
-					public void run(){
-						String message = "";
-						int updateItemCount = dataList.size();						
-						if ( updateItemCount > 0) {
-							if ( updateItemCount == 10 ) {
-								message = updateItemCount + "件以上の更新があります。";
-							} else {
-								message = updateItemCount + "件の更新があります。";
-							}
-							
-							Class distActivity = GroupActivity.class;
-							NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-							Notification notification = new Notification(R.drawable.myrooms, message, System.currentTimeMillis());
-							notification.flags = Notification.FLAG_AUTO_CANCEL;
-							notification.number = updateItemCount;
-							Intent intent = new Intent(getApplication(), distActivity);
-							PendingIntent contentIntent = PendingIntent.getActivity(getApplication(), 0, intent, 0);
-							notification.setLatestEventInfo(getApplicationContext(), "youRoomClient", message, contentIntent);
-							notificationManager.notify(R.string.app_name, notification);
-														
-						} 
-					}	
-				});
-//		    	String currentTime = YouRoomUtil.getRFC3339FormattedTime();
-//		    	youRoomUtil.storeAccessTime(currentTime);
-			}
-		}, delay, period);
-	
 		/*
 		// require 2005-08-09T10:57:00-08:00
 		// actual  2011-03-24T04:28:39+09:00
@@ -143,7 +102,6 @@ public class CheckUpdateService extends Service {
 				roomEntry.setCreatedTime(createdTime);
 				roomEntry.setContent(content);
     		    
-//			   	UserSession session = UserSession.getInstance();
 				int compareResult = YouRoomUtil.calendarCompareTo(youRoomUtil.getUpdateCheckTime(), updatedTime);
 				if ( compareResult < 0 ){
 					dataList.add(roomEntry);
@@ -161,53 +119,34 @@ public class CheckUpdateService extends Service {
 		@Override
 		protected ArrayList<YouRoomEntry> doInBackground(String... times) {
 		   	Map<String, String> parameterMap = new HashMap<String, String>();
-		   	parameterMap.put("since", times[0]);
 			ArrayList<YouRoomEntry> dataList = acquireHomeEntryList(parameterMap);
 			return dataList;
 		}
 				
 		@Override
 		protected void onPostExecute(ArrayList<YouRoomEntry> dataList){
+			
 			String message = "";
-			if ( dataList.size() > 0) {
-				message = dataList.size() + "件の更新があります。";
-			} else {
-				message = "更新はありません。";
-			}
-			Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
-			String result = "";
-			Iterator iterator = dataList.iterator();
-			while( iterator.hasNext() ) {
-				YouRoomEntry entry = ((YouRoomEntry) iterator.next());
-				result += "[" + entry.getUpdatedTime() + "] " + entry.getContent() + "\n";
-				result += " -------------------- \n" ;
-			}
-			Toast.makeText(getApplication(), result, Toast.LENGTH_LONG).show();
-
-//			stopSelf();
-		}
-	}
-	
-	/*
-	public class AcquireHomeEntryTask extends AsyncTask<Void, Void, ArrayList<YouRoomEntry>> {
-		
-		@Override
-		protected ArrayList<YouRoomEntry> doInBackground(Void... ids) {
-			ArrayList<YouRoomEntry> dataList = acquireHomeEntryList();
-			return dataList;
-		}
+			
+			int updateItemCount = dataList.size();						
+			if ( updateItemCount > 0) {
+				if ( updateItemCount == 10 ) {
+					message = updateItemCount + "件以上の更新があります。";
+				} else {
+					message = updateItemCount + "件の更新があります。";
+				}
 				
-		@Override
-		protected void onPostExecute(ArrayList<YouRoomEntry> dataList){
-			Iterator iterator = dataList.iterator();
-			String result = "";
-			while( iterator.hasNext() ) {
-				result += ((YouRoomEntry) iterator.next()).getContent() + "\n";
+				Class distActivity = GroupActivity.class;
+				NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+				Notification notification = new Notification(R.drawable.myrooms, message, System.currentTimeMillis());
+				notification.flags = Notification.FLAG_AUTO_CANCEL;
+				notification.number = updateItemCount;
+				Intent intent = new Intent(getApplication(), distActivity);
+				PendingIntent contentIntent = PendingIntent.getActivity(getApplication(), 0, intent, 0);
+				notification.setLatestEventInfo(getApplicationContext(), "youRoomClient", message, contentIntent);
+				notificationManager.notify(R.string.app_name, notification);
 			}
-			Toast.makeText(getApplication(), result, Toast.LENGTH_LONG).show();
-			stopSelf();
 		}
 	}
-	*/
 
 }

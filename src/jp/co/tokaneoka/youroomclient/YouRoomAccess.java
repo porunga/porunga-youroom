@@ -12,10 +12,8 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.UUID;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -30,8 +28,8 @@ import org.apache.http.protocol.HTTP;
 
 public class YouRoomAccess {
 
-	private static final String CONSUMER_KEY = "CTY9gFw9wDWxLu9PVqqk";
-	private static final String CONSUMER_SECRET = "yAWPMrIjhNNiwVe4iuoZ6HhJYucUzFRz6hi8vbQj";
+	private static final String CONSUMER_KEY = "****";
+	private static final String CONSUMER_SECRET = "****";
 
 	private static final String SIGNATURE_METHOD = "HMAC-SHA1";
 	private static final String OAUTH_VERSION = "1.0";
@@ -71,7 +69,7 @@ public class YouRoomAccess {
 		this.oauthTokenSecret = oauthTokenSecret;
 	}
 
-	public HttpResponse authentication() {
+	public HttpResponse authenticate() {
 		oauthParametersMap = createParametersMap();
 		String apiParamter = createParameters();
 		HttpResponse objResponse = null;

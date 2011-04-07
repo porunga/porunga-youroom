@@ -40,7 +40,6 @@ public class EntryActivity extends Activity implements OnClickListener {
 	int requestCount;
 	Intent intent;
 
-	private final static int SHOW_ENTRY_LIST = 99;
 	private final static int MAX_LEVEL = 5;
 
 
@@ -107,13 +106,12 @@ public class EntryActivity extends Activity implements OnClickListener {
 		try {
 			task.execute(youRoomEntry);
 		} catch (RejectedExecutionException e) {
-			// TODO
-			// AsyncTask�ｽﾅは難ｿｽ�ｽ�ｽ�ｽI�ｽﾉキ�ｽ�ｽ�ｽ[�ｽ�ｽ�ｽ�ｽ�ｽ�ｽ�ｽﾄゑｿｽ�ｽﾜゑｿｽ�ｽ�ｽ�ｽA�ｽ�ｽ�ｽﾌキ�ｽ�ｽ�ｽ[�ｽT�ｽC�ｽY�ｽ�ｴゑｿｽ�ｽ�ｽ^�ｽX�ｽN�ｽ�ｽexecute�ｽ�ｽ�ｽ�ｽﾆ、�ｽu�ｽ�ｽ�ｽb�ｽN�ｽ�ｽ�ｽ黷ｸ�ｽﾉ暦ｿｽO�ｽ�ｽ�ｽ�ｽ�ｽ�ｽ�ｽ�ｽ�ｽﾜゑｿｽ�ｽB�ｽ轤ｵ�ｽ�ｽ�ｽﾌで、�ｽ�ｽU�ｽ�ｽ�ｽ�ｽﾂぶゑｿｽ�ｽﾄゑｿｽ�ｽ�ｽ
+			// TODO AsyncTaskでは内部的にキューを持っていますが、このキューサイズを超えるタスクをexecuteすると、ブロックされずに例外が発生します。らしいので、一旦握りつぶしている
 			e.printStackTrace();
 		}
 	}
 
-	// ListView�ｽJ�ｽX�ｽ^�ｽ}�ｽC�ｽY�ｽp�ｽ�ｽArrayAdapter
+	// ListViewカスタマイズ用のArrayAdapter
 	public class YouRoomChildEntryAdapter extends ArrayAdapter<YouRoomEntry> {
 		private LayoutInflater inflater;
 		private ArrayList<YouRoomEntry> items;
@@ -270,7 +268,6 @@ public class EntryActivity extends Activity implements OnClickListener {
 				Log.e("count", "requestCount = " + requestCount);
 			}
 			adapter.notifyDataSetChanged();
-			// �ｽe�ｽ�ｽ�ｽ�ｽ�ｽﾄばゑｿｽ�ｽﾌゑｿｽ+1
 			if (parentEntryCount <= requestCount + 1)
 				progressDialog.dismiss();
 		}
@@ -278,7 +275,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 	public void setProgressDialog(ProgressDialog progressDialog) {
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		progressDialog.setMessage("�ｽ�ｽ�ｽ�ｽ�ｽ�ｽ�ｽ�ｽ�ｽs�ｽ�ｽ�ｽﾄゑｿｽ�ｽﾜゑｿｽ");
+		progressDialog.setMessage("処理を実行しています");
 		progressDialog.setIndeterminate(false);
 		progressDialog.setMax(parentEntryCount);
 		progressDialog.setCancelable(true);

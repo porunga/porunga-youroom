@@ -15,32 +15,33 @@ import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
 
 public class Xauth {
-	
-	private Map<String, String> xauthParameterMap;	
+
+	private Map<String, String> xauthParameterMap;
 	private YouRoomAccess youRoomAccess;
-	
-	public Xauth(Map<String, String> xauthParameterMap){
+
+	public Xauth(Map<String, String> xauthParameterMap) {
 		this.youRoomAccess = new YouRoomAccess();
 		this.xauthParameterMap = xauthParameterMap;
 	}
-		
-	public HashMap<String,String> getAccessToken() {
+
+	public HashMap<String, String> getAccessToken() {
 
 		String method = "POST";
 		String api = "https://www.youroom.in/oauth/access_token";
-		HashMap<String, String> oAuthTokenMap = new HashMap<String, String>(); 
+		HashMap<String, String> oAuthTokenMap = new HashMap<String, String>();
 		youRoomAccess.setMethod(method);
 		youRoomAccess.setApi(api);
 		youRoomAccess.setParameter(xauthParameterMap);
-		
-		HttpResponse objResponse = youRoomAccess.authentication();
-		//TODO if (objResponse == null )
-		
+
+		HttpResponse objResponse = youRoomAccess.authenticate();
+		// TODO if (objResponse == null )
+
 		int statusCode = objResponse.getStatusLine().getStatusCode();
-		
+
 		if (statusCode == HttpURLConnection.HTTP_OK) {
 			try {
-				String result = EntityUtils.toString(objResponse.getEntity(), "UTF-8");
+				String result = EntityUtils.toString(objResponse.getEntity(),
+						"UTF-8");
 				String[] parameters = result.split("&");
 				for (String parameter : parameters) {
 					String[] keyAndValue = parameter.split("=");
@@ -49,8 +50,9 @@ public class Xauth {
 					}
 					String key = keyAndValue[0];
 					String value = keyAndValue[1];
-					if("oauth_token".equals(key) || "oauth_token_secret".equals(key)){
-						oAuthTokenMap.put(key,value);
+					if ("oauth_token".equals(key)
+							|| "oauth_token_secret".equals(key)) {
+						oAuthTokenMap.put(key, value);
 					}
 				}
 			} catch (ParseException e) {
@@ -59,6 +61,6 @@ public class Xauth {
 				e.printStackTrace();
 			}
 		}
-		return oAuthTokenMap;	
+		return oAuthTokenMap;
 	}
 }
