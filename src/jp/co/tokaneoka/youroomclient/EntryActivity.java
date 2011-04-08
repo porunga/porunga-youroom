@@ -80,7 +80,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 					intentCreateEntry.putExtra("roomId", String.valueOf(roomId));
 					intentCreateEntry.putExtra("youRoomEntry", item);
 
-					startActivity(intent);
+					startActivity(intentCreateEntry);
 				}
 			}
 		});
