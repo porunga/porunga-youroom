@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 public class CreateEntryActivity extends Activity {
 	private static final String POST_OK = "201";
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
@@ -27,19 +27,18 @@ public class CreateEntryActivity extends Activity {
 			public void onClick(View v) {
 				Intent intent = getIntent();
 				String roomId = intent.getStringExtra("roomId");
-				YouRoomEntry item = (YouRoomEntry)intent.getSerializableExtra("youRoomEntry");
-				
+				YouRoomEntry item = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
+
 				String parentId = String.valueOf(item.getId());
-				if(parentId.equals("-1"))
-					parentId=null;
-				
+				if (parentId.equals("-1"))
+					parentId = null;
+
 				EditText entryContentText = (EditText) findViewById(R.id.entry_content);
 				String entryContent = entryContentText.getText().toString();
 				// TODO Auto-generated method stub
-			
+
 				YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-				HashMap<String, String> oAuthTokenMap = youRoomUtil
-						.getOauthTokenFromLocal();
+				HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
 				YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
 
 				String status = youRoomCommand.createEntry(roomId, parentId, entryContent);
@@ -48,12 +47,11 @@ public class CreateEntryActivity extends Activity {
 					Toast.makeText(getBaseContext(), getString(R.string.post_ok), Toast.LENGTH_SHORT).show();
 				} else
 					Toast.makeText(getBaseContext(), getString(R.string.post_ng), Toast.LENGTH_SHORT).show();
-//					Toast.makeText(this, status, Toast.LENGTH_SHORT).show();
+				// Toast.makeText(this, status, Toast.LENGTH_SHORT).show();
 				finish();
 			}
 		});
 
 	}
-	
 
 }

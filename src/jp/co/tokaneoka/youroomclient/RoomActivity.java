@@ -45,9 +45,9 @@ public class RoomActivity extends Activity implements OnClickListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-//		this.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN); 
+		// this.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		setContentView(R.layout.room_list);
-		
+
 		Button postButton = (Button) findViewById(R.id.post_button);
 		postButton.setText(getString(R.string.post_button));
 		postButton.setOnClickListener(this);
@@ -74,51 +74,45 @@ public class RoomActivity extends Activity implements OnClickListener {
 		textview.setBackgroundColor(Color.WHITE);
 		listView.addFooterView(textview);
 
-		adapter = new YouRoomEntryAdapter(this, R.layout.room_list_item,
-				dataList);
+		adapter = new YouRoomEntryAdapter(this, R.layout.room_list_item, dataList);
 		listView.setAdapter(adapter);
 
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				if (view == textview) {
 					progressDialog.show();
 					Map<String, String> parameterMap = new HashMap<String, String>();
 					parameterMap.put("page", String.valueOf(page));
-					GetRoomEntryTask task = new GetRoomEntryTask(roomId,
-							parameterMap);
+					GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap);
 					task.execute();
 					page++;
 				} else {
 					ListView listView = (ListView) parent;
 					YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
-					if (item.getDescendantsCount() == -1){
-						Toast.makeText(getApplication(),
-								"読み込み中です。もう少しおまちください。", Toast.LENGTH_SHORT)
-								.show();
+					if (item.getDescendantsCount() == -1) {
+						Toast.makeText(getApplication(), "読み込み中です。もう少しおまちください。", Toast.LENGTH_SHORT).show();
 
-					} else if(item.getDescendantsCount() == 0){
-						Intent intent = new Intent(getApplication(),
-								CreateEntryActivity.class);
+					} else if (item.getDescendantsCount() == 0) {
+						Intent intent = new Intent(getApplication(), CreateEntryActivity.class);
 						intent.putExtra("roomId", String.valueOf(roomId));
 						intent.putExtra("youRoomEntry", item);
-						
+
 						startActivity(intent);
-					}else {
-					
+					} else {
 
 						/*
-				    	UserSession session = UserSession.getInstance();
-				    	String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
-				    	session.setRoomAccessTime(roomId, lastAccessTime);						
-				    	String time = YouRoomUtil.getRFC3339FormattedTime();						
-				    	youRoomUtil.storeRoomAccessTime(roomId, time);
-						*/
+						 * UserSession session = UserSession.getInstance();
+						 * String lastAccessTime =
+						 * youRoomUtil.getRoomAccessTime(roomId);
+						 * session.setRoomAccessTime(roomId, lastAccessTime);
+						 * String time = YouRoomUtil.getRFC3339FormattedTime();
+						 * youRoomUtil.storeRoomAccessTime(roomId, time);
+						 */
 
 						Intent intent = new Intent(getApplication(), EntryActivity.class);
-						intent.putExtra("roomId", String.valueOf(roomId) );
-						intent.putExtra("youRoomEntry", item);				    	
+						intent.putExtra("roomId", String.valueOf(roomId));
+						intent.putExtra("youRoomEntry", item);
 						startActivity(intent);
 					}
 				}
@@ -137,16 +131,13 @@ public class RoomActivity extends Activity implements OnClickListener {
 		private LayoutInflater inflater;
 		private ArrayList<YouRoomEntry> items;
 
-		public YouRoomEntryAdapter(Context context, int textViewResourceId,
-				ArrayList<YouRoomEntry> items) {
+		public YouRoomEntryAdapter(Context context, int textViewResourceId, ArrayList<YouRoomEntry> items) {
 			super(context, textViewResourceId, items);
 			this.items = items;
-			this.inflater = (LayoutInflater) context
-					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
-		public View getView(final int position, View convertView,
-				ViewGroup parent) {
+		public View getView(final int position, View convertView, ViewGroup parent) {
 			View view = convertView;
 			if (convertView == null) {
 				view = inflater.inflate(R.layout.room_list_item, null);
@@ -168,8 +159,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 			}
 			if (createdTime != null) {
 				createdTime.setTextColor(Color.LTGRAY);
-				createdTime.setText(YouRoomUtil.convertDatetime(roomEntry
-						.getCreatedTime()));
+				createdTime.setText(YouRoomUtil.convertDatetime(roomEntry.getCreatedTime()));
 			}
 			if (content != null) {
 				content.setText(roomEntry.getContent());
@@ -178,8 +168,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 			descendantsCount = (TextView) view.findViewById(R.id.textView4);
 			int count = roomEntry.getDescendantsCount();
 			if (count == -1) {
-				GetEntryTask task = new GetEntryTask(descendantsCount, roomId,
-						roomEntry);
+				GetEntryTask task = new GetEntryTask(descendantsCount, roomId, roomEntry);
 				task.execute(roomEntry.getId());
 			} else {
 				// TODO レイアウト修正直書き
@@ -189,8 +178,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 			UserSession session = UserSession.getInstance();
 			String roomAccessTime = session.getRoomAccessTime(roomId);
 			if (roomAccessTime != null) {
-				int compareResult = YouRoomUtil.calendarCompareTo(
-						roomAccessTime, roomEntry.getUpdatedTime());
+				int compareResult = YouRoomUtil.calendarCompareTo(roomAccessTime, roomEntry.getUpdatedTime());
 				if (compareResult < 0) {
 					createdTime.setTextColor(Color.RED);
 				}
@@ -207,8 +195,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 		private TextView textView;
 		private YouRoomEntry roomEntry;
 
-		public GetEntryTask(TextView textView, String roomId,
-				YouRoomEntry roomEntry) {
+		public GetEntryTask(TextView textView, String roomId, YouRoomEntry roomEntry) {
 			this.roomId = roomId;
 			this.roomEntry = roomEntry;
 			this.textView = textView;
@@ -218,15 +205,12 @@ public class RoomActivity extends Activity implements OnClickListener {
 		protected String doInBackground(Integer... entryIds) {
 
 			YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-			HashMap<String, String> oAuthTokenMap = youRoomUtil
-					.getOauthTokenFromLocal();
+			HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
 			YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
-			String entry = youRoomCommand.getEntry(roomId,
-					String.valueOf(entryIds[0]));
+			String entry = youRoomCommand.getEntry(roomId, String.valueOf(entryIds[0]));
 			try {
 				JSONObject json = new JSONObject(entry);
-				count = json.getJSONObject("entry").getString(
-						"descendants_count");
+				count = json.getJSONObject("entry").getString("descendants_count");
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -241,12 +225,10 @@ public class RoomActivity extends Activity implements OnClickListener {
 		}
 	}
 
-	private ArrayList<YouRoomEntry> getRoomEntryList(String roomId,
-			Map<String, String> parameterMap) {
+	private ArrayList<YouRoomEntry> getRoomEntryList(String roomId, Map<String, String> parameterMap) {
 
 		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-		HashMap<String, String> oAuthTokenMap = youRoomUtil
-				.getOauthTokenFromLocal();
+		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
 		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
 		String roomTL = "";
 		roomTL = youRoomCommand.getRoomTimeLine(roomId, parameterMap);
@@ -261,8 +243,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 				JSONObject entryObject = jObject.getJSONObject("entry");
 
 				int id = entryObject.getInt("id");
-				String participationName = entryObject.getJSONObject(
-						"participation").getString("name");
+				String participationName = entryObject.getJSONObject("participation").getString("name");
 				String content = entryObject.getString("content");
 
 				String createdTime = entryObject.getString("created_at");
@@ -282,8 +263,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 		return dataList;
 	}
 
-	public class GetRoomEntryTask extends
-			AsyncTask<Void, Void, ArrayList<YouRoomEntry>> {
+	public class GetRoomEntryTask extends AsyncTask<Void, Void, ArrayList<YouRoomEntry>> {
 
 		private String roomId;
 		private Map<String, String> parameterMap;
@@ -295,8 +275,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 
 		@Override
 		protected ArrayList<YouRoomEntry> doInBackground(Void... ids) {
-			ArrayList<YouRoomEntry> dataList = getRoomEntryList(roomId,
-					parameterMap);
+			ArrayList<YouRoomEntry> dataList = getRoomEntryList(roomId, parameterMap);
 			return dataList;
 		}
 
@@ -321,16 +300,14 @@ public class RoomActivity extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View arg0) {
-		
+
 		// TODO Auto-generated method stub
 
-		Intent intent = new Intent(getApplication(),
-				CreateEntryActivity.class);
+		Intent intent = new Intent(getApplication(), CreateEntryActivity.class);
 		intent.putExtra("roomId", String.valueOf(roomId));
 		intent.putExtra("youRoomEntry", new YouRoomEntry());
 
 		startActivity(intent);
-
 
 	}
 

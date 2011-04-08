@@ -15,8 +15,7 @@ public class UnicodeEscape {
 		StringBuilder sb = new StringBuilder(s.length() * 6);
 		char[] chars = s.toCharArray();
 		for (char c : chars) {
-			if (c != '_' && !('0' <= c && c <= '9') && !('a' <= c && c <= 'z')
-					&& !('A' <= c && c <= 'Z')) {
+			if (c != '_' && !('0' <= c && c <= '9') && !('a' <= c && c <= 'z') && !('A' <= c && c <= 'Z')) {
 				sb.append(String.format("\\u%04x", (int) c));
 			} else {
 				sb.append(c);

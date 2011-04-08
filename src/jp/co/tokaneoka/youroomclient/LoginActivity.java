@@ -62,8 +62,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 					public void run() {
 						if (loginCheck) {
 							// ログイン時間を起点とするため、ログイン時間を最終アクセス時間として記録
-							String currentTime = YouRoomUtil
-									.getRFC3339FormattedTime();
+							String currentTime = YouRoomUtil.getRFC3339FormattedTime();
 							youRoomUtil.storeAccessTime(currentTime);
 							startActivity(intent);
 							dialog.dismiss();
@@ -81,14 +80,14 @@ public class LoginActivity extends Activity implements OnClickListener {
 	private boolean Login(String username, String password) {
 
 		boolean check = false;
-		
-		Map<String, String> xauthParameterMap = new HashMap<String, String>();		
-    	HashMap<String, String> resultMap = new HashMap<String, String>();
-    	
-    	xauthParameterMap.put("x_auth_mode", "client_auth");
-    	xauthParameterMap.put("x_auth_username", username);
-    	xauthParameterMap.put("x_auth_password", password);
-    	    	
+
+		Map<String, String> xauthParameterMap = new HashMap<String, String>();
+		HashMap<String, String> resultMap = new HashMap<String, String>();
+
+		xauthParameterMap.put("x_auth_mode", "client_auth");
+		xauthParameterMap.put("x_auth_username", username);
+		xauthParameterMap.put("x_auth_password", password);
+
 		Xauth xAuth = new Xauth(xauthParameterMap);
 		resultMap = xAuth.getAccessToken();
 

@@ -73,8 +73,7 @@ public class YouRoomAccess {
 		HttpResponse objResponse = null;
 
 		HttpClient objHttp = new DefaultHttpClient();
-		HttpPost objPost = new HttpPost(api
-				+ (apiParamter.length() > 0 ? "?" + apiParamter : ""));
+		HttpPost objPost = new HttpPost(api + (apiParamter.length() > 0 ? "?" + apiParamter : ""));
 		try {
 			objPost.addHeader("Authorization", createAuthorizationValue());
 			objResponse = objHttp.execute(objPost);
@@ -94,7 +93,7 @@ public class YouRoomAccess {
 
 	public HttpResponse requestPost() {
 		oauthParametersMap = createParametersMap();
-//		String apiParamter = createParameters();
+		// String apiParamter = createParameters();
 		HttpResponse objResponse = null;
 
 		HttpClient objHttp = new DefaultHttpClient();
@@ -106,8 +105,7 @@ public class YouRoomAccess {
 			final List<NameValuePair> params = new ArrayList<NameValuePair>();
 
 			for (Map.Entry<String, String> param : parameterMap.entrySet()) {
-				params.add(new BasicNameValuePair(param.getKey(), param
-						.getValue()));
+				params.add(new BasicNameValuePair(param.getKey(), param.getValue()));
 			}
 
 			try {
@@ -143,8 +141,7 @@ public class YouRoomAccess {
 		HttpResponse objResponse = null;
 
 		HttpClient objHttp = new DefaultHttpClient();
-		HttpGet objGet = new HttpGet(api
-				+ (apiParamter.length() > 0 ? "?" + apiParamter : ""));
+		HttpGet objGet = new HttpGet(api + (apiParamter.length() > 0 ? "?" + apiParamter : ""));
 		try {
 			objGet.addHeader("Authorization", createAuthorizationValue());
 			objResponse = objHttp.execute(objGet);
@@ -206,8 +203,7 @@ public class YouRoomAccess {
 
 	}
 
-	private String createAuthorizationValue() throws InvalidKeyException,
-			NoSuchAlgorithmException, UnsupportedEncodingException {
+	private String createAuthorizationValue() throws InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
 		/*
 		 * http://oauth.net/core/1.0/#nonce 「5.4.1. Authorization Header」
 		 * Authorization Headerの作成
@@ -221,15 +217,13 @@ public class YouRoomAccess {
 		}
 		// TODO http://oauth.net/core/1.0/#signing_process 9.Signing Requestを参照
 		builder.append("oauth_signature" + "=");
-		builder.append("\"" + getSignature(getSignatureBaseString(), getKey())
-				+ "\"");
+		builder.append("\"" + getSignature(getSignatureBaseString(), getKey()) + "\"");
 		result = builder.toString();
 		return result;
 	}
 
 	private String getSignatureBaseString() throws UnsupportedEncodingException {
-		String result = method + "&" + encodeURL(api) + "&"
-				+ SignatureEncode.encode(getRequestParameters());
+		String result = method + "&" + encodeURL(api) + "&" + SignatureEncode.encode(getRequestParameters());
 		return result;
 	}
 
@@ -263,9 +257,7 @@ public class YouRoomAccess {
 		return builder.toString().substring(0, builder.length() - 1);
 	}
 
-	private String getSignature(String signatureBaseString, String keyString)
-			throws NoSuchAlgorithmException, InvalidKeyException,
-			UnsupportedEncodingException {
+	private String getSignature(String signatureBaseString, String keyString) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
 		String base = signatureBaseString;
 		Mac mac = Mac.getInstance(ALGOTITHM);
 		Key key = new SecretKeySpec(keyString.getBytes(), ALGOTITHM);
