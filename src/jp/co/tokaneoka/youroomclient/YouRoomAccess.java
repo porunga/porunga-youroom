@@ -28,8 +28,8 @@ import org.apache.http.protocol.HTTP;
 
 public class YouRoomAccess {
 
-	private static final String CONSUMER_KEY = "****";
-	private static final String CONSUMER_SECRET = "****";
+	private static final String CONSUMER_KEY = "***************";
+	private static final String CONSUMER_SECRET = "***************";
 
 	private static final String SIGNATURE_METHOD = "HMAC-SHA1";
 	private static final String OAUTH_VERSION = "1.0";
@@ -39,8 +39,6 @@ public class YouRoomAccess {
 	private String api = "";
 	private String oauthToken = null;
 	private String oauthTokenSecret = null;
-	// private static String CONSUMER_KEY;
-	// private static String CONSUMER_SECRET;
 
 	private SortedMap<String, String> oauthParametersMap;
 
@@ -100,7 +98,6 @@ public class YouRoomAccess {
 		HttpResponse objResponse = null;
 
 		HttpClient objHttp = new DefaultHttpClient();
-
 		HttpPost objPost = new HttpPost(api);
 
 		if (parameterMap != null && parameterMap.size() > 0) {
@@ -203,9 +200,7 @@ public class YouRoomAccess {
 			builder.append("&");
 
 		}
-
 		return builder.toString().substring(0, builder.length() - 1);
-
 	}
 
 	private String createAuthorizationValue() throws InvalidKeyException,
@@ -230,9 +225,8 @@ public class YouRoomAccess {
 	}
 
 	private String getSignatureBaseString() throws UnsupportedEncodingException {
-		String result = method + "&" + encodeURL(api) + "&"
+		return method + "&" + encodeURL(api) + "&"
 				+ SignatureEncode.encode(getRequestParameters());
-		return result;
 	}
 
 	private String encodeURL(String str) {

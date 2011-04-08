@@ -55,8 +55,6 @@ public class RoomActivity extends Activity implements OnClickListener {
 		Intent intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
 		listView = (ListView) findViewById(R.id.listView1);
-	
-
 
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 
@@ -153,8 +151,8 @@ public class RoomActivity extends Activity implements OnClickListener {
 			if (convertView == null) {
 				view = inflater.inflate(R.layout.room_list_item, null);
 			}
-			
-			YouRoomEntry roomEntry = (YouRoomEntry)this.getItem(position);
+
+			YouRoomEntry roomEntry = (YouRoomEntry) this.getItem(position);
 			TextView name = null;
 			TextView content = null;
 			TextView createdTime = null;
@@ -168,9 +166,10 @@ public class RoomActivity extends Activity implements OnClickListener {
 			if (name != null) {
 				name.setText(roomEntry.getParticipationName());
 			}
-			if ( createdTime != null ){
+			if (createdTime != null) {
 				createdTime.setTextColor(Color.LTGRAY);
-				createdTime.setText(YouRoomUtil.convertDatetime(roomEntry.getCreatedTime()));
+				createdTime.setText(YouRoomUtil.convertDatetime(roomEntry
+						.getCreatedTime()));
 			}
 			if (content != null) {
 				content.setText(roomEntry.getContent());
@@ -187,15 +186,16 @@ public class RoomActivity extends Activity implements OnClickListener {
 				descendantsCount.setText("[ " + count + "comments ] > ");
 			}
 
-	    	UserSession session = UserSession.getInstance();
-	    	String roomAccessTime = session.getRoomAccessTime(roomId);
-	    	if ( roomAccessTime != null ) {
-				int compareResult = YouRoomUtil.calendarCompareTo(roomAccessTime, roomEntry.getUpdatedTime());
-				if ( compareResult < 0 ){
+			UserSession session = UserSession.getInstance();
+			String roomAccessTime = session.getRoomAccessTime(roomId);
+			if (roomAccessTime != null) {
+				int compareResult = YouRoomUtil.calendarCompareTo(
+						roomAccessTime, roomEntry.getUpdatedTime());
+				if (compareResult < 0) {
 					createdTime.setTextColor(Color.RED);
 				}
-	    	}
-			
+			}
+
 			return view;
 		}
 	}
@@ -221,8 +221,8 @@ public class RoomActivity extends Activity implements OnClickListener {
 			HashMap<String, String> oAuthTokenMap = youRoomUtil
 					.getOauthTokenFromLocal();
 			YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
-			String entry = youRoomCommand.getEntry(roomId,
-					String.valueOf(entryIds[0]));
+			String entry = youRoomCommand.getEntry(roomId, String
+					.valueOf(entryIds[0]));
 
 			try {
 				JSONObject json = new JSONObject(entry);

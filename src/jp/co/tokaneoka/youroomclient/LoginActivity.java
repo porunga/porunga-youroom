@@ -82,14 +82,14 @@ public class LoginActivity extends Activity implements OnClickListener {
 	private boolean Login(String username, String password) {
 
 		boolean check = false;
-		
-		Map<String, String> xauthParameterMap = new HashMap<String, String>();		
-    	HashMap<String, String> resultMap = new HashMap<String, String>();
-    	
-    		xauthParameterMap.put("x_auth_mode", "client_auth");
-    		xauthParameterMap.put("x_auth_username", username);
-    		xauthParameterMap.put("x_auth_password", password);
-    	    	
+
+		Map<String, String> xauthParameterMap = new HashMap<String, String>();
+		HashMap<String, String> resultMap = new HashMap<String, String>();
+
+		xauthParameterMap.put("x_auth_mode", "client_auth");
+		xauthParameterMap.put("x_auth_username", username);
+		xauthParameterMap.put("x_auth_password", password);
+
 		Xauth xAuth = new Xauth(xauthParameterMap);
 		resultMap = xAuth.getAccessToken();
 

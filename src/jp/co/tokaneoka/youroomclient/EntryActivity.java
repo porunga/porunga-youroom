@@ -51,7 +51,6 @@ public class EntryActivity extends Activity implements OnClickListener {
 	@Override
 	public void onStart() {
 		super.onStart();
-
 		intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
 		YouRoomEntry youRoomEntry = (YouRoomEntry) intent
