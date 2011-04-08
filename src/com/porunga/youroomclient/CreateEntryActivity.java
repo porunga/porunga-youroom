@@ -1,6 +1,8 @@
-package jp.co.tokaneoka.youroomclient;
+package com.porunga.youroomclient;
 
 import java.util.HashMap;
+
+import jp.co.tokaneoka.youroomclient.R;
 
 import android.app.Activity;
 import android.content.Intent;

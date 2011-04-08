@@ -1,4 +1,4 @@
-package jp.co.tokaneoka.youroomclient;
+package com.porunga.youroomclient;
 
 /*
  * http://d.hatena.ne.jp/lynmock/20100502/の「JavaでのXauth AccessToken取得サンプル」

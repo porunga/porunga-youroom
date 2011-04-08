@@ -1,4 +1,4 @@
-package jp.co.tokaneoka.youroomclient;
+package com.porunga.youroomclient;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

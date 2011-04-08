@@ -1,4 +1,4 @@
-package jp.co.tokaneoka.youroomclient;
+package com.porunga.youroomclient;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import jp.co.tokaneoka.youroomclient.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;

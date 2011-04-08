@@ -1,4 +1,4 @@
-package jp.co.tokaneoka.youroomclient;
+package com.porunga.youroomclient;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;

@@ -1,4 +1,4 @@
-package jp.co.tokaneoka.youroomclient;
+package com.porunga.youroomclient;
 
 /*
  * JavaでUnicodeエスケープ

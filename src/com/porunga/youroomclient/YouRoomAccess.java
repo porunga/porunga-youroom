@@ -1,4 +1,4 @@
-package jp.co.tokaneoka.youroomclient;
+package com.porunga.youroomclient;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -27,7 +27,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
 public class YouRoomAccess {
-
+	
 	private static final String CONSUMER_KEY = "***************";
 	private static final String CONSUMER_SECRET = "***************";
 
