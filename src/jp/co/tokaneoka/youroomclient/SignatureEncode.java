@@ -7,9 +7,7 @@ public class SignatureEncode {
 
 	public static final String encode(String s)
 			throws UnsupportedEncodingException {
-
-		byte[] bytes = s.getBytes("UTF-8");
-
+		byte[] bytes = s.getBytes("utf-8");
 		StringBuffer builder = new StringBuffer();
 		for (byte b : bytes) {
 			char c = (char) b;

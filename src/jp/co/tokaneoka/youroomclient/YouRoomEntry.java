@@ -2,8 +2,8 @@ package jp.co.tokaneoka.youroomclient;
 
 import java.io.Serializable;
 
-// ListViewカスタマイズ用のArrayAdapterに利用するクラス    
-public class YouRoomEntry implements Serializable{
+//ListView繧ｫ繧ｹ繧ｿ繝槭う繧ｺ逕ｨ縺ｮArrayAdapter縺ｫ蛻ｩ逕ｨ縺吶ｋ繧ｯ繝ｩ繧ｹ    
+public class YouRoomEntry implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -17,65 +17,83 @@ public class YouRoomEntry implements Serializable{
 	private String participationName;
 	private String participationId;
 	private int level;
-	
+
 	public int getLevel() {
 		return level;
 	}
+
 	public void setLevel(int level) {
 		this.level = level;
-	}	
+	}
+
 	public int getDescendantsCount() {
 		return descendantsCount;
 	}
+
 	public void setDescendantsCount(int descendantsCount) {
 		this.descendantsCount = descendantsCount;
 	}
-			
+
 	public int getId() {
 		return id;
 	}
+
 	public void setId(int id) {
 		this.id = id;
 	}
+
 	public String getContent() {
 		return content;
 	}
+
 	public void setContent(String content) {
 		this.content = content;
 	}
+
 	public int getRootId() {
 		return rootId;
 	}
+
 	public void setRootId(int rootId) {
 		this.rootId = rootId;
 	}
+
 	public int getParentId() {
 		return parentId;
 	}
+
 	public void setParentId(int parentId) {
 		this.parentId = parentId;
 	}
+
 	public String getCreatedTime() {
 		return createdTime;
 	}
+
 	public void setCreatedTime(String createdTime) {
 		this.createdTime = createdTime;
 	}
+
 	public String getUpdatedTime() {
 		return updatedTime;
 	}
+
 	public void setUpdatedTime(String updatedTime) {
 		this.updatedTime = updatedTime;
 	}
+
 	public String getParticipationName() {
 		return participationName;
 	}
+
 	public void setParticipationName(String participationName) {
 		this.participationName = participationName;
 	}
+
 	public String getParticipationId() {
 		return participationId;
 	}
+
 	public void setParticipationId(String participationId) {
 		this.participationId = participationId;
 	}

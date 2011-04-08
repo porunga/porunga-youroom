@@ -1,8 +1,8 @@
 package jp.co.tokaneoka.youroomclient;
 
 /*
- * http://d.hatena.ne.jp/lynmock/20100502/‚ÌuJava‚Å‚ÌXauth AccessTokenæ“¾ƒTƒ“ƒvƒ‹v
- * ‚ğQl‚Éi‚Ù‚Ú‚»‚Ì‚Ü‚Üjì¬
+ * http://d.hatena.ne.jp/lynmock/20100502/ã®ã€ŒJavaã§ã®Xauth AccessTokenå–å¾—ã‚µãƒ³ãƒ—ãƒ«ã€
+ * ã‚’å‚è€ƒã«ï¼ˆã»ã¼ãã®ã¾ã¾ï¼‰ä½œæˆ
  */
 
 import java.io.IOException;

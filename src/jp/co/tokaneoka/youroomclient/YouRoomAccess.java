@@ -45,7 +45,7 @@ public class YouRoomAccess {
 	private SortedMap<String, String> oauthParametersMap;
 
 	/*
-	 * youroom.properties‚©‚çconsumer_key/consumer_secret‚ğ“Ç‚İ‚İ‚½‚¢BBB static {
+	 * youroom.propertiesã‹ã‚‰consumer_key/consumer_secretã‚’èª­ã¿è¾¼ã¿ãŸã„ã€‚ã€‚ã€‚ static {
 	 * loadProperties(); }
 	 */
 
@@ -211,8 +211,8 @@ public class YouRoomAccess {
 	private String createAuthorizationValue() throws InvalidKeyException,
 			NoSuchAlgorithmException, UnsupportedEncodingException {
 		/*
-		 * http://oauth.net/core/1.0/#nonce u5.4.1. Authorization Headerv
-		 * Authorization Header‚Ìì¬
+		 * http://oauth.net/core/1.0/#nonce ã€Œ5.4.1. Authorization Headerã€
+		 * Authorization Headerã®ä½œæˆ
 		 */
 		String result = "";
 		StringBuilder builder = new StringBuilder();
@@ -221,7 +221,7 @@ public class YouRoomAccess {
 			builder.append(param.getKey() + "=");
 			builder.append("\"" + param.getValue() + "\",");
 		}
-		// TODO http://oauth.net/core/1.0/#signing_process 9.Signing Request‚ğQÆ
+		// TODO http://oauth.net/core/1.0/#signing_process 9.Signing Requestã‚’å‚ç…§
 		builder.append("oauth_signature" + "=");
 		builder.append("\"" + getSignature(getSignatureBaseString(), getKey())
 				+ "\"");

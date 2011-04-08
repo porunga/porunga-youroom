@@ -32,7 +32,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class EntryActivity extends Activity implements OnClickListener {
-
 	String roomId;
 	YouRoomChildEntryAdapter adapter;
 	ProgressDialog progressDialog;
@@ -46,9 +45,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		setContentView(R.layout.entry_list);
-
 	}
 
 	@Override
@@ -60,6 +57,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 		YouRoomEntry youRoomEntry = (YouRoomEntry) intent
 				.getSerializableExtra("youRoomEntry");
 		String entryId = String.valueOf(youRoomEntry.getId());
+
 		Button postButton = (Button) findViewById(R.id.post_button);
 		postButton.setText(getString(R.string.post_button));
 		postButton.setOnClickListener(this);
@@ -71,7 +69,6 @@ public class EntryActivity extends Activity implements OnClickListener {
 		progressDialog = new ProgressDialog(this);
 		setProgressDialog(progressDialog);
 		progressDialog.show();
-
 
 		int level = -1;
 		youRoomEntry.setLevel(level);
@@ -106,7 +103,8 @@ public class EntryActivity extends Activity implements OnClickListener {
 		try {
 			task.execute(youRoomEntry);
 		} catch (RejectedExecutionException e) {
-			// TODO AsyncTaskでは内部的にキューを持っていますが、このキューサイズを超えるタスクをexecuteすると、ブロックされずに例外が発生します。らしいので、一旦握りつぶしている
+			// TODO
+			// AsyncTaskでは内部的にキューを持っていますが、このキューサイズを超えるタスクをexecuteすると、ブロックされずに例外が発生します。らしいので、一旦握りつぶしている
 			e.printStackTrace();
 		}
 	}
@@ -145,11 +143,10 @@ public class EntryActivity extends Activity implements OnClickListener {
 			if (name != null) {
 				name.setText(roomEntry.getParticipationName());
 			}
-
-			if ( updateTime != null ){
+			if (updateTime != null) {
 				updateTime.setTextColor(Color.LTGRAY);
-				updateTime.setText(YouRoomUtil.convertDatetime(roomEntry.getUpdatedTime()));
-
+				updateTime.setText(YouRoomUtil.convertDatetime(roomEntry
+						.getUpdatedTime()));
 			}
 			if (content != null) {
 				content.setText(roomEntry.getContent());
@@ -161,15 +158,15 @@ public class EntryActivity extends Activity implements OnClickListener {
 				level.setText(commentLevel);
 			}
 
-			
-	    	UserSession session = UserSession.getInstance();
-	    	String roomAccessTime = session.getRoomAccessTime(roomId);
-	    	if ( roomAccessTime != null ) {
-				int compareResult = YouRoomUtil.calendarCompareTo(roomAccessTime, roomEntry.getUpdatedTime());
-				if ( compareResult < 0 ){
+			UserSession session = UserSession.getInstance();
+			String roomAccessTime = session.getRoomAccessTime(roomId);
+			if (roomAccessTime != null) {
+				int compareResult = YouRoomUtil.calendarCompareTo(
+						roomAccessTime, roomEntry.getUpdatedTime());
+				if (compareResult < 0) {
 					updateTime.setTextColor(Color.RED);
 				}
-	    	}
+			}
 
 			return view;
 		}
@@ -259,8 +256,9 @@ public class EntryActivity extends Activity implements OnClickListener {
 			synchronized (objLock) {
 				if (dataChildList.size() > 0) {
 					for (int i = 0; i < dataChildList.size(); i++) {
-						adapter.insert(dataChildList.get(i),
-								adapter.getPosition(roomChildEntry) + i + 1);
+						adapter.insert(dataChildList.get(i), adapter
+								.getPosition(roomChildEntry)
+								+ i + 1);
 					}
 				}
 				requestCount++;
@@ -268,6 +266,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 				Log.e("count", "requestCount = " + requestCount);
 			}
 			adapter.notifyDataSetChanged();
+			// 親が一回呼ばれるので+1
 			if (parentEntryCount <= requestCount + 1)
 				progressDialog.dismiss();
 		}
@@ -294,5 +293,4 @@ public class EntryActivity extends Activity implements OnClickListener {
 		startActivity(intentCreateEntry);
 
 	}
-
 }

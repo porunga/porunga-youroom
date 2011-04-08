@@ -37,10 +37,15 @@ public class RoomActivity extends Activity implements OnClickListener {
 	ProgressDialog progressDialog;
 	private ListView listView;
 	private int page = 1;
+	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
+
+	private YouRoomGroup group;
+	private EditText entryContentText;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+//		this.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN); 
 		setContentView(R.layout.room_list);
 		
 		Button postButton = (Button) findViewById(R.id.post_button);
@@ -59,16 +64,16 @@ public class RoomActivity extends Activity implements OnClickListener {
 		setProgressDialog(progressDialog);
 		progressDialog.show();
 
-		// RoomEntry‚Ìæ“¾
+		// RoomEntryã®å–å¾—
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		parameterMap.put("page", String.valueOf(page));
 		GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap);
 		task.execute();
 		page++;
 
-		// FooterView‚Ìİ’è
+		// FooterViewã®è¨­å®š
 		final TextView textview = new TextView(this);
-		textview.setText("-----“Ç‚İ‚İ-----");
+		textview.setText("-----èª­ã¿è¾¼ã¿-----");
 		textview.setMinHeight(50);
 		textview.setBackgroundColor(Color.WHITE);
 		listView.addFooterView(textview);
@@ -93,7 +98,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 					ListView listView = (ListView) parent;
 					YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
 					if (item.getDescendantsCount() == -1){
-						Toast.makeText(getApplication(), "“Ç‚İ‚İ’†‚Å‚·B‚à‚¤­‚µ‚¨‚Ü‚¿‚­‚¾‚³‚¢B", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplication(), "èª­ã¿è¾¼ã¿ä¸­ã§ã™ã€‚ã‚‚ã†å°‘ã—ãŠã¾ã¡ãã ã•ã„ã€‚", Toast.LENGTH_SHORT).show();
 
 					} else if(item.getDescendantsCount() == 0){
 						Intent intent = new Intent(getApplication(),
@@ -129,7 +134,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 		super.onStart();
 	}
 
-	// ListViewƒJƒXƒ^ƒ}ƒCƒY—p‚ÌArrayAdapter
+	// ListViewã‚«ã‚¹ã‚¿ãƒã‚¤ã‚ºç”¨ã®ArrayAdapter
 	public class YouRoomEntryAdapter extends ArrayAdapter<YouRoomEntry> {
 		private LayoutInflater inflater;
 		private ArrayList<YouRoomEntry> items;
@@ -178,7 +183,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 						roomEntry);
 				task.execute(roomEntry.getId());
 			} else {
-				// TODO ƒŒƒCƒAƒEƒgC³’¼‘‚«
+				// TODO ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆä¿®æ­£ç›´æ›¸ã
 				descendantsCount.setText("[ " + count + "comments ] > ");
 			}
 
@@ -232,7 +237,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 
 		@Override
 		protected void onPostExecute(String count) {
-			// TODO ƒŒƒCƒAƒEƒgC³’¼‘‚«
+			// TODO ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆä¿®æ­£ç›´æ›¸ã
 			textView.setText("[ " + count + "comments ] > ");
 		}
 	}
@@ -311,7 +316,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 
 	public void setProgressDialog(ProgressDialog progressDialog) {
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		progressDialog.setMessage("ˆ—‚ğÀs‚µ‚Ä‚¢‚Ü‚·");
+		progressDialog.setMessage("å‡¦ç†ã‚’å®Ÿè¡Œã—ã¦ã„ã¾ã™");
 		progressDialog.setCancelable(true);
 	}
 
