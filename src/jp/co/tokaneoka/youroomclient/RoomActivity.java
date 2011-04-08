@@ -37,15 +37,10 @@ public class RoomActivity extends Activity implements OnClickListener {
 	ProgressDialog progressDialog;
 	private ListView listView;
 	private int page = 1;
-	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
-
-	private YouRoomGroup group;
-	private EditText entryContentText;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-//		this.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN); 
 		setContentView(R.layout.room_list);
 		
 		Button postButton = (Button) findViewById(R.id.post_button);
