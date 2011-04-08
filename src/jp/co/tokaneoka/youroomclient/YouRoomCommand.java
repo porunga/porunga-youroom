@@ -19,8 +19,7 @@ public class YouRoomCommand {
 		this.youRoomAccess = new YouRoomAccess();
 		// TODO oauthTokenの設定はYouRoomAccessでやりたい
 		youRoomAccess.setOauthToken(oauthTokenMap.get("oauth_token"));
-		youRoomAccess.setOauthTokenSecret(oauthTokenMap
-				.get("oauth_token_secret"));
+		youRoomAccess.setOauthTokenSecret(oauthTokenMap.get("oauth_token_secret"));
 	}
 
 	/*
@@ -81,8 +80,7 @@ public class YouRoomCommand {
 		Log.i("ACCESS", "getEntry");
 
 		String method = "GET";
-		String api = "https://www.youroom.in/r/" + roomId + "/entries/"
-				+ entryId;
+		String api = "https://www.youroom.in/r/" + roomId + "/entries/" + entryId;
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		parameterMap.put("format", "json");
 
@@ -107,8 +105,7 @@ public class YouRoomCommand {
 		return decodeResult;
 	}
 
-	public String getRoomTimeLine(String roomId,
-			Map<String, String> parameterMap) {
+	public String getRoomTimeLine(String roomId, Map<String, String> parameterMap) {
 		Log.i("ACCESS", "getRoomTimeLine");
 
 		String method = "GET";
@@ -165,25 +162,26 @@ public class YouRoomCommand {
 		}
 		return decodeResult;
 	}
-	  public String createEntry(String roomId, String parentId, String entryContent){
-		    Log.i("ACCESS","createEntry");
-		    
-		    String method = "POST";
-		    String api = "https://www.youroom.in/r/" + roomId + "/entries";
-		      Map<String, String> parameterMap = new HashMap<String, String>();
-		      parameterMap.put("format", "json");
-		      parameterMap.put("entry[content]", entryContent);
-		      if (parentId != null)
-		        parameterMap.put("entry[parent_id]", parentId);
-		    
-		      youRoomAccess.setMethod(method);    
-		      youRoomAccess.setApi(api);
-		      youRoomAccess.setParameter(parameterMap);    
-		      HttpResponse objResponse = youRoomAccess.requestPost();
-		         
-		    int statusCode = objResponse.getStatusLine().getStatusCode();
 
-		    return String.valueOf(statusCode);    
-		  }
+	public String createEntry(String roomId, String parentId, String entryContent) {
+		Log.i("ACCESS", "createEntry");
+
+		String method = "POST";
+		String api = "https://www.youroom.in/r/" + roomId + "/entries";
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("format", "json");
+		parameterMap.put("entry[content]", entryContent);
+		if (parentId != null)
+			parameterMap.put("entry[parent_id]", parentId);
+
+		youRoomAccess.setMethod(method);
+		youRoomAccess.setApi(api);
+		youRoomAccess.setParameter(parameterMap);
+		HttpResponse objResponse = youRoomAccess.requestPost();
+
+		int statusCode = objResponse.getStatusLine().getStatusCode();
+
+		return String.valueOf(statusCode);
+	}
 
 }

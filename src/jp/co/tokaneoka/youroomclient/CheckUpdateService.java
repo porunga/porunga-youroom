@@ -69,12 +69,10 @@ public class CheckUpdateService extends Service {
 		Toast.makeText(this, "更新確認を終了しました。", Toast.LENGTH_LONG).show();
 	}
 
-	private ArrayList<YouRoomEntry> acquireHomeEntryList(
-			Map<String, String> parameterMap) {
+	private ArrayList<YouRoomEntry> acquireHomeEntryList(Map<String, String> parameterMap) {
 
 		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-		HashMap<String, String> oAuthTokenMap = youRoomUtil
-				.getOauthTokenFromLocal();
+		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
 		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
 		String homeTimeline = youRoomCommand.acquireHomeTimeline(parameterMap);
 
@@ -88,8 +86,7 @@ public class CheckUpdateService extends Service {
 				JSONObject entryObject = jObject.getJSONObject("entry");
 
 				int id = entryObject.getInt("id");
-				String participationName = entryObject.getJSONObject(
-						"participation").getString("name");
+				String participationName = entryObject.getJSONObject("participation").getString("name");
 				String content = entryObject.getString("content");
 
 				String createdTime = entryObject.getString("created_at");
@@ -101,8 +98,7 @@ public class CheckUpdateService extends Service {
 				roomEntry.setCreatedTime(createdTime);
 				roomEntry.setContent(content);
 
-				int compareResult = YouRoomUtil.calendarCompareTo(youRoomUtil
-						.getUpdateCheckTime(), updatedTime);
+				int compareResult = YouRoomUtil.calendarCompareTo(youRoomUtil.getUpdateCheckTime(), updatedTime);
 				if (compareResult < 0) {
 					dataList.add(roomEntry);
 				}
@@ -114,8 +110,7 @@ public class CheckUpdateService extends Service {
 		return dataList;
 	}
 
-	public class CheckUpdateEntryTask extends
-			AsyncTask<String, Void, ArrayList<YouRoomEntry>> {
+	public class CheckUpdateEntryTask extends AsyncTask<String, Void, ArrayList<YouRoomEntry>> {
 
 		@Override
 		protected ArrayList<YouRoomEntry> doInBackground(String... times) {
@@ -139,15 +134,12 @@ public class CheckUpdateService extends Service {
 
 				Class distActivity = GroupActivity.class;
 				NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-				Notification notification = new Notification(
-						R.drawable.myrooms, message, System.currentTimeMillis());
+				Notification notification = new Notification(R.drawable.myrooms, message, System.currentTimeMillis());
 				notification.flags = Notification.FLAG_AUTO_CANCEL;
 				notification.number = updateItemCount;
 				Intent intent = new Intent(getApplication(), distActivity);
-				PendingIntent contentIntent = PendingIntent.getActivity(
-						getApplication(), 0, intent, 0);
-				notification.setLatestEventInfo(getApplicationContext(),
-						"youRoomClient", message, contentIntent);
+				PendingIntent contentIntent = PendingIntent.getActivity(getApplication(), 0, intent, 0);
+				notification.setLatestEventInfo(getApplicationContext(), "youRoomClient", message, contentIntent);
 				notificationManager.notify(R.string.app_name, notification);
 			}
 		}

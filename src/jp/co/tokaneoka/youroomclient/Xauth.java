@@ -40,8 +40,7 @@ public class Xauth {
 
 		if (statusCode == HttpURLConnection.HTTP_OK) {
 			try {
-				String result = EntityUtils.toString(objResponse.getEntity(),
-						"UTF-8");
+				String result = EntityUtils.toString(objResponse.getEntity(), "UTF-8");
 				String[] parameters = result.split("&");
 				for (String parameter : parameters) {
 					String[] keyAndValue = parameter.split("=");
@@ -50,8 +49,7 @@ public class Xauth {
 					}
 					String key = keyAndValue[0];
 					String value = keyAndValue[1];
-					if ("oauth_token".equals(key)
-							|| "oauth_token_secret".equals(key)) {
+					if ("oauth_token".equals(key) || "oauth_token_secret".equals(key)) {
 						oAuthTokenMap.put(key, value);
 					}
 				}

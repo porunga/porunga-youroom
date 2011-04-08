@@ -1,6 +1,5 @@
 package jp.co.tokaneoka.youroomclient;
 
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,8 +62,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 					public void run() {
 						if (loginCheck) {
 							// ログイン時間を起点とするため、ログイン時間を最終アクセス時間として記録
-							String currentTime = YouRoomUtil
-									.getRFC3339FormattedTime();
+							String currentTime = YouRoomUtil.getRFC3339FormattedTime();
 							youRoomUtil.storeAccessTime(currentTime);
 							startActivity(intent);
 							dialog.dismiss();

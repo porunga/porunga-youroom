@@ -53,8 +53,7 @@ public class GroupActivity extends Activity {
 			OnClickListener loginClickListener = new OnClickListener() {
 				public void onClick(View v) {
 					if (v.getId() == R.id.login_button) {
-						Intent intent = new Intent(getApplication(),
-								LoginActivity.class);
+						Intent intent = new Intent(getApplication(), LoginActivity.class);
 						startActivity(intent);
 					}
 				}
@@ -74,33 +73,27 @@ public class GroupActivity extends Activity {
 			GetGroupTask task = new GetGroupTask();
 			task.execute();
 
-			adapter = new YouRoomGroupAdapter(this, R.layout.group_list_item,
-					dataList);
+			adapter = new YouRoomGroupAdapter(this, R.layout.group_list_item, dataList);
 			listView.setAdapter(adapter);
 
-			listView
-					.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-						@Override
-						public void onItemClick(AdapterView<?> parent,
-								View view, int position, long id) {
-							ListView listView = (ListView) parent;
-							YouRoomGroup item = (YouRoomGroup) listView
-									.getItemAtPosition(position);
-							Intent intent = new Intent(getApplication(),
-									RoomActivity.class);
-							String roomId = String.valueOf(item.getId());
-							intent.putExtra("roomId", roomId);
+			listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					ListView listView = (ListView) parent;
+					YouRoomGroup item = (YouRoomGroup) listView.getItemAtPosition(position);
+					Intent intent = new Intent(getApplication(), RoomActivity.class);
+					String roomId = String.valueOf(item.getId());
+					intent.putExtra("roomId", roomId);
 
-							UserSession session = UserSession.getInstance();
-							String lastAccessTime = youRoomUtil
-									.getRoomAccessTime(roomId);
-							session.setRoomAccessTime(roomId, lastAccessTime);
-							String time = YouRoomUtil.getRFC3339FormattedTime();
-							youRoomUtil.storeRoomAccessTime(roomId, time);
+					UserSession session = UserSession.getInstance();
+					String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
+					session.setRoomAccessTime(roomId, lastAccessTime);
+					String time = YouRoomUtil.getRFC3339FormattedTime();
+					youRoomUtil.storeRoomAccessTime(roomId, time);
 
-							startActivity(intent);
-						}
-					});
+					startActivity(intent);
+				}
+			});
 		}
 	}
 
@@ -112,11 +105,9 @@ public class GroupActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, DELETE_TOKEN, DELETE_TOKEN, R.string.delete_token);
-		menu.add(Menu.NONE, REACQUIRE_GROUP, REACQUIRE_GROUP,
-				R.string.reacquire_group);
+		menu.add(Menu.NONE, REACQUIRE_GROUP, REACQUIRE_GROUP, R.string.reacquire_group);
 		menu.add(Menu.NONE, CHECK_UPDATE, CHECK_UPDATE, R.string.check_update);
-		menu.add(Menu.NONE, UNCHECK_UPDATE, UNCHECK_UPDATE,
-				R.string.uncheck_update);
+		menu.add(Menu.NONE, UNCHECK_UPDATE, UNCHECK_UPDATE, R.string.uncheck_update);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -146,21 +137,17 @@ public class GroupActivity extends Activity {
 		case CHECK_UPDATE:
 			serviceIntent = new Intent(this, CheckUpdateService.class);
 			alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-			pendingIntent = PendingIntent.getService(getApplicationContext(),
-					0, serviceIntent, 0);
+			pendingIntent = PendingIntent.getService(getApplicationContext(), 0, serviceIntent, 0);
 			Calendar cal = Calendar.getInstance();
 			cal.setTimeInMillis(System.currentTimeMillis());
 			cal.add(Calendar.SECOND, 1);
-			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal
-					.getTimeInMillis(), AlarmManager.INTERVAL_HOUR,
-					pendingIntent);
+			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, pendingIntent);
 			ret = true;
 			break;
 		case UNCHECK_UPDATE:
 			serviceIntent = new Intent(this, CheckUpdateService.class);
 			alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-			pendingIntent = PendingIntent.getService(getApplicationContext(),
-					0, serviceIntent, 0);
+			pendingIntent = PendingIntent.getService(getApplicationContext(), 0, serviceIntent, 0);
 			pendingIntent.cancel();
 			alarmManager.cancel(pendingIntent);
 			ret = true;
@@ -177,16 +164,13 @@ public class GroupActivity extends Activity {
 		private LayoutInflater inflater;
 		private ArrayList<YouRoomGroup> items;
 
-		public YouRoomGroupAdapter(Context context, int textViewResourceId,
-				ArrayList<YouRoomGroup> items) {
+		public YouRoomGroupAdapter(Context context, int textViewResourceId, ArrayList<YouRoomGroup> items) {
 			super(context, textViewResourceId, items);
 			this.items = items;
-			this.inflater = (LayoutInflater) context
-					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
-		public View getView(final int position, View convertView,
-				ViewGroup parent) {
+		public View getView(final int position, View convertView, ViewGroup parent) {
 			View view = convertView;
 			if (convertView == null) {
 				view = inflater.inflate(R.layout.group_list_item, null);
@@ -204,16 +188,13 @@ public class GroupActivity extends Activity {
 			}
 			if (updateTime != null) {
 				updateTime.setTextColor(Color.LTGRAY);
-				updateTime.setText(YouRoomUtil.convertDatetime(group
-						.getUpdatedTime()));
+				updateTime.setText(YouRoomUtil.convertDatetime(group.getUpdatedTime()));
 			}
 
 			UserSession session = UserSession.getInstance();
-			String roomAccessTime = session.getRoomAccessTime(String
-					.valueOf(group.getId()));
+			String roomAccessTime = session.getRoomAccessTime(String.valueOf(group.getId()));
 			if (roomAccessTime != null) {
-				int compareResult = YouRoomUtil.calendarCompareTo(
-						roomAccessTime, group.getUpdatedTime());
+				int compareResult = YouRoomUtil.calendarCompareTo(roomAccessTime, group.getUpdatedTime());
 				if (compareResult < 0) {
 					updateTime.setTextColor(Color.RED);
 				}
@@ -229,8 +210,7 @@ public class GroupActivity extends Activity {
 		// output [YouRoomGroup...] or []
 
 		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-		HashMap<String, String> oAuthTokenMap = youRoomUtil
-				.getOauthTokenFromLocal();
+		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
 		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
 		String myGroups = youRoomCommand.getMyGroup();
 		ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
@@ -286,8 +266,7 @@ public class GroupActivity extends Activity {
 		return dataList;
 	}
 
-	public class GetGroupTask extends
-			AsyncTask<Void, Void, ArrayList<YouRoomGroup>> {
+	public class GetGroupTask extends AsyncTask<Void, Void, ArrayList<YouRoomGroup>> {
 
 		@Override
 		protected ArrayList<YouRoomGroup> doInBackground(Void... ids) {
