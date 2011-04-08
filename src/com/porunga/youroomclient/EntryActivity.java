@@ -30,7 +30,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class EntryActivity extends Activity implements OnClickListener {
-
 	String roomId;
 	YouRoomChildEntryAdapter adapter;
 	ProgressDialog progressDialog;
@@ -49,7 +48,6 @@ public class EntryActivity extends Activity implements OnClickListener {
 	@Override
 	public void onStart() {
 		super.onStart();
-
 		intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
 		YouRoomEntry youRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
@@ -84,7 +82,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 					intentCreateEntry.putExtra("roomId", String.valueOf(roomId));
 					intentCreateEntry.putExtra("youRoomEntry", item);
 
-					startActivity(intent);
+					startActivity(intentCreateEntry);
 				}
 			}
 		});
@@ -267,5 +265,4 @@ public class EntryActivity extends Activity implements OnClickListener {
 		startActivity(intentCreateEntry);
 
 	}
-
 }

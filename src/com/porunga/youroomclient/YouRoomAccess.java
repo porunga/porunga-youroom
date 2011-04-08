@@ -97,7 +97,6 @@ public class YouRoomAccess {
 		HttpResponse objResponse = null;
 
 		HttpClient objHttp = new DefaultHttpClient();
-
 		HttpPost objPost = new HttpPost(api);
 
 		if (parameterMap != null && parameterMap.size() > 0) {
@@ -198,9 +197,7 @@ public class YouRoomAccess {
 			builder.append("&");
 
 		}
-
 		return builder.toString().substring(0, builder.length() - 1);
-
 	}
 
 	private String createAuthorizationValue() throws InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
@@ -223,8 +220,8 @@ public class YouRoomAccess {
 	}
 
 	private String getSignatureBaseString() throws UnsupportedEncodingException {
-		String result = method + "&" + encodeURL(api) + "&" + SignatureEncode.encode(getRequestParameters());
-		return result;
+		return method + "&" + encodeURL(api) + "&"
+				+ SignatureEncode.encode(getRequestParameters());
 	}
 
 	private String encodeURL(String str) {
