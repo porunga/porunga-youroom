@@ -7,4 +7,8 @@
     <string name="reacquire_group">更新</string>
     <string name="check_update">更新を確認する</string>
     <string name="uncheck_update">更新確認をやめる</string>
+    <string name="post_button">投稿する</string>
+    <string name="post_ok">投稿しました</string>
+    <string name="post_ng">投稿に失敗しました</string>
+    <string name="deps_max">これ以上はコメントできません</string>
 </resources>

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.RejectedExecutionException;
 
-import jp.co.tokaneoka.youroomclient.R;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,35 +18,45 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-public class EntryActivity extends Activity {
+public class EntryActivity extends Activity implements OnClickListener {
 
 	String roomId;
 	YouRoomChildEntryAdapter adapter;
 	ProgressDialog progressDialog;
 	int parentEntryCount;
 	int requestCount;
+	Intent intent;
+
+	private final static int MAX_LEVEL = 5;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+		super.onCreate(savedInstanceState);		
+		setContentView(R.layout.entry_list);
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
 
-		setContentView(R.layout.main);
-
-		Intent intent = getIntent();
+		intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
 		YouRoomEntry youRoomEntry = (YouRoomEntry) intent
 				.getSerializableExtra("youRoomEntry");
 		String entryId = String.valueOf(youRoomEntry.getId());
+		Button postButton = (Button) findViewById(R.id.post_button);
+		postButton.setText(getString(R.string.post_button));
+		postButton.setOnClickListener(this);
 		parentEntryCount = youRoomEntry.getDescendantsCount();
 
 		// TODO if String decodeResult = "";
@@ -64,6 +72,28 @@ public class EntryActivity extends Activity {
 		adapter = new YouRoomChildEntryAdapter(this, R.layout.entry_list_item,
 				dataList);
 		listView.setAdapter(adapter);
+
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				ListView listView = (ListView) parent;
+				YouRoomEntry item = (YouRoomEntry) listView
+						.getItemAtPosition(position);
+				if (item.getLevel() == MAX_LEVEL)
+					Toast.makeText(getBaseContext(),
+							getString(R.string.deps_max), Toast.LENGTH_SHORT)
+							.show();
+				else {
+					Intent intentCreateEntry = new Intent(getApplication(),
+							CreateEntryActivity.class);
+					intentCreateEntry.putExtra("roomId", String.valueOf(roomId));
+					intentCreateEntry.putExtra("youRoomEntry", item);
+
+					startActivity(intent);
+				}
+			}
+		});
 
 		GetChildEntryTask task = new GetChildEntryTask(roomId);
 		try {
@@ -244,6 +274,20 @@ public class EntryActivity extends Activity {
 		progressDialog.setIndeterminate(false);
 		progressDialog.setMax(parentEntryCount);
 		progressDialog.setCancelable(true);
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		YouRoomEntry youRoomEntry = (YouRoomEntry) intent
+		.getSerializableExtra("youRoomEntry");
+		Intent intentCreateEntry = new Intent(getApplication(),
+				CreateEntryActivity.class);
+		intentCreateEntry.putExtra("roomId", String.valueOf(roomId));
+		intentCreateEntry.putExtra("youRoomEntry", youRoomEntry);
+
+		startActivity(intentCreateEntry);
+
 	}
 
 }

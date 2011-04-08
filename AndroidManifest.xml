@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="jp.co.tokaneoka.youroomclient"
-      android:versionCode="1"
-      android:versionName="1.0">
-      
-      <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+	package="jp.co.tokaneoka.youroomclient" android:versionCode="1"
+	android:versionName="1.0">
 
-      <application android:label="@string/app_name" android:icon="@drawable/myrooms">
-        <activity android:name="jp.co.tokaneoka.youroomclient.RoomActivity"
-                  android:label="@string/app_name">
-        </activity>
-        <activity android:name="jp.co.tokaneoka.youroomclient.LoginActivity"></activity>
-        <activity android:name="jp.co.tokaneoka.youroomclient.EntryActivity"></activity>
-        <activity android:name="jp.co.tokaneoka.youroomclient.GroupActivity">
-        	<intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <service android:name="CheckUpdateService"></service>
-        
-    </application>
+	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
+
+	<application android:label="@string/app_name" android:icon="@drawable/myrooms">
+		<activity android:name="jp.co.tokaneoka.youroomclient.RoomActivity"
+			android:label="@string/app_name">
+		</activity>
+		<activity android:name="jp.co.tokaneoka.youroomclient.LoginActivity"></activity>
+		<activity android:name="jp.co.tokaneoka.youroomclient.EntryActivity"></activity>
+		<activity android:name="jp.co.tokaneoka.youroomclient.CreateEntryActivity"></activity>
+		<activity android:name="jp.co.tokaneoka.youroomclient.GroupActivity">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+		<service android:name="CheckUpdateService"></service>
+
+	</application>
 </manifest>

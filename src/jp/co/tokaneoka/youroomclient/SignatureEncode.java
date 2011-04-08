@@ -7,12 +7,14 @@ public class SignatureEncode {
 
 	public static final String encode(String s)
 			throws UnsupportedEncodingException {
-		byte[] bytes = s.getBytes("utf-8");
+		byte[] bytes = s.getBytes("UTF-8");
 		StringBuffer builder = new StringBuffer();
 		for (byte b : bytes) {
 			char c = (char) b;
 			if (UNRESERVEDCHARS.indexOf(String.valueOf(c)) >= 0) {
 				builder.append(String.valueOf(c));
+			} else if ("\n".equals(String.valueOf(c))) {
+				builder.append("%0A");
 			} else {
 				builder.append("%"
 						+ String.valueOf(

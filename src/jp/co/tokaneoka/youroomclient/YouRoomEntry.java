@@ -7,7 +7,7 @@ public class YouRoomEntry implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private int id;
+	private int id=-1;
 	private String content;
 	private int rootId;
 	private int parentId;

@@ -165,4 +165,25 @@ public class YouRoomCommand {
 		}
 		return decodeResult;
 	}
+	  public String createEntry(String roomId, String parentId, String entryContent){
+		    Log.i("ACCESS","createEntry");
+		    
+		    String method = "POST";
+		    String api = "https://www.youroom.in/r/" + roomId + "/entries";
+		      Map<String, String> parameterMap = new HashMap<String, String>();
+		      parameterMap.put("format", "json");
+		      parameterMap.put("entry[content]", entryContent);
+		      if (parentId != null)
+		        parameterMap.put("entry[parent_id]", parentId);
+		    
+		      youRoomAccess.setMethod(method);    
+		      youRoomAccess.setApi(api);
+		      youRoomAccess.setParameter(parameterMap);    
+		      HttpResponse objResponse = youRoomAccess.requestPost();
+		         
+		    int statusCode = objResponse.getStatusLine().getStatusCode();
+
+		    return String.valueOf(statusCode);    
+		  }
+
 }
