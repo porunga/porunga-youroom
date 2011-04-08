@@ -46,7 +46,8 @@ public class EntryActivity extends Activity {
 
 		Intent intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
-		YouRoomEntry youRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
+		YouRoomEntry youRoomEntry = (YouRoomEntry) intent
+				.getSerializableExtra("youRoomEntry");
 		String entryId = String.valueOf(youRoomEntry.getId());
 		parentEntryCount = youRoomEntry.getDescendantsCount();
 
@@ -60,7 +61,8 @@ public class EntryActivity extends Activity {
 		int level = -1;
 		youRoomEntry.setLevel(level);
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
-		adapter = new YouRoomChildEntryAdapter(this, R.layout.entry_list_item, dataList);
+		adapter = new YouRoomChildEntryAdapter(this, R.layout.entry_list_item,
+				dataList);
 		listView.setAdapter(adapter);
 
 		GetChildEntryTask task = new GetChildEntryTask(roomId);
@@ -78,13 +80,16 @@ public class EntryActivity extends Activity {
 		private LayoutInflater inflater;
 		private ArrayList<YouRoomEntry> items;
 
-		public YouRoomChildEntryAdapter(Context context, int textViewResourceId, ArrayList<YouRoomEntry> items) {
+		public YouRoomChildEntryAdapter(Context context,
+				int textViewResourceId, ArrayList<YouRoomEntry> items) {
 			super(context, textViewResourceId, items);
 			this.items = items;
-			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			this.inflater = (LayoutInflater) context
+					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
-		public View getView(final int position, View convertView, ViewGroup parent) {
+		public View getView(final int position, View convertView,
+				ViewGroup parent) {
 			View view = convertView;
 			if (convertView == null) {
 				view = inflater.inflate(R.layout.entry_list_item, null);
@@ -106,7 +111,8 @@ public class EntryActivity extends Activity {
 			}
 			if (updateTime != null) {
 				updateTime.setTextColor(Color.LTGRAY);
-				updateTime.setText(YouRoomUtil.convertDatetime(roomEntry.getUpdatedTime()));
+				updateTime.setText(YouRoomUtil.convertDatetime(roomEntry
+						.getUpdatedTime()));
 			}
 			if (content != null) {
 				content.setText(roomEntry.getContent());
@@ -121,7 +127,8 @@ public class EntryActivity extends Activity {
 			UserSession session = UserSession.getInstance();
 			String roomAccessTime = session.getRoomAccessTime(roomId);
 			if (roomAccessTime != null) {
-				int compareResult = YouRoomUtil.calendarCompareTo(roomAccessTime, roomEntry.getUpdatedTime());
+				int compareResult = YouRoomUtil.calendarCompareTo(
+						roomAccessTime, roomEntry.getUpdatedTime());
 				if (compareResult < 0) {
 					updateTime.setTextColor(Color.RED);
 				}
@@ -131,9 +138,11 @@ public class EntryActivity extends Activity {
 		}
 	}
 
-	private ArrayList<YouRoomEntry> getChildEntryList(String roomId, String entryId, int level) {
+	private ArrayList<YouRoomEntry> getChildEntryList(String roomId,
+			String entryId, int level) {
 		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
+		HashMap<String, String> oAuthTokenMap = youRoomUtil
+				.getOauthTokenFromLocal();
 		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
 
 		String entry = "";
@@ -142,7 +151,8 @@ public class EntryActivity extends Activity {
 		try {
 			JSONObject json = new JSONObject(entry);
 			if (json.getJSONObject("entry").has("children")) {
-				JSONArray children = json.getJSONObject("entry").getJSONArray("children");
+				JSONArray children = json.getJSONObject("entry").getJSONArray(
+						"children");
 
 				for (int i = 0; i < children.length(); i++) {
 					YouRoomEntry roomChildEntry = new YouRoomEntry();
@@ -150,7 +160,8 @@ public class EntryActivity extends Activity {
 					JSONObject childObject = children.getJSONObject(i);
 
 					int id = childObject.getInt("id");
-					String participationName = childObject.getJSONObject("participation").getString("name");
+					String participationName = childObject.getJSONObject(
+							"participation").getString("name");
 					String jcontent = childObject.getString("content");
 
 					String createdTime = childObject.getString("created_at");
@@ -171,7 +182,8 @@ public class EntryActivity extends Activity {
 		return dataList;
 	}
 
-	public class GetChildEntryTask extends AsyncTask<YouRoomEntry, Integer, ArrayList<YouRoomEntry>> {
+	public class GetChildEntryTask extends
+			AsyncTask<YouRoomEntry, Integer, ArrayList<YouRoomEntry>> {
 
 		private String roomId;
 		private YouRoomEntry roomChildEntry;
@@ -182,11 +194,13 @@ public class EntryActivity extends Activity {
 		}
 
 		@Override
-		protected ArrayList<YouRoomEntry> doInBackground(YouRoomEntry... roomChildEntries) {
+		protected ArrayList<YouRoomEntry> doInBackground(
+				YouRoomEntry... roomChildEntries) {
 			roomChildEntry = roomChildEntries[0];
 			String entryId = String.valueOf(roomChildEntry.getId());
 
-			ArrayList<YouRoomEntry> dataList = getChildEntryList(roomId, entryId, roomChildEntry.getLevel() + 1);
+			ArrayList<YouRoomEntry> dataList = getChildEntryList(roomId,
+					entryId, roomChildEntry.getLevel() + 1);
 
 			if (dataList.size() > 0) {
 				for (int i = 0; i < dataList.size(); i++) {
@@ -208,7 +222,9 @@ public class EntryActivity extends Activity {
 			synchronized (objLock) {
 				if (dataChildList.size() > 0) {
 					for (int i = 0; i < dataChildList.size(); i++) {
-						adapter.insert(dataChildList.get(i), adapter.getPosition(roomChildEntry) + i + 1);
+						adapter.insert(dataChildList.get(i), adapter
+								.getPosition(roomChildEntry)
+								+ i + 1);
 					}
 				}
 				requestCount++;

@@ -30,7 +30,8 @@ public class YouRoomUtil extends ContextWrapper {
 
 		sharedpref = getSharedPreferences(PREFERENCE_KEY, Activity.MODE_APPEND);
 		String oauthToken = sharedpref.getString(TOKEN_MAP_KEY, null);
-		String oauthTokenSecret = sharedpref.getString(TOKEN_SECRET_MAP_KEY, null);
+		String oauthTokenSecret = sharedpref.getString(TOKEN_SECRET_MAP_KEY,
+				null);
 
 		oAuthTokenMap.put(TOKEN_MAP_KEY, oauthToken);
 		oAuthTokenMap.put(TOKEN_SECRET_MAP_KEY, oauthTokenSecret);
@@ -55,7 +56,8 @@ public class YouRoomUtil extends ContextWrapper {
 		sharedpref = getSharedPreferences(PREFERENCE_KEY, Activity.MODE_APPEND);
 		Editor editor = sharedpref.edit();
 		editor.putString(TOKEN_MAP_KEY, oAuthTokenMap.get("oauth_token"));
-		editor.putString(TOKEN_SECRET_MAP_KEY, oAuthTokenMap.get(TOKEN_SECRET_MAP_KEY));
+		editor.putString(TOKEN_SECRET_MAP_KEY, oAuthTokenMap
+				.get(TOKEN_SECRET_MAP_KEY));
 		check = editor.commit();
 		return check;
 	}
@@ -63,7 +65,8 @@ public class YouRoomUtil extends ContextWrapper {
 	public String getRoomAccessTime(String roomId) {
 
 		String key = "LastAccessTime_" + roomId;
-		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND);
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY,
+				Activity.MODE_APPEND);
 		String lastAccessTime = sharedpref.getString(key, null);
 
 		return lastAccessTime;
@@ -80,11 +83,13 @@ public class YouRoomUtil extends ContextWrapper {
 		return check;
 	}
 
-	public boolean storeRoomAccessTime(String roomId, String RFC3339FormattedTime) {
+	public boolean storeRoomAccessTime(String roomId,
+			String RFC3339FormattedTime) {
 
 		boolean check = false;
 		String key = "LastAccessTime_" + roomId;
-		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND);
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY,
+				Activity.MODE_APPEND);
 		Editor editor = sharedpref.edit();
 		editor.putString(key, RFC3339FormattedTime);
 		check = editor.commit();
@@ -94,7 +99,8 @@ public class YouRoomUtil extends ContextWrapper {
 	public String getAccessTime() {
 
 		String key = "LastAccessTime";
-		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND);
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY,
+				Activity.MODE_APPEND);
 		String lastAccessTime = sharedpref.getString(key, null);
 
 		return lastAccessTime;
@@ -115,7 +121,8 @@ public class YouRoomUtil extends ContextWrapper {
 
 		boolean check = false;
 		String key = "LastAccessTime";
-		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND);
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY,
+				Activity.MODE_APPEND);
 		Editor editor = sharedpref.edit();
 		editor.putString(key, RFC3339FormattedTime);
 		check = editor.commit();
@@ -125,7 +132,8 @@ public class YouRoomUtil extends ContextWrapper {
 	public String getUpdateCheckTime() {
 
 		String key = "UpdateCheckTime";
-		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND);
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY,
+				Activity.MODE_APPEND);
 		String lastAccessTime = sharedpref.getString(key, null);
 
 		return lastAccessTime;
@@ -146,7 +154,8 @@ public class YouRoomUtil extends ContextWrapper {
 
 		boolean check = false;
 		String key = "UpdateCheckTime";
-		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY, Activity.MODE_APPEND);
+		sharedpref = getSharedPreferences(LAST_ACCESS_TIME_KEY,
+				Activity.MODE_APPEND);
 		Editor editor = sharedpref.edit();
 		editor.putString(key, RFC3339FormattedTime);
 		check = editor.commit();
@@ -178,7 +187,8 @@ public class YouRoomUtil extends ContextWrapper {
 		currentCal.add(Calendar.MONTH, 1);
 
 		Calendar displayCal = new GregorianCalendar();
-		long milliseconds = currentCal.getTimeInMillis() - cal.getTimeInMillis();
+		long milliseconds = currentCal.getTimeInMillis()
+				- cal.getTimeInMillis();
 		displayCal.setTimeInMillis(milliseconds);
 
 		SimpleDateFormat format = new SimpleDateFormat("HH:mm");
@@ -191,9 +201,13 @@ public class YouRoomUtil extends ContextWrapper {
 		} else if (milliseconds / (1000 * 60 * 60) < 24) {
 			return String.valueOf(milliseconds / (1000 * 60 * 60) + "時間前");
 		} else if (displayCal.get(Calendar.YEAR) > 1970) {
-			return cal.get(Calendar.YEAR) + "/" + cal.get(Calendar.MONTH) + "/" + cal.get(Calendar.DAY_OF_MONTH) + " " + " " + format.format(cal.getTime());
+			return cal.get(Calendar.YEAR) + "/" + cal.get(Calendar.MONTH) + "/"
+					+ cal.get(Calendar.DAY_OF_MONTH) + " " + " "
+					+ format.format(cal.getTime());
 		} else {
-			return cal.get(Calendar.MONTH) + "/" + cal.get(Calendar.DAY_OF_MONTH) + " " + format.format(cal.getTime());
+			return cal.get(Calendar.MONTH) + "/"
+					+ cal.get(Calendar.DAY_OF_MONTH) + " "
+					+ format.format(cal.getTime());
 		}
 	}
 
@@ -202,7 +216,8 @@ public class YouRoomUtil extends ContextWrapper {
 		// ( "2011-03-02T12:46:06Z" | "2011-03-02T12:46:06+09:00" ) ->
 		// "2011/03/02 21:46:06"
 		unformattedTime = unformattedTime.replaceAll("(\\+[0-9+:]+)|Z", "");
-		String[] updateTimes = unformattedTime.substring(0, unformattedTime.length()).split("T");
+		String[] updateTimes = unformattedTime.substring(0,
+				unformattedTime.length()).split("T");
 		String[] date = updateTimes[0].split("-");
 		String[] times = updateTimes[1].split(":");
 		int year = Integer.parseInt(date[0]);
@@ -212,7 +227,8 @@ public class YouRoomUtil extends ContextWrapper {
 		int minute = Integer.parseInt(times[1]);
 		int second = Integer.parseInt(times[2]);
 
-		Calendar cal = new GregorianCalendar(year, month, day, hour, minute, second);
+		Calendar cal = new GregorianCalendar(year, month, day, hour, minute,
+				second);
 		cal.add(Calendar.HOUR, 9);
 
 		return cal;
@@ -242,7 +258,8 @@ public class YouRoomUtil extends ContextWrapper {
 		return result;
 	}
 
-	public static int calendarCompareTo(String unformattedTime1, String unformattedTime2) {
+	public static int calendarCompareTo(String unformattedTime1,
+			String unformattedTime2) {
 
 		int result = 0;
 		Calendar cal1 = getDesignatedCalendar(unformattedTime1);

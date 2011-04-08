@@ -63,7 +63,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 					public void run() {
 						if (loginCheck) {
 							// ログイン時間を起点とするため、ログイン時間を最終アクセス時間として記録
-							String currentTime = YouRoomUtil.getRFC3339FormattedTime();
+							String currentTime = YouRoomUtil
+									.getRFC3339FormattedTime();
 							youRoomUtil.storeAccessTime(currentTime);
 							startActivity(intent);
 							dialog.dismiss();
@@ -86,9 +87,12 @@ public class LoginActivity extends Activity implements OnClickListener {
 		HashMap<String, String> resultMap = new HashMap<String, String>();
 
 		try {
-			xauthParameterMap.put("x_auth_mode", SignatureEncode.encode("client_auth"));
-			xauthParameterMap.put("x_auth_username", SignatureEncode.encode(username));
-			xauthParameterMap.put("x_auth_password", SignatureEncode.encode(password));
+			xauthParameterMap.put("x_auth_mode", SignatureEncode
+					.encode("client_auth"));
+			xauthParameterMap.put("x_auth_username", SignatureEncode
+					.encode(username));
+			xauthParameterMap.put("x_auth_password", SignatureEncode
+					.encode(password));
 		} catch (UnsupportedEncodingException ignore) {
 		}
 
