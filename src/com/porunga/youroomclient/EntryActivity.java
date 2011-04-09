@@ -155,13 +155,9 @@ public class EntryActivity extends Activity implements OnClickListener {
 		}
 	}
 
-	private ArrayList<YouRoomEntry> getChildEntryList(String roomId, String entryId, int level) {
-		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
-		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
-
-		String entry = "";
-		entry = youRoomCommand.getEntry(roomId, entryId);
+	private ArrayList<YouRoomEntry> getChildEntryList(String roomId, String entryId, int level, String cachedUpdatedTime) {
+		YouRoomCommandProxy proxy = new YouRoomCommandProxy(this);
+		String entry = proxy.getEntry(roomId, entryId, cachedUpdatedTime);
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 		try {
 			JSONObject json = new JSONObject(entry);
@@ -210,7 +206,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 			roomChildEntry = roomChildEntries[0];
 			String entryId = String.valueOf(roomChildEntry.getId());
 
-			ArrayList<YouRoomEntry> dataList = getChildEntryList(roomId, entryId, roomChildEntry.getLevel() + 1);
+			ArrayList<YouRoomEntry> dataList = getChildEntryList(roomId, entryId, roomChildEntry.getLevel() + 1, roomChildEntry.getUpdatedTime());
 
 			if (dataList.size() > 0) {
 				for (int i = 0; i < dataList.size(); i++) {

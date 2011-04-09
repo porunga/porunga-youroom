@@ -132,11 +132,13 @@ public class RoomActivity extends Activity implements OnClickListener {
 	public class YouRoomEntryAdapter extends ArrayAdapter<YouRoomEntry> {
 		private LayoutInflater inflater;
 		private ArrayList<YouRoomEntry> items;
+		private Activity activity;
 
-		public YouRoomEntryAdapter(Context context, int textViewResourceId, ArrayList<YouRoomEntry> items) {
-			super(context, textViewResourceId, items);
+		public YouRoomEntryAdapter(Activity activity, int textViewResourceId, ArrayList<YouRoomEntry> items) {
+			super(activity, textViewResourceId, items);
+			this.activity = activity;
 			this.items = items;
-			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			this.inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
 		public View getView(final int position, View convertView, ViewGroup parent) {
@@ -170,8 +172,8 @@ public class RoomActivity extends Activity implements OnClickListener {
 			descendantsCount = (TextView) view.findViewById(R.id.textView4);
 			int count = roomEntry.getDescendantsCount();
 			if (count == -1) {
-				GetEntryTask task = new GetEntryTask(descendantsCount, roomId, roomEntry);
-				task.execute(roomEntry.getId());
+				GetEntryTask task = new GetEntryTask(descendantsCount, roomId, roomEntry, activity);
+				task.execute(roomEntry);
 			} else {
 				// TODO レイアウト修正直書き
 				descendantsCount.setText("[ " + count + "comments ] > ");
@@ -190,26 +192,25 @@ public class RoomActivity extends Activity implements OnClickListener {
 		}
 	}
 
-	public class GetEntryTask extends AsyncTask<Integer, Void, String> {
+	public class GetEntryTask extends AsyncTask<YouRoomEntry, Void, String> {
 
 		private String roomId;
 		String count;
 		private TextView textView;
 		private YouRoomEntry roomEntry;
+		private Activity activity;
 
-		public GetEntryTask(TextView textView, String roomId, YouRoomEntry roomEntry) {
+		public GetEntryTask(TextView textView, String roomId, YouRoomEntry roomEntry, Activity activity) {
 			this.roomId = roomId;
 			this.roomEntry = roomEntry;
 			this.textView = textView;
+			this.activity = activity;
 		}
 
 		@Override
-		protected String doInBackground(Integer... entryIds) {
-
-			YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-			HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
-			YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
-			String entry = youRoomCommand.getEntry(roomId, String.valueOf(entryIds[0]));
+		protected String doInBackground(YouRoomEntry... entries) {
+			YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
+			String entry = proxy.getEntry(roomId, String.valueOf(entries[0].getId()), entries[0].getUpdatedTime());
 			try {
 				JSONObject json = new JSONObject(entry);
 				count = json.getJSONObject("entry").getString("descendants_count");
