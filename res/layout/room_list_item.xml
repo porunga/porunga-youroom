@@ -7,7 +7,7 @@
         <TextView android:id="@+id/textView2" android:layout_height="wrap_content" android:layout_width="wrap_content" android:paddingRight="5pt" android:textSize="5pt" android:textStyle="italic"></TextView>
     </LinearLayout>
     <LinearLayout android:layout_height="fill_parent" android:id="@+id/linearLayout5" android:layout_width="fill_parent" android:orientation="vertical" android:layout_margin="1pt">
-    <TextView android:id="@+id/textView3" android:layout_height="wrap_content" android:layout_gravity="left" android:gravity="left" android:layout_width="fill_parent" android:textSize="6pt"></TextView>
+    <TextView android:id="@+id/textView3" android:layout_height="wrap_content" android:layout_gravity="left" android:gravity="left" android:layout_width="fill_parent" android:textSize="6pt" android:autoLink="all"></TextView>
     <TextView android:id="@+id/textView4" android:layout_height="wrap_content" android:textStyle="bold" android:layout_gravity="right" android:layout_width="fill_parent" android:gravity="right" android:layout_marginRight="10px" android:layout_marginTop="10px" android:textSize="5pt"></TextView>
     </LinearLayout>
     </LinearLayout>

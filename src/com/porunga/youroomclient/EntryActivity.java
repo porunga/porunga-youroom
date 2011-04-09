@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.RejectedExecutionException;
 
-import jp.co.tokaneoka.youroomclient.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.porunga.youroomclient.R;
 
 import android.content.Context;
 import android.content.Intent;

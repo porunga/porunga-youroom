@@ -7,11 +7,12 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import jp.co.tokaneoka.youroomclient.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.porunga.youroomclient.R;
 
 import android.app.Notification;
 import android.app.NotificationManager;
