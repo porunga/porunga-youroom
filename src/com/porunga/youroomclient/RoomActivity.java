@@ -211,10 +211,9 @@ public class RoomActivity extends Activity implements OnClickListener {
 		@Override
 		protected String doInBackground(YouRoomEntry... entries) {
 			YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
-			String entry = proxy.getEntry(roomId, String.valueOf(entries[0].getId()), entries[0].getUpdatedTime());
+			JSONObject entry = proxy.getEntry(roomId, String.valueOf(entries[0].getId()), entries[0].getUpdatedTime());
 			try {
-				JSONObject json = new JSONObject(entry);
-				count = json.getJSONObject("entry").getString("descendants_count");
+				count = entry.getString("descendants_count");
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}

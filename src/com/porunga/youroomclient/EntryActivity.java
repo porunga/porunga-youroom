@@ -158,12 +158,11 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 	private ArrayList<YouRoomEntry> getChildEntryList(String roomId, String entryId, int level, String cachedUpdatedTime) {
 		YouRoomCommandProxy proxy = new YouRoomCommandProxy(this);
-		String entry = proxy.getEntry(roomId, entryId, cachedUpdatedTime);
+		JSONObject entry = proxy.getEntry(roomId, entryId, cachedUpdatedTime);
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 		try {
-			JSONObject json = new JSONObject(entry);
-			if (json.getJSONObject("entry").has("children")) {
-				JSONArray children = json.getJSONObject("entry").getJSONArray("children");
+			if (entry.has("children")) {
+				JSONArray children = entry.getJSONArray("children");
 
 				for (int i = 0; i < children.length(); i++) {
 					YouRoomEntry roomChildEntry = new YouRoomEntry();
