@@ -3,7 +3,8 @@ package com.porunga.youroomclient;
 import java.util.HashMap;
 import java.util.Map;
 
-import jp.co.tokaneoka.youroomclient.R;
+import com.porunga.youroomclient.R;
+
 
 import android.app.Activity;
 import android.app.ProgressDialog;

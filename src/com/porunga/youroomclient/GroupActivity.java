@@ -5,11 +5,12 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import jp.co.tokaneoka.youroomclient.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.porunga.youroomclient.R;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -143,7 +144,7 @@ public class GroupActivity extends Activity {
 			Calendar cal = Calendar.getInstance();
 			cal.setTimeInMillis(System.currentTimeMillis());
 			cal.add(Calendar.SECOND, 1);
-			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, pendingIntent);
+			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES, pendingIntent);
 			ret = true;
 			break;
 		case UNCHECK_UPDATE:

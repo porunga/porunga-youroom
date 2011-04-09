@@ -39,7 +39,6 @@ public class YouRoomAccess {
 	private String api = "";
 	private String oauthToken = null;
 	private String oauthTokenSecret = null;
-
 	private SortedMap<String, String> oauthParametersMap;
 
 	/*

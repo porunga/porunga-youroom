@@ -5,11 +5,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import jp.co.tokaneoka.youroomclient.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.porunga.youroomclient.R;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
