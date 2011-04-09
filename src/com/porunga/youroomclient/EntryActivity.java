@@ -156,37 +156,16 @@ public class EntryActivity extends Activity implements OnClickListener {
 		}
 	}
 
+	// TODO かなり回りくどいので、リファクタリング必要
 	private ArrayList<YouRoomEntry> getChildEntryList(String roomId, String entryId, int level, String cachedUpdatedTime) {
 		YouRoomCommandProxy proxy = new YouRoomCommandProxy(this);
-		JSONObject entry = proxy.getEntry(roomId, entryId, cachedUpdatedTime);
-		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
-		try {
-			if (entry.has("children")) {
-				JSONArray children = entry.getJSONArray("children");
-
-				for (int i = 0; i < children.length(); i++) {
-					YouRoomEntry roomChildEntry = new YouRoomEntry();
-
-					JSONObject childObject = children.getJSONObject(i);
-
-					int id = childObject.getInt("id");
-					String participationName = childObject.getJSONObject("participation").getString("name");
-					String jcontent = childObject.getString("content");
-
-					String createdTime = childObject.getString("created_at");
-					String updatedTime = childObject.getString("updated_at");
-
-					roomChildEntry.setId(id);
-					roomChildEntry.setParticipationName(participationName);
-					roomChildEntry.setCreatedTime(createdTime);
-					roomChildEntry.setUpdatedTime(updatedTime);
-					roomChildEntry.setContent(jcontent);
-					roomChildEntry.setLevel(level);
-					dataList.add(roomChildEntry);
-				}
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
+		YouRoomEntry entry = proxy.getEntry(roomId, entryId, cachedUpdatedTime, level);
+		ArrayList<YouRoomEntry> dataList = null;
+		if (entry.getChildren() != null && entry.getChildren().size() != 0) {
+			dataList = entry.getChildren();
+		}
+		else {
+			dataList = new ArrayList<YouRoomEntry>();
 		}
 		return dataList;
 	}

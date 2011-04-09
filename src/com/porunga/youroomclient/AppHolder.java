@@ -37,7 +37,7 @@ public class AppHolder extends Application {
 			Log.i("CACHE", "Create Database");
 			db.beginTransaction();
 			try {
-				db.execSQL("create table entries (entryId text primary key,roomId text not null, updatedTime text not null, json blob not null);");
+				db.execSQL("create table entries (entryId text primary key,roomId text not null, updatedTime text not null, entry blob not null);");
 				db.setTransactionSuccessful();
 			} finally {
 				db.endTransaction();

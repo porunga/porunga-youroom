@@ -210,13 +210,10 @@ public class RoomActivity extends Activity implements OnClickListener {
 
 		@Override
 		protected String doInBackground(YouRoomEntry... entries) {
+			// TODO roomEntryとcountのその後の使われ方がわからない
 			YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
-			JSONObject entry = proxy.getEntry(roomId, String.valueOf(entries[0].getId()), entries[0].getUpdatedTime());
-			try {
-				count = entry.getString("descendants_count");
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
+			YouRoomEntry entry = proxy.getEntry(roomId, String.valueOf(entries[0].getId()), entries[0].getUpdatedTime(), 0);
+			count = Integer.toString(entry.getDescendantsCount());
 			roomEntry.setDescendantsCount(Integer.valueOf(count));
 			return count;
 		}

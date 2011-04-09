@@ -1,6 +1,8 @@
 package com.porunga.youroomclient;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 //ListViewカスタマイズ用のArrayAdapterに利用するクラス    
 public class YouRoomEntry implements Serializable {
@@ -17,6 +19,7 @@ public class YouRoomEntry implements Serializable {
 	private String participationName;
 	private String participationId;
 	private int level;
+	private ArrayList<YouRoomEntry> children;
 
 	public int getLevel() {
 		return level;
@@ -98,4 +101,11 @@ public class YouRoomEntry implements Serializable {
 		this.participationId = participationId;
 	}
 
+	public ArrayList<YouRoomEntry> getChildren() {
+		return children;
+	}
+
+	public void setChildren(ArrayList<YouRoomEntry> children) {
+		this.children = children;
+	}
 }
