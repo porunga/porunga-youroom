@@ -1,27 +1,27 @@
 package com.porunga.youroomclient;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Timer;
-import java.util.TimerTask;
-
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.porunga.youroomclient.R;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 
 public class CheckUpdateService extends Service {
@@ -49,6 +49,9 @@ public class CheckUpdateService extends Service {
 
 		CheckUpdateEntryTask task = new CheckUpdateEntryTask();
 		task.execute();
+		
+		CacheDeleteTask cacheDeleteTask = new CacheDeleteTask();
+		cacheDeleteTask.execute(this);
 
 		/*
 		 * // require 2005-08-09T10:57:00-08:00 // actual
@@ -147,5 +150,40 @@ public class CheckUpdateService extends Service {
 			}
 		}
 	}
-
+	
+	public class CacheDeleteTask extends AsyncTask<Service, Void, Void> {
+		
+		@Override
+		protected Void doInBackground(Service... service) {
+			Log.i("CACHE", "CacheDelete");
+			
+			Calendar cal = Calendar.getInstance();
+			cal.setTimeInMillis(System.currentTimeMillis());
+			cal.add(Calendar.DATE, -3); // 3日前固定
+			String limit = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(cal.getTime());
+			Log.i("CACHE", String.format("limit->%s", limit));
+			//String limit = "2011-04-09T00:00:00Z";
+			SQLiteDatabase cacheDb = ((AppHolder)service[0].getApplication()).getCacheDb();
+			Cursor c = null;
+			SQLiteStatement stmt = null;
+			cacheDb.beginTransaction();
+			try {
+				c = cacheDb.rawQuery("select entryId, updatedTime from entries where updatedTime < ? ;", new String[]{limit});
+				stmt = cacheDb.compileStatement("delete from entries where entryId = ? ;");
+				c.moveToFirst();
+				for (int i = 0; i < c.getCount(); i++) {
+					Log.i("CACHE", String.format("Cache Delete [%d]", c.getInt(0)));
+					stmt.bindLong(1, c.getLong(0));
+					stmt.execute();
+					c.moveToNext();
+				}
+				cacheDb.setTransactionSuccessful();
+			} finally {
+				stmt.close();
+				c.close();
+				cacheDb.endTransaction();
+			}
+			return null;
+		}
+	}
 }
