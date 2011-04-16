@@ -159,7 +159,7 @@ public class CheckUpdateService extends Service {
 			
 			Calendar cal = Calendar.getInstance();
 			cal.setTimeInMillis(System.currentTimeMillis());
-			cal.add(Calendar.DATE, -3); // 3日前固定
+			cal.add(Calendar.DATE, -3); //TODO 3日前固定
 			String limit = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(cal.getTime());
 			Log.i("CACHE", String.format("limit->%s", limit));
 			//String limit = "2011-04-09T00:00:00Z";

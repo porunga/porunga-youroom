@@ -1,21 +1,13 @@
 package com.porunga.youroomclient;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.RejectedExecutionException;
 
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.porunga.youroomclient.R;
-
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -51,8 +43,14 @@ public class EntryActivity extends Activity implements OnClickListener {
 		super.onStart();
 		intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
-		YouRoomEntry youRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
-		String entryId = String.valueOf(youRoomEntry.getId());
+		YouRoomEntry pseudYouRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
+		
+		
+		YouRoomCommandProxy proxy = new YouRoomCommandProxy(this);
+		YouRoomEntry youRoomEntry = proxy.getEntry(roomId, String.valueOf(pseudYouRoomEntry.getId()));
+		
+		
+
 		Button postButton = (Button) findViewById(R.id.post_button);
 		postButton.setText(getString(R.string.post_button));
 		postButton.setOnClickListener(this);
@@ -61,9 +59,9 @@ public class EntryActivity extends Activity implements OnClickListener {
 		// TODO if String decodeResult = "";
 		ListView listView = (ListView) findViewById(R.id.listView1);
 
-		progressDialog = new ProgressDialog(this);
-		setProgressDialog(progressDialog);
-		progressDialog.show();
+//		progressDialog = new ProgressDialog(this);
+//		setProgressDialog(progressDialog);
+//		progressDialog.show();
 
 		int level = -1;
 		youRoomEntry.setLevel(level);
@@ -88,7 +86,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 			}
 		});
 
-		GetChildEntryTask task = new GetChildEntryTask(roomId);
+		GetChildEntryTask task = new GetChildEntryTask();
 		try {
 			task.execute(youRoomEntry);
 		} catch (RejectedExecutionException e) {
@@ -101,11 +99,9 @@ public class EntryActivity extends Activity implements OnClickListener {
 	// ListViewカスタマイズ用のArrayAdapter
 	public class YouRoomChildEntryAdapter extends ArrayAdapter<YouRoomEntry> {
 		private LayoutInflater inflater;
-		private ArrayList<YouRoomEntry> items;
 
 		public YouRoomChildEntryAdapter(Context context, int textViewResourceId, ArrayList<YouRoomEntry> items) {
 			super(context, textViewResourceId, items);
-			this.items = items;
 			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
@@ -155,52 +151,46 @@ public class EntryActivity extends Activity implements OnClickListener {
 			return view;
 		}
 	}
-
-	// TODO かなり回りくどいので、リファクタリング必要
-	private ArrayList<YouRoomEntry> getChildEntryList(String roomId, String entryId, int level, String cachedUpdatedTime) {
-		YouRoomCommandProxy proxy = new YouRoomCommandProxy(this);
-		YouRoomEntry entry = proxy.getEntry(roomId, entryId, cachedUpdatedTime, level);
-		ArrayList<YouRoomEntry> dataList = null;
-		if (entry.getChildren() != null && entry.getChildren().size() != 0) {
-			dataList = entry.getChildren();
+	
+	private void addChildEntries(ArrayList<YouRoomEntry> dataList, YouRoomEntry entry, int level) {
+		entry.setLevel(level);
+		dataList.add(entry);
+		if (entry.getChildren() != null) {
+			for (YouRoomEntry child : entry.getChildren()) {
+				addChildEntries(dataList, child, level + 1);
+			}
 		}
-		else {
-			dataList = new ArrayList<YouRoomEntry>();
-		}
-		return dataList;
 	}
 
-	public class GetChildEntryTask extends AsyncTask<YouRoomEntry, Integer, ArrayList<YouRoomEntry>> {
+	public class GetChildEntryTask extends AsyncTask<YouRoomEntry, Void, ArrayList<YouRoomEntry>> {
 
-		private String roomId;
+		//private String roomId;
 		private YouRoomEntry roomChildEntry;
 		private Object objLock = new Object();
 
 		public GetChildEntryTask(String roomId) {
-			this.roomId = roomId;
+			//this.roomId = roomId;
+		}
+		public GetChildEntryTask() {
+			
 		}
 
 		@Override
 		protected ArrayList<YouRoomEntry> doInBackground(YouRoomEntry... roomChildEntries) {
-			roomChildEntry = roomChildEntries[0];
-			String entryId = String.valueOf(roomChildEntry.getId());
-
-			ArrayList<YouRoomEntry> dataList = getChildEntryList(roomId, entryId, roomChildEntry.getLevel() + 1, roomChildEntry.getUpdatedTime());
-
-			if (dataList.size() > 0) {
-				for (int i = 0; i < dataList.size(); i++) {
-					GetChildEntryTask task = new GetChildEntryTask(roomId);
-					task.execute(dataList.get(i));
-				}
+			ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
+			roomChildEntries[0].setLevel(0);
+			dataList.add(roomChildEntries[0]);
+			for (YouRoomEntry child : roomChildEntries[0].getChildren()) {
+				addChildEntries(dataList, child, 1);
 			}
-
+			
 			return dataList;
 		}
 
-		@Override
-		protected void onProgressUpdate(Integer... progress) {
-			progressDialog.setProgress(progress[0]);
-		}
+//		@Override
+//		protected void onProgressUpdate(Integer... progress) {
+//			progressDialog.setProgress(progress[0]);
+//		}
 
 		@Override
 		protected void onPostExecute(ArrayList<YouRoomEntry> dataChildList) {
@@ -211,23 +201,23 @@ public class EntryActivity extends Activity implements OnClickListener {
 					}
 				}
 				requestCount++;
-				publishProgress(requestCount);
+				//publishProgress(requestCount);
 				Log.e("count", "requestCount = " + requestCount);
 			}
 			adapter.notifyDataSetChanged();
-			// 親が一回呼ばれるので+1
-			if (parentEntryCount <= requestCount + 1)
-				progressDialog.dismiss();
+//			// 親が一回呼ばれるので+1
+//			if (parentEntryCount <= requestCount + 1)
+//				progressDialog.dismiss();
 		}
 	}
 
-	public void setProgressDialog(ProgressDialog progressDialog) {
-		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		progressDialog.setMessage("処理を実行しています");
-		progressDialog.setIndeterminate(false);
-		progressDialog.setMax(parentEntryCount);
-		progressDialog.setCancelable(true);
-	}
+//	public void setProgressDialog(ProgressDialog progressDialog) {
+//		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+//		progressDialog.setMessage("処理を実行しています");
+//		progressDialog.setIndeterminate(false);
+//		progressDialog.setMax(parentEntryCount);
+//		progressDialog.setCancelable(true);
+//	}
 
 	@Override
 	public void onClick(View v) {

@@ -2,15 +2,11 @@ package com.porunga.youroomclient;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.porunga.youroomclient.R;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -23,11 +19,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.WindowManager.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,10 +34,10 @@ public class RoomActivity extends Activity implements OnClickListener {
 	ProgressDialog progressDialog;
 	private ListView listView;
 	private int page = 1;
-	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
+	//private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 
-	private YouRoomGroup group;
-	private EditText entryContentText;
+	//private YouRoomGroup group;
+	//private EditText entryContentText;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -132,13 +126,11 @@ public class RoomActivity extends Activity implements OnClickListener {
 	// ListViewカスタマイズ用のArrayAdapter
 	public class YouRoomEntryAdapter extends ArrayAdapter<YouRoomEntry> {
 		private LayoutInflater inflater;
-		private ArrayList<YouRoomEntry> items;
 		private Activity activity;
 
 		public YouRoomEntryAdapter(Activity activity, int textViewResourceId, ArrayList<YouRoomEntry> items) {
 			super(activity, textViewResourceId, items);
 			this.activity = activity;
-			this.items = items;
 			this.inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
@@ -173,7 +165,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 			descendantsCount = (TextView) view.findViewById(R.id.textView4);
 			int count = roomEntry.getDescendantsCount();
 			if (count == -1) {
-				GetEntryTask task = new GetEntryTask(descendantsCount, roomId, roomEntry, activity);
+				GetEntryTask task = new GetEntryTask(descendantsCount, roomId, activity);
 				task.execute(roomEntry);
 			} else {
 				// TODO レイアウト修正直書き
@@ -193,35 +185,30 @@ public class RoomActivity extends Activity implements OnClickListener {
 		}
 	}
 
-	public class GetEntryTask extends AsyncTask<YouRoomEntry, Void, String> {
+	public class GetEntryTask extends AsyncTask<YouRoomEntry, Void, Integer> {
 
 		private String roomId;
-		String count;
 		private TextView textView;
-		private YouRoomEntry roomEntry;
 		private Activity activity;
 
-		public GetEntryTask(TextView textView, String roomId, YouRoomEntry roomEntry, Activity activity) {
+		public GetEntryTask(TextView textView, String roomId, Activity activity) {
 			this.roomId = roomId;
-			this.roomEntry = roomEntry;
 			this.textView = textView;
 			this.activity = activity;
 		}
 
 		@Override
-		protected String doInBackground(YouRoomEntry... entries) {
-			// TODO roomEntryとcountのその後の使われ方がわからない
+		protected Integer doInBackground(YouRoomEntry... entries) {
 			YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
-			YouRoomEntry entry = proxy.getEntry(roomId, String.valueOf(entries[0].getId()), entries[0].getUpdatedTime(), 0);
-			count = Integer.toString(entry.getDescendantsCount());
-			roomEntry.setDescendantsCount(Integer.valueOf(count));
-			return count;
+			YouRoomEntry entry = proxy.getEntry(roomId, String.valueOf(entries[0].getId()), entries[0].getUpdatedTime());
+			entries[0].setDescendantsCount(entry.getDescendantsCount());
+			return entry.getDescendantsCount();
 		}
 
 		@Override
-		protected void onPostExecute(String count) {
+		protected void onPostExecute(Integer count) {
 			// TODO レイアウト修正直書き
-			textView.setText("[ " + count + "comments ] > ");
+			textView.setText("[ " + count.toString() + "comments ] > ");
 		}
 	}
 
@@ -282,9 +269,12 @@ public class RoomActivity extends Activity implements OnClickListener {
 		@Override
 		protected void onPostExecute(ArrayList<YouRoomEntry> dataList) {
 			int count = adapter.getCount();
-			Iterator iterator = dataList.iterator();
-			while (iterator.hasNext()) {
-				adapter.add((YouRoomEntry) iterator.next());
+//			Iterator iterator = dataList.iterator();
+//			while (iterator.hasNext()) {
+//				adapter.add((YouRoomEntry) iterator.next());
+//			}
+			for (YouRoomEntry youRoomEntry : dataList) {
+				adapter.add(youRoomEntry);
 			}
 			adapter.notifyDataSetChanged();
 			listView.setSelection(count);

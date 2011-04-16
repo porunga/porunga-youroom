@@ -2,7 +2,6 @@ package com.porunga.youroomclient;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 //ListViewカスタマイズ用のArrayAdapterに利用するクラス    
 public class YouRoomEntry implements Serializable {

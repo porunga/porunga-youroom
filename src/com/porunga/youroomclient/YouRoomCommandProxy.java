@@ -26,7 +26,7 @@ public class YouRoomCommandProxy {
 		youRoomCommand = new YouRoomCommand(new YouRoomUtil(activity.getApplication()).getOauthTokenFromLocal());
 	}
 	
-	public YouRoomEntry getEntry(String roomId, String entryId, String updatedTime, int level) {
+	public YouRoomEntry getEntry(String roomId, String entryId, String updatedTime) {
 		YouRoomEntry entry = null;
 		
 		Cursor c = cacheDb.rawQuery("select entry from entries where entryId = ? and roomId = ? and updatedTime = ? ;", new String[]{entryId, roomId, updatedTime});
@@ -49,7 +49,7 @@ public class YouRoomCommandProxy {
 			Log.i("CACHE", String.format("Cache Miss [%s]", entryId));
 			try {
 				JSONObject json = (new JSONObject(youRoomCommand.getEntry(roomId, entryId))).getJSONObject("entry");
-				entry = createEntry(json, level);
+				entry = createEntry(json);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -71,7 +71,35 @@ public class YouRoomCommandProxy {
 		return entry;
 	}
 	
-	private YouRoomEntry createEntry(JSONObject json, int level) {
+	public YouRoomEntry getEntry(String roomId, String entryId) {
+		YouRoomEntry entry = null;
+		
+		Cursor c = cacheDb.rawQuery("select entry from entries where entryId = ? and roomId = ? ;", new String[]{entryId, roomId});
+		
+		if (c.getCount() == 1) {
+			Log.i("CACHE", String.format("Cache Hit  [%s]", entryId));
+			c.moveToFirst();
+			try {
+				ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(c.getBlob(0)));
+				entry = (YouRoomEntry)ois.readObject();
+			} catch (StreamCorruptedException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		else {
+			throw new RuntimeException("cache is not found");
+		}
+		c.close();
+		return entry;
+	}
+	
+	
+	
+	private YouRoomEntry createEntry(JSONObject json) {
 		YouRoomEntry entry = new YouRoomEntry();
 		try {
 			entry.setId(json.getInt("id"));
@@ -80,15 +108,17 @@ public class YouRoomCommandProxy {
 			entry.setUpdatedTime(json.getString("updated_at"));
 			entry.setContent(json.getString("content"));
 			entry.setDescendantsCount(json.optInt("descendants_count"));
-			entry.setLevel(level);
 			if (json.has("children")) {
 				JSONArray cArray = json.getJSONArray("children");
 				ArrayList<YouRoomEntry> children = new ArrayList<YouRoomEntry>(cArray.length());
 				for (int i = 0; i < cArray.length(); i++) {
 					JSONObject child = cArray.getJSONObject(i);
-					children.add(createEntry(child, level));
+					children.add(createEntry(child));
 				}
 				entry.setChildren(children);
+			}
+			else {
+				entry.setChildren(new ArrayList<YouRoomEntry>());
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
