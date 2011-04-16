@@ -30,7 +30,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 	int requestCount;
 	Intent intent;
 
-	private final static int MAX_LEVEL = 5;
+	private final static int MAX_LEVEL = 6;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
