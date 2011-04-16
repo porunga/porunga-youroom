@@ -51,7 +51,7 @@ public class YouRoomCommandProxy {
 			Log.i("CACHE", String.format("Cache Miss [%s]", entryId));
 			try {
 				JSONObject json = (new JSONObject(youRoomCommand.getEntry(roomId, entryId))).getJSONObject("entry");
-				entry = createEntry(json);
+				entry = buildEntryFromJson(json);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -106,7 +106,7 @@ public class YouRoomCommandProxy {
 			String updatedTime = null;
 			try {
 				JSONObject json = (new JSONObject(youRoomCommand.getEntry(roomId, rootId))).getJSONObject("entry");
-				entry = createEntry(json);
+				entry = buildEntryFromJson(json);
 				updatedTime = entry.getUpdatedTime();
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -128,7 +128,7 @@ public class YouRoomCommandProxy {
 		return statusCode;
 	}
 	
-	private YouRoomEntry createEntry(JSONObject json) {
+	private YouRoomEntry buildEntryFromJson(JSONObject json) {
 		YouRoomEntry entry = new YouRoomEntry();
 		try {
 			entry.setId(json.getInt("id"));
@@ -142,7 +142,7 @@ public class YouRoomCommandProxy {
 				ArrayList<YouRoomEntry> children = new ArrayList<YouRoomEntry>(cArray.length());
 				for (int i = 0; i < cArray.length(); i++) {
 					JSONObject child = cArray.getJSONObject(i);
-					children.add(createEntry(child));
+					children.add(buildEntryFromJson(child));
 				}
 				entry.setChildren(children);
 			}
