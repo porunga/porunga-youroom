@@ -34,6 +34,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 	ProgressDialog progressDialog;
 	private ListView listView;
 	private int page = 1;
+	private TextView textview;
 	//private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 
 	//private YouRoomGroup group;
@@ -42,6 +43,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		// this.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		setContentView(R.layout.room_list);
 
@@ -52,8 +54,28 @@ public class RoomActivity extends Activity implements OnClickListener {
 		Intent intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
 		listView = (ListView) findViewById(R.id.listView1);
-
+		
+		textview = new TextView(this);
+		textview.setText("-----読み込み-----");
+		textview.setMinHeight(50);
+		textview.setBackgroundColor(Color.WHITE);
+		listView.addFooterView(textview);
+		
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
+		adapter = new YouRoomEntryAdapter(this, R.layout.room_list_item, dataList);
+		listView.setAdapter(adapter);
+	}
+	
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		page = 1;
+		adapter.clear();
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
 
 		progressDialog = new ProgressDialog(this);
 		setProgressDialog(progressDialog);
@@ -64,15 +86,6 @@ public class RoomActivity extends Activity implements OnClickListener {
 		GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap);
 		task.execute();
 		page++;
-
-		final TextView textview = new TextView(this);
-		textview.setText("-----読み込み-----");
-		textview.setMinHeight(50);
-		textview.setBackgroundColor(Color.WHITE);
-		listView.addFooterView(textview);
-
-		adapter = new YouRoomEntryAdapter(this, R.layout.room_list_item, dataList);
-		listView.setAdapter(adapter);
 
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
@@ -115,12 +128,6 @@ public class RoomActivity extends Activity implements OnClickListener {
 				}
 			}
 		});
-
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
 	}
 
 	// ListViewカスタマイズ用のArrayAdapter
