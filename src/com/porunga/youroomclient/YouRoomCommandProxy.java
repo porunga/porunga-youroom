@@ -18,6 +18,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 public class YouRoomCommandProxy {
+	private static final String POST_OK = "201";
+	
 	private SQLiteDatabase cacheDb = null;
 	private YouRoomCommand youRoomCommand = null;
 	
@@ -97,7 +99,34 @@ public class YouRoomCommandProxy {
 		return entry;
 	}
 	
-	
+	public String createEntry(String roomId, String parentId, String entryContent, String rootId) {
+		String statusCode = youRoomCommand.createEntry(roomId, parentId, entryContent);
+		if (POST_OK.equals(statusCode) && rootId != null) {
+			YouRoomEntry entry = null;
+			String updatedTime = null;
+			try {
+				JSONObject json = (new JSONObject(youRoomCommand.getEntry(roomId, rootId))).getJSONObject("entry");
+				entry = createEntry(json);
+				updatedTime = entry.getUpdatedTime();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			cacheDb.beginTransaction();
+			try {
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				(new ObjectOutputStream(baos)).writeObject(entry);
+				cacheDb.execSQL("delete from entries where entryId = ? and roomId = ? ;", new String[]{rootId, roomId});
+				cacheDb.execSQL("insert into entries(entryId, roomId, updatedTime, entry) values(?, ?, ?, ?) ;",new Object[]{rootId, roomId, updatedTime, baos.toByteArray()});
+				cacheDb.setTransactionSuccessful();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				cacheDb.endTransaction();
+			}
+		}
+		
+		return statusCode;
+	}
 	
 	private YouRoomEntry createEntry(JSONObject json) {
 		YouRoomEntry entry = new YouRoomEntry();

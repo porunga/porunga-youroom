@@ -1,10 +1,5 @@
 package com.porunga.youroomclient;
 
-import java.util.HashMap;
-
-import com.porunga.youroomclient.R;
-
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -47,6 +42,7 @@ public class CreateEntryActivity extends Activity implements OnClickListener {
 		String roomId = intent.getStringExtra("roomId");
 		YouRoomEntry item = (YouRoomEntry) intent
 				.getSerializableExtra("youRoomEntry");
+		String rootId = intent.getStringExtra("rootId");
 
 		String parentId = String.valueOf(item.getId());
 		if (parentId.equals("-1"))
@@ -54,14 +50,10 @@ public class CreateEntryActivity extends Activity implements OnClickListener {
 
 		String entryContent = entryContentText.getText().toString();
 		// TODO Auto-generated method stub
-
-		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-		HashMap<String, String> oAuthTokenMap = youRoomUtil
-				.getOauthTokenFromLocal();
-		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
+		
+		YouRoomCommandProxy proxy = new YouRoomCommandProxy(this);
 		if (postable) {
-			String status = youRoomCommand.createEntry(roomId, parentId,
-					entryContent);
+			String status = proxy.createEntry(roomId, parentId, entryContent, rootId);
 			if (status.equals(POST_OK)) {
 				entryContentText.setText("");
 				Toast.makeText(getBaseContext(), getString(R.string.post_ok),

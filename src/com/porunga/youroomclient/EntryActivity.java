@@ -29,6 +29,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 	int parentEntryCount;
 	int requestCount;
 	Intent intent;
+	String rootId;
 
 	private final static int MAX_LEVEL = 6;
 
@@ -44,12 +45,10 @@ public class EntryActivity extends Activity implements OnClickListener {
 		intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
 		YouRoomEntry pseudYouRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
-		
+		rootId = String.valueOf(pseudYouRoomEntry.getId());
 		
 		YouRoomCommandProxy proxy = new YouRoomCommandProxy(this);
-		YouRoomEntry youRoomEntry = proxy.getEntry(roomId, String.valueOf(pseudYouRoomEntry.getId()));
-		
-		
+		YouRoomEntry youRoomEntry = proxy.getEntry(roomId, rootId);
 
 		Button postButton = (Button) findViewById(R.id.post_button);
 		postButton.setText(getString(R.string.post_button));
@@ -80,6 +79,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 					Intent intentCreateEntry = new Intent(getApplication(), CreateEntryActivity.class);
 					intentCreateEntry.putExtra("roomId", String.valueOf(roomId));
 					intentCreateEntry.putExtra("youRoomEntry", item);
+					intentCreateEntry.putExtra("rootId", rootId);
 
 					startActivity(intentCreateEntry);
 				}
@@ -226,6 +226,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 		Intent intentCreateEntry = new Intent(getApplication(), CreateEntryActivity.class);
 		intentCreateEntry.putExtra("roomId", String.valueOf(roomId));
 		intentCreateEntry.putExtra("youRoomEntry", youRoomEntry);
+		intentCreateEntry.putExtra("rootId", rootId);
 
 		startActivity(intentCreateEntry);
 
