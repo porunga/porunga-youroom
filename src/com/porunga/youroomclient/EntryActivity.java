@@ -11,7 +11,9 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -30,6 +32,8 @@ public class EntryActivity extends Activity implements OnClickListener {
 	int requestCount;
 	Intent intent;
 	String rootId;
+	
+	private PopupLink popupLink;
 
 	private final static int MAX_LEVEL = 6;
 
@@ -37,6 +41,14 @@ public class EntryActivity extends Activity implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.entry_list);
+	}
+	
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if (popupLink.isShowing()) {
+			popupLink.dismiss();
+		}
 	}
 
 	@Override
@@ -73,7 +85,9 @@ public class EntryActivity extends Activity implements OnClickListener {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				ListView listView = (ListView) parent;
 				YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
-				if (item.getLevel() == MAX_LEVEL)
+				if (popupLink.isShowing()) {
+					popupLink.dismiss();
+				}else if (item.getLevel() == MAX_LEVEL)
 					Toast.makeText(getBaseContext(), getString(R.string.deps_max), Toast.LENGTH_SHORT).show();
 				else {
 					Intent intentCreateEntry = new Intent(getApplication(), CreateEntryActivity.class);
@@ -83,6 +97,24 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 					startActivity(intentCreateEntry);
 				}
+			}
+		});
+		popupLink = new PopupLink(this,listView);
+		listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				ListView listView = (ListView) parent;
+				YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
+
+				if (popupLink.isShowing()) {
+					popupLink.dismiss();
+				}
+				popupLink.setLinkText(item.getContent());
+				if (popupLink.getUrlNum() != 0) {
+					popupLink.showAsDropDown(view, 0, 0);
+				}
+				return true;
 			}
 		});
 

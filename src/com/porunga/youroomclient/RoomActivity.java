@@ -15,9 +15,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.view.WindowManager.LayoutParams;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -35,15 +39,17 @@ public class RoomActivity extends Activity implements OnClickListener {
 	private ListView listView;
 	private int page = 1;
 	private TextView textview;
-	//private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
+	private PopupLink popupLink;
 
-	//private YouRoomGroup group;
-	//private EditText entryContentText;
+	// private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
+
+	// private YouRoomGroup group;
+	// private EditText entryContentText;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		// this.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		setContentView(R.layout.room_list);
 
@@ -54,23 +60,31 @@ public class RoomActivity extends Activity implements OnClickListener {
 		Intent intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
 		listView = (ListView) findViewById(R.id.listView1);
-		
+
 		textview = new TextView(this);
 		textview.setText("-----読み込み-----");
 		textview.setMinHeight(50);
 		textview.setBackgroundColor(Color.WHITE);
 		listView.addFooterView(textview);
-		
+
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 		adapter = new YouRoomEntryAdapter(this, R.layout.room_list_item, dataList);
 		listView.setAdapter(adapter);
 	}
-	
+
 	@Override
 	protected void onRestart() {
 		super.onRestart();
 		page = 1;
 		adapter.clear();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if (popupLink.isShowing()) {
+			popupLink.dismiss();
+		}
 	}
 
 	@Override
@@ -90,7 +104,9 @@ public class RoomActivity extends Activity implements OnClickListener {
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				if (view == textview) {
+				if (popupLink.isShowing()) {
+					popupLink.dismiss();
+				} else if (view == textview) {
 					progressDialog.show();
 					Map<String, String> parameterMap = new HashMap<String, String>();
 					parameterMap.put("page", String.valueOf(page));
@@ -126,6 +142,24 @@ public class RoomActivity extends Activity implements OnClickListener {
 						startActivity(intent);
 					}
 				}
+			}
+		});
+
+		popupLink = new PopupLink(this, listView);
+		listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				ListView listView = (ListView) parent;
+				YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
+				if (popupLink.isShowing()) {
+					popupLink.dismiss();
+				}
+				popupLink.setLinkText(item.getContent());
+				if (popupLink.getUrlNum() != 0) {
+					popupLink.showAsDropDown(view, 0, 0);
+				}
+				return true;
 			}
 		});
 	}
@@ -276,10 +310,10 @@ public class RoomActivity extends Activity implements OnClickListener {
 		@Override
 		protected void onPostExecute(ArrayList<YouRoomEntry> dataList) {
 			int count = adapter.getCount();
-//			Iterator iterator = dataList.iterator();
-//			while (iterator.hasNext()) {
-//				adapter.add((YouRoomEntry) iterator.next());
-//			}
+			// Iterator iterator = dataList.iterator();
+			// while (iterator.hasNext()) {
+			// adapter.add((YouRoomEntry) iterator.next());
+			// }
 			for (YouRoomEntry youRoomEntry : dataList) {
 				adapter.add(youRoomEntry);
 			}
@@ -307,5 +341,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 		startActivity(intent);
 
 	}
+
+
 
 }
