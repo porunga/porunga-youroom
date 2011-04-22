@@ -12,4 +12,5 @@
     <string name="post_ng">投稿に失敗しました</string>
     <string name="deps_max">これ以上はコメントできません</string>
     <string name="over_char_num">文字数が140文字を超えています</string>
+    <string name="app_description">youRoom(ユールーム)は、グループでの情報共有をシンプルに実現できるツールです。\n\n友人同士の気軽なコミュニケーションや、企業を超えたプロジェクトでのコラボレーションといった用途で、安全に閉じられた安心感の中で、短いメッセージを共有することができます。</string>
 </resources>
