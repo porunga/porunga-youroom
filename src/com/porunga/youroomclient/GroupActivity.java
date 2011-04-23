@@ -135,6 +135,7 @@ public class GroupActivity extends Activity {
 			adapter.clear();
 			GetGroupTask task = new GetGroupTask();
 			task.execute();
+			((AppHolder)getApplication()).clearDirty();
 			ret = true;
 			break;
 		case CHECK_UPDATE:

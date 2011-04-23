@@ -28,6 +28,9 @@ public class AppHolder extends Application {
 		}
 		dirtyFlgList.put(roomId, dirtyFlg);
 	}
+	public void clearDirty() {
+		dirtyFlgList.clear();
+	}
 
 	@Override
 	public void onCreate() {
