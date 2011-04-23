@@ -1,5 +1,7 @@
 package com.porunga.youroomclient;
 
+import java.util.HashMap;
+
 import android.app.Application;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -8,9 +10,23 @@ import android.util.Log;
 
 public class AppHolder extends Application {
 	private SQLiteDatabase cacheDb = null;
+	private HashMap<String, Boolean> dirtyFlgList = new HashMap<String, Boolean>();
 	
 	public SQLiteDatabase getCacheDb() {
 		return cacheDb;
+	}
+	
+	public boolean isDirty(String roomId) {
+		if (!dirtyFlgList.containsKey(roomId)) {
+			dirtyFlgList.put(roomId, true);
+		}
+		return dirtyFlgList.get(roomId);
+	}
+	public void setDirty(String roomId, boolean dirtyFlg) {
+		if (dirtyFlgList.containsKey(roomId)) {
+			dirtyFlgList.remove(roomId);
+		}
+		dirtyFlgList.put(roomId, dirtyFlg);
 	}
 
 	@Override
@@ -37,7 +53,8 @@ public class AppHolder extends Application {
 			Log.i("CACHE", "Create Database");
 			db.beginTransaction();
 			try {
-				db.execSQL("create table entries (entryId text primary key,roomId text not null, updatedTime text not null, entry blob not null);");
+				db.execSQL("create table entries   (entryId text primary key, roomId text not null, updatedTime text not null, entry blob not null); ");
+				db.execSQL("create table timelines (entryId text primary key, roomId text not null, page text not null, entry blob not null); ");
 				db.setTransactionSuccessful();
 			} finally {
 				db.endTransaction();
