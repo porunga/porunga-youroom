@@ -1,6 +1,5 @@
 package com.porunga.youroomclient;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
@@ -12,12 +11,13 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.UUID;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -66,7 +66,7 @@ public class YouRoomAccess {
 		this.oauthTokenSecret = oauthTokenSecret;
 	}
 
-	public HttpResponse authenticate() {
+	public HttpResponse authenticate() throws YouRoomServerException {
 		oauthParametersMap = createParametersMap();
 		String apiParamter = createParameters();
 		HttpResponse objResponse = null;
@@ -76,21 +76,13 @@ public class YouRoomAccess {
 		try {
 			objPost.addHeader("Authorization", createAuthorizationValue());
 			objResponse = objHttp.execute(objPost);
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw new YouRoomServerException(e);
 		}
 		return objResponse;
 	}
 
-	public HttpResponse requestPost() {
+	public HttpResponse requestPost() throws YouRoomServerException {
 		oauthParametersMap = createParametersMap();
 		// String apiParamter = createParameters();
 		HttpResponse objResponse = null;
@@ -108,9 +100,8 @@ public class YouRoomAccess {
 
 			try {
 				entity = new UrlEncodedFormEntity(params, HTTP.UTF_8);
-			} catch (UnsupportedEncodingException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				throw new YouRoomServerException(e);
 			}
 			objPost.setEntity(entity);
 		}
@@ -118,21 +109,13 @@ public class YouRoomAccess {
 		try {
 			objPost.addHeader("Authorization", createAuthorizationValue());
 			objResponse = objHttp.execute(objPost);
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw new YouRoomServerException(e);
 		}
 		return objResponse;
 	}
 
-	public HttpResponse requestGet() {
+	public HttpResponse requestGet() throws YouRoomServerException {
 
 		oauthParametersMap = createParametersMap();
 		String apiParamter = createParameters();
@@ -143,16 +126,8 @@ public class YouRoomAccess {
 		try {
 			objGet.addHeader("Authorization", createAuthorizationValue());
 			objResponse = objHttp.execute(objGet);
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw new YouRoomServerException(e);
 		}
 		return objResponse;
 	}
@@ -223,24 +198,14 @@ public class YouRoomAccess {
 				+ SignatureEncode.encode(getRequestParameters());
 	}
 
-	private String encodeURL(String str) {
-		String encord = null;
-		try {
-			encord = URLEncoder.encode(str, "UTF-8");
-		} catch (UnsupportedEncodingException ignore) {
-		}
-		return encord;
+	private String encodeURL(String str) throws UnsupportedEncodingException {
+		return URLEncoder.encode(str, "UTF-8");
 	}
 
-	private String getRequestParameters() {
+	private String getRequestParameters() throws UnsupportedEncodingException {
 		if (parameterMap != null && parameterMap.size() > 0) {
 			for (Map.Entry<String, String> param : parameterMap.entrySet()) {
-				try {
-					oauthParametersMap.put(SignatureEncode.encode(param.getKey()), SignatureEncode.encode(param.getValue()));
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				oauthParametersMap.put(SignatureEncode.encode(param.getKey()), SignatureEncode.encode(param.getValue()));
 			}
 		}
 		StringBuilder builder = new StringBuilder();

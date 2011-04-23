@@ -4,7 +4,8 @@ import java.io.Serializable;
 
 //ListViewカスタマイズ用のArrayAdapterに利用するクラス    
 public class YouRoomGroup implements Serializable {
-
+	private static final long serialVersionUID = -8261690244602614995L;
+	
 	private int id;
 	private int roomId;
 	private String createdTime;
