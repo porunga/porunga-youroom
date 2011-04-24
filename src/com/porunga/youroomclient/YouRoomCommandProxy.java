@@ -163,6 +163,10 @@ public class YouRoomCommandProxy {
 			Log.w("NW", "Network Error occured");
 			//Toast.makeText(context, context.getString(R.string.network_error), Toast.LENGTH_SHORT).show();
 		}
+		
+		if (dataList.size() > 0) {
+			appHolder.clearDirty();
+		}
 
 		return dataList;
 	}
@@ -370,6 +374,8 @@ public class YouRoomCommandProxy {
 			e.printStackTrace();
 			Log.w("NW", "Network Error occured");
 			//Toast.makeText(context, context.getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+		} finally {
+			cacheDb.endTransaction();
 		}
 		return statusCode;
 	}

@@ -23,12 +23,14 @@ public class AppHolder extends Application {
 		return dirtyFlgList.get(roomId);
 	}
 	public void setDirty(String roomId, boolean dirtyFlg) {
+		Log.i("CACHE", String.format("set DirtyFlg %s [%s]", dirtyFlg, roomId));
 		if (dirtyFlgList.containsKey(roomId)) {
 			dirtyFlgList.remove(roomId);
 		}
 		dirtyFlgList.put(roomId, dirtyFlg);
 	}
 	public void clearDirty() {
+		Log.i("CACHE", "clear DirtyFlg");
 		dirtyFlgList.clear();
 	}
 
