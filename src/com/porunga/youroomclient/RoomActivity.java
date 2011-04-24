@@ -4,10 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -85,6 +81,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 	@Override
 	public void onStart() {
 		super.onStart();
+		final Activity activity = this;
 
 		progressDialog = new ProgressDialog(this);
 		setProgressDialog(progressDialog);
@@ -92,7 +89,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		parameterMap.put("page", String.valueOf(page));
-		GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap);
+		GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap, activity);
 		task.execute();
 		page++;
 
@@ -103,7 +100,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 					progressDialog.show();
 					Map<String, String> parameterMap = new HashMap<String, String>();
 					parameterMap.put("page", String.valueOf(page));
-					GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap);
+					GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap, activity);
 					task.execute();
 					page++;
 				} else {
@@ -149,6 +146,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 			}
 		});
 	}
+		
 
 	// ListViewカスタマイズ用のArrayAdapter
 	public class YouRoomEntryAdapter extends ArrayAdapter<YouRoomEntry> {
@@ -239,57 +237,60 @@ public class RoomActivity extends Activity implements OnClickListener {
 		}
 	}
 
-	private ArrayList<YouRoomEntry> getRoomEntryList(String roomId, Map<String, String> parameterMap) {
-
-		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
-		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
-		String roomTL = "";
-		roomTL = youRoomCommand.getRoomTimeLine(roomId, parameterMap);
-
-		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
-
-		try {
-			JSONArray jsons = new JSONArray(roomTL);
-			for (int i = 0; i < jsons.length(); i++) {
-				YouRoomEntry roomEntry = new YouRoomEntry();
-				JSONObject jObject = jsons.getJSONObject(i);
-				JSONObject entryObject = jObject.getJSONObject("entry");
-
-				int id = entryObject.getInt("id");
-				String participationName = entryObject.getJSONObject("participation").getString("name");
-				String content = entryObject.getString("content");
-
-				String createdTime = entryObject.getString("created_at");
-				String updatedTime = entryObject.getString("updated_at");
-
-				roomEntry.setId(id);
-				roomEntry.setUpdatedTime(updatedTime);
-				roomEntry.setParticipationName(participationName);
-				roomEntry.setCreatedTime(createdTime);
-				roomEntry.setContent(content);
-
-				dataList.add(roomEntry);
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		return dataList;
-	}
+//	private ArrayList<YouRoomEntry> getRoomEntryList(String roomId, Map<String, String> parameterMap) {
+//
+//		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
+//		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
+//		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
+//		String roomTL = "";
+//		roomTL = youRoomCommand.getRoomTimeLine(roomId, parameterMap);
+//
+//		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
+//
+//		try {
+//			JSONArray jsons = new JSONArray(roomTL);
+//			for (int i = 0; i < jsons.length(); i++) {
+//				YouRoomEntry roomEntry = new YouRoomEntry();
+//				JSONObject jObject = jsons.getJSONObject(i);
+//				JSONObject entryObject = jObject.getJSONObject("entry");
+//
+//				int id = entryObject.getInt("id");
+//				String participationName = entryObject.getJSONObject("participation").getString("name");
+//				String content = entryObject.getString("content");
+//
+//				String createdTime = entryObject.getString("created_at");
+//				String updatedTime = entryObject.getString("updated_at");
+//
+//				roomEntry.setId(id);
+//				roomEntry.setUpdatedTime(updatedTime);
+//				roomEntry.setParticipationName(participationName);
+//				roomEntry.setCreatedTime(createdTime);
+//				roomEntry.setContent(content);
+//
+//				dataList.add(roomEntry);
+//			}
+//		} catch (JSONException e) {
+//			e.printStackTrace();
+//		}
+//		return dataList;
+//	}
 
 	public class GetRoomEntryTask extends AsyncTask<Void, Void, ArrayList<YouRoomEntry>> {
 
 		private String roomId;
 		private Map<String, String> parameterMap;
+		private Activity activity;
 
-		public GetRoomEntryTask(String roomId, Map<String, String> parameterMap) {
+		public GetRoomEntryTask(String roomId, Map<String, String> parameterMap, Activity activity) {
 			this.roomId = roomId;
 			this.parameterMap = parameterMap;
+			this.activity = activity;
 		}
 
 		@Override
 		protected ArrayList<YouRoomEntry> doInBackground(Void... ids) {
-			ArrayList<YouRoomEntry> dataList = getRoomEntryList(roomId, parameterMap);
+			YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
+			ArrayList<YouRoomEntry> dataList = proxy.getRoomEntryList(roomId, parameterMap);
 			return dataList;
 		}
 
