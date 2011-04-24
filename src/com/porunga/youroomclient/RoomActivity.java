@@ -191,10 +191,10 @@ public class RoomActivity extends Activity implements OnClickListener {
 	}
 
 	public class GetEntryTask extends AsyncTask<YouRoomEntry, Void, Integer> {
-
 		private String roomId;
 		private TextView textView;
 		private Activity activity;
+		private boolean[] errFlg = {false};
 
 		public GetEntryTask(TextView textView, String roomId, Activity activity) {
 			this.roomId = roomId;
@@ -205,13 +205,16 @@ public class RoomActivity extends Activity implements OnClickListener {
 		@Override
 		protected Integer doInBackground(YouRoomEntry... entries) {
 			YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
-			YouRoomEntry entry = proxy.getEntry(roomId, String.valueOf(entries[0].getId()), entries[0].getUpdatedTime());
+			YouRoomEntry entry = proxy.getEntry(roomId, String.valueOf(entries[0].getId()), entries[0].getUpdatedTime(), errFlg);
 			entries[0].setDescendantsCount(entry.getDescendantsCount());
 			return entry.getDescendantsCount();
 		}
 
 		@Override
 		protected void onPostExecute(Integer count) {
+			if (errFlg[0]) {
+				Toast.makeText(getBaseContext(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+			}
 			// TODO レイアウト修正直書き
 			textView.setText("[ " + count.toString() + "comments ] > ");
 		}
@@ -256,10 +259,10 @@ public class RoomActivity extends Activity implements OnClickListener {
 //	}
 
 	public class GetRoomEntryTask extends AsyncTask<Void, Void, ArrayList<YouRoomEntry>> {
-
 		private String roomId;
 		private Map<String, String> parameterMap;
 		private Activity activity;
+		private boolean[] errFlg = {false};
 
 		public GetRoomEntryTask(String roomId, Map<String, String> parameterMap, Activity activity) {
 			this.roomId = roomId;
@@ -270,12 +273,15 @@ public class RoomActivity extends Activity implements OnClickListener {
 		@Override
 		protected ArrayList<YouRoomEntry> doInBackground(Void... ids) {
 			YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
-			ArrayList<YouRoomEntry> dataList = proxy.getRoomEntryList(roomId, parameterMap);
+			ArrayList<YouRoomEntry> dataList = proxy.getRoomEntryList(roomId, parameterMap, errFlg);
 			return dataList;
 		}
 
 		@Override
 		protected void onPostExecute(ArrayList<YouRoomEntry> dataList) {
+			if (errFlg[0]) {
+				Toast.makeText(getBaseContext(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+			}
 			int count = adapter.getCount();
 //			Iterator iterator = dataList.iterator();
 //			while (iterator.hasNext()) {

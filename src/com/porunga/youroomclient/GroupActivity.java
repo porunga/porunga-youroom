@@ -23,6 +23,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class GroupActivity extends Activity {
 
@@ -262,6 +263,7 @@ public class GroupActivity extends Activity {
 
 	public class GetGroupTask extends AsyncTask<Void, Void, ArrayList<YouRoomGroup>> {
 		private Activity activity;
+		private boolean[] errFlg = {false};
 		
 		public GetGroupTask(Activity activity) {
 			this.activity = activity;
@@ -270,12 +272,15 @@ public class GroupActivity extends Activity {
 		@Override
 		protected ArrayList<YouRoomGroup> doInBackground(Void... ids) {
 			YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
-			ArrayList<YouRoomGroup> dataList = proxy.getMyGroupList();
+			ArrayList<YouRoomGroup> dataList = proxy.getMyGroupList(errFlg);
 			return dataList;
 		}
 
 		@Override
 		protected void onPostExecute(ArrayList<YouRoomGroup> dataList) {
+			if (errFlg[0]) {
+				Toast.makeText(getBaseContext(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+			}
 //			Iterator iterator = dataList.iterator();
 //			while (iterator.hasNext()) {
 //				adapter.add((YouRoomGroup) iterator.next());

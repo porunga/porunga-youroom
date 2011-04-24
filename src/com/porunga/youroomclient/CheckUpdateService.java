@@ -114,6 +114,7 @@ public class CheckUpdateService extends Service {
 
 	public class CheckUpdateEntryTask extends AsyncTask<String, Void, ArrayList<YouRoomEntry>> {
 		private Service service;
+		private boolean[] errFlg = {false};
 
 		public CheckUpdateEntryTask(Service service) {
 			this.service = service;
@@ -123,15 +124,16 @@ public class CheckUpdateService extends Service {
 		protected ArrayList<YouRoomEntry> doInBackground(String... times) {
 			YouRoomCommandProxy proxy = new YouRoomCommandProxy(service);
 			Map<String, String> parameterMap = new HashMap<String, String>();
-			ArrayList<YouRoomEntry> dataList = proxy.acquireHomeEntryList(parameterMap);
+			ArrayList<YouRoomEntry> dataList = proxy.acquireHomeEntryList(parameterMap, errFlg);
 			return dataList;
 		}
 
 		@Override
 		protected void onPostExecute(ArrayList<YouRoomEntry> dataList) {
-
+			if (errFlg[0]) {
+				Toast.makeText(getBaseContext(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+			}
 			String message = "";
-
 			int updateItemCount = dataList.size();
 			if (updateItemCount > 0) {
 				if (updateItemCount == 10) {

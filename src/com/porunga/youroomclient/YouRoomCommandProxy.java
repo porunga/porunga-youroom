@@ -25,16 +25,13 @@ public class YouRoomCommandProxy {
 	private SQLiteDatabase cacheDb = null;
 	private YouRoomCommand youRoomCommand = null;
 	private YouRoomUtil youRoomUtil = null;
-	//private Context context = null;
 	
 	public YouRoomCommandProxy(Activity activity) {
 		appHolder = (AppHolder)activity.getApplication();
-		//context = activity.getBaseContext();
 		init(activity);
 	}
 	public YouRoomCommandProxy(Service service) {
 		appHolder = (AppHolder)service.getApplication();
-		//context = service.getBaseContext();
 		init(service);
 	}
 	private void init(Context context) {
@@ -43,7 +40,7 @@ public class YouRoomCommandProxy {
 		youRoomUtil = new YouRoomUtil(context);
 	}
 	
-	public ArrayList<YouRoomGroup> getMyGroupList() {		
+	public ArrayList<YouRoomGroup> getMyGroupList(boolean[] errFlg) {		
 		ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
 		try {
 			String myGroups = youRoomCommand.getMyGroup();
@@ -98,7 +95,7 @@ public class YouRoomCommandProxy {
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.w("NW", "Network Error occured");
-			//Toast.makeText(context, context.getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+			errFlg[0] = true;
 			
 			Cursor c = null;
 			try {
@@ -130,7 +127,7 @@ public class YouRoomCommandProxy {
 		return dataList;
 	}
 
-	public ArrayList<YouRoomEntry> acquireHomeEntryList(Map<String, String> parameterMap) {
+	public ArrayList<YouRoomEntry> acquireHomeEntryList(Map<String, String> parameterMap, boolean[] errFlg) {
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 		try {
 			String homeTimeline = youRoomCommand.acquireHomeTimeline(parameterMap);
@@ -161,7 +158,7 @@ public class YouRoomCommandProxy {
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.w("NW", "Network Error occured");
-			//Toast.makeText(context, context.getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+			errFlg[0] = true;
 		}
 		
 		if (dataList.size() > 0) {
@@ -171,7 +168,7 @@ public class YouRoomCommandProxy {
 		return dataList;
 	}
 	
-	public ArrayList<YouRoomEntry> getRoomEntryList(String roomId, Map<String, String> parameterMap) {
+	public ArrayList<YouRoomEntry> getRoomEntryList(String roomId, Map<String, String> parameterMap, boolean[] errFlg) {
 		ArrayList<YouRoomEntry> entryList = new ArrayList<YouRoomEntry>();
 		if (appHolder.isDirty(roomId)) {
 			Log.i("CACHE", String.format("RoomTimeLine is Dirty [%s]", roomId));
@@ -193,7 +190,7 @@ public class YouRoomCommandProxy {
 			} catch (Exception e) {
 				e.printStackTrace();
 				Log.w("NW", "Network Error occured");
-				//Toast.makeText(context, context.getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+				errFlg[0] = true;
 				Cursor c = null;
 				try {
 					c = cacheDb.rawQuery("select entry from timelines where roomId = ? and page = ? ;", new String[]{roomId, parameterMap.get("page")});
@@ -246,7 +243,7 @@ public class YouRoomCommandProxy {
 			} catch (Exception e) {
 				e.printStackTrace();
 				Log.w("NW", "Network Error occured");
-				//Toast.makeText(context, context.getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+				errFlg[0] = true;
 				Cursor c1 = null;
 				try {
 					c1 = cacheDb.rawQuery("select entry from timelines where roomId = ? and page = ? ;", new String[]{roomId, parameterMap.get("page")});
@@ -274,7 +271,7 @@ public class YouRoomCommandProxy {
 		return entryList;
 	}
 	
-	public YouRoomEntry getEntry(String roomId, String entryId, String updatedTime) {
+	public YouRoomEntry getEntry(String roomId, String entryId, String updatedTime, boolean[] errFlg) {
 		YouRoomEntry entry = null;
 		
 		Cursor c = null;
@@ -300,7 +297,7 @@ public class YouRoomCommandProxy {
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.w("NW", "Network Error occured");
-			//Toast.makeText(context, context.getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+			errFlg[0] = true;
 			Cursor c1 = null;
 			try {
 				c1 = cacheDb.rawQuery("select entry from entries where entryId = ? and roomId = ? ;", new String[]{entryId, roomId, updatedTime});
@@ -343,7 +340,6 @@ public class YouRoomCommandProxy {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.w("NW", "Network Error occured");
 		} finally {
 			if (c != null) {
 				c.close();
@@ -373,7 +369,6 @@ public class YouRoomCommandProxy {
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.w("NW", "Network Error occured");
-			//Toast.makeText(context, context.getString(R.string.network_error), Toast.LENGTH_SHORT).show();
 		} finally {
 			cacheDb.endTransaction();
 		}

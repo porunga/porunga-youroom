@@ -54,7 +54,7 @@ public class CreateEntryActivity extends Activity implements OnClickListener {
 		YouRoomCommandProxy proxy = new YouRoomCommandProxy(this);
 		if (postable) {
 			String status = proxy.createEntry(roomId, parentId, entryContent, rootId);
-			if (status.equals(POST_OK)) {
+			if (POST_OK.equals(status)) {
 				entryContentText.setText("");
 				Toast.makeText(getBaseContext(), getString(R.string.post_ok),
 						Toast.LENGTH_SHORT).show();
