@@ -9,19 +9,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.KeyEvent;
+import android.text.style.URLSpan;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
-import android.view.WindowManager.LayoutParams;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -39,7 +38,6 @@ public class RoomActivity extends Activity implements OnClickListener {
 	private ListView listView;
 	private int page = 1;
 	private TextView textview;
-	private PopupLink popupLink;
 
 	// private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 
@@ -82,9 +80,6 @@ public class RoomActivity extends Activity implements OnClickListener {
 	@Override
 	protected void onStop() {
 		super.onStop();
-		if (popupLink.isShowing()) {
-			popupLink.dismiss();
-		}
 	}
 
 	@Override
@@ -104,9 +99,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				if (popupLink.isShowing()) {
-					popupLink.dismiss();
-				} else if (view == textview) {
+				if (view == textview) {
 					progressDialog.show();
 					Map<String, String> parameterMap = new HashMap<String, String>();
 					parameterMap.put("page", String.valueOf(page));
@@ -145,20 +138,13 @@ public class RoomActivity extends Activity implements OnClickListener {
 			}
 		});
 
-		popupLink = new PopupLink(this, listView);
 		listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 				ListView listView = (ListView) parent;
 				YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
-				if (popupLink.isShowing()) {
-					popupLink.dismiss();
-				}
-				popupLink.setLinkText(item.getContent());
-				if (popupLink.getUrlNum() != 0) {
-					popupLink.showAsDropDown(view, 0, 0);
-				}
+				showLinkDialog(item.getContent());
 				return true;
 			}
 		});
@@ -337,11 +323,26 @@ public class RoomActivity extends Activity implements OnClickListener {
 		Intent intent = new Intent(getApplication(), CreateEntryActivity.class);
 		intent.putExtra("roomId", String.valueOf(roomId));
 		intent.putExtra("youRoomEntry", new YouRoomEntry());
-
 		startActivity(intent);
-
 	}
 
-
-
+	public void showLinkDialog(String content) {
+		TextView text = new TextView(this);
+		text.setAutoLinkMask(Linkify.ALL);
+		text.setText(content);
+		URLSpan[] urls = text.getUrls();
+		if (urls.length != 0) {
+			ArrayList<String> rows = new ArrayList<String>();
+			for (URLSpan url : urls)
+				rows.add(url.getURL());
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.link_dialog_list_item, rows);
+			ListView linkListView = new ListView(this);
+			linkListView.setAdapter(adapter);
+			linkListView.setScrollingCacheEnabled(false);
+			linkListView.setAdapter(adapter);
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+			alertDialogBuilder.setView(linkListView);
+			alertDialogBuilder.create().show();
+		}
+	}
 }

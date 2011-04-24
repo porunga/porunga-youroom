@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.concurrent.RejectedExecutionException;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.style.URLSpan;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -32,8 +35,6 @@ public class EntryActivity extends Activity implements OnClickListener {
 	int requestCount;
 	Intent intent;
 	String rootId;
-	
-	private PopupLink popupLink;
 
 	private final static int MAX_LEVEL = 6;
 
@@ -42,13 +43,10 @@ public class EntryActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.entry_list);
 	}
-	
+
 	@Override
 	protected void onStop() {
 		super.onStop();
-		if (popupLink.isShowing()) {
-			popupLink.dismiss();
-		}
 	}
 
 	@Override
@@ -58,7 +56,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 		roomId = intent.getStringExtra("roomId");
 		YouRoomEntry pseudYouRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
 		rootId = String.valueOf(pseudYouRoomEntry.getId());
-		
+
 		YouRoomCommandProxy proxy = new YouRoomCommandProxy(this);
 		YouRoomEntry youRoomEntry = proxy.getEntry(roomId, rootId);
 
@@ -70,9 +68,9 @@ public class EntryActivity extends Activity implements OnClickListener {
 		// TODO if String decodeResult = "";
 		ListView listView = (ListView) findViewById(R.id.listView1);
 
-//		progressDialog = new ProgressDialog(this);
-//		setProgressDialog(progressDialog);
-//		progressDialog.show();
+		// progressDialog = new ProgressDialog(this);
+		// setProgressDialog(progressDialog);
+		// progressDialog.show();
 
 		int level = -1;
 		youRoomEntry.setLevel(level);
@@ -85,9 +83,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				ListView listView = (ListView) parent;
 				YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
-				if (popupLink.isShowing()) {
-					popupLink.dismiss();
-				}else if (item.getLevel() == MAX_LEVEL)
+				if (item.getLevel() == MAX_LEVEL)
 					Toast.makeText(getBaseContext(), getString(R.string.deps_max), Toast.LENGTH_SHORT).show();
 				else {
 					Intent intentCreateEntry = new Intent(getApplication(), CreateEntryActivity.class);
@@ -99,21 +95,13 @@ public class EntryActivity extends Activity implements OnClickListener {
 				}
 			}
 		});
-		popupLink = new PopupLink(this,listView);
 		listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 				ListView listView = (ListView) parent;
 				YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
-
-				if (popupLink.isShowing()) {
-					popupLink.dismiss();
-				}
-				popupLink.setLinkText(item.getContent());
-				if (popupLink.getUrlNum() != 0) {
-					popupLink.showAsDropDown(view, 0, 0);
-				}
+				showLinkDialog(item.getContent());
 				return true;
 			}
 		});
@@ -183,7 +171,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 			return view;
 		}
 	}
-	
+
 	private void addChildEntries(ArrayList<YouRoomEntry> dataList, YouRoomEntry entry, int level) {
 		entry.setLevel(level);
 		dataList.add(entry);
@@ -196,15 +184,16 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 	public class GetChildEntryTask extends AsyncTask<YouRoomEntry, Void, ArrayList<YouRoomEntry>> {
 
-		//private String roomId;
+		// private String roomId;
 		private YouRoomEntry roomChildEntry;
 		private Object objLock = new Object();
 
 		public GetChildEntryTask(String roomId) {
-			//this.roomId = roomId;
+			// this.roomId = roomId;
 		}
+
 		public GetChildEntryTask() {
-			
+
 		}
 
 		@Override
@@ -215,14 +204,14 @@ public class EntryActivity extends Activity implements OnClickListener {
 			for (YouRoomEntry child : roomChildEntries[0].getChildren()) {
 				addChildEntries(dataList, child, 1);
 			}
-			
+
 			return dataList;
 		}
 
-//		@Override
-//		protected void onProgressUpdate(Integer... progress) {
-//			progressDialog.setProgress(progress[0]);
-//		}
+		// @Override
+		// protected void onProgressUpdate(Integer... progress) {
+		// progressDialog.setProgress(progress[0]);
+		// }
 
 		@Override
 		protected void onPostExecute(ArrayList<YouRoomEntry> dataChildList) {
@@ -233,23 +222,23 @@ public class EntryActivity extends Activity implements OnClickListener {
 					}
 				}
 				requestCount++;
-				//publishProgress(requestCount);
+				// publishProgress(requestCount);
 				Log.e("count", "requestCount = " + requestCount);
 			}
 			adapter.notifyDataSetChanged();
-//			// 親が一回呼ばれるので+1
-//			if (parentEntryCount <= requestCount + 1)
-//				progressDialog.dismiss();
+			// // 親が一回呼ばれるので+1
+			// if (parentEntryCount <= requestCount + 1)
+			// progressDialog.dismiss();
 		}
 	}
 
-//	public void setProgressDialog(ProgressDialog progressDialog) {
-//		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-//		progressDialog.setMessage("処理を実行しています");
-//		progressDialog.setIndeterminate(false);
-//		progressDialog.setMax(parentEntryCount);
-//		progressDialog.setCancelable(true);
-//	}
+	// public void setProgressDialog(ProgressDialog progressDialog) {
+	// progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+	// progressDialog.setMessage("処理を実行しています");
+	// progressDialog.setIndeterminate(false);
+	// progressDialog.setMax(parentEntryCount);
+	// progressDialog.setCancelable(true);
+	// }
 
 	@Override
 	public void onClick(View v) {
@@ -262,5 +251,24 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 		startActivity(intentCreateEntry);
 
+	}
+	public void showLinkDialog(String content) {
+		TextView text = new TextView(this);
+		text.setAutoLinkMask(Linkify.ALL);
+		text.setText(content);
+		URLSpan[] urls = text.getUrls();
+		if (urls.length != 0) {
+			ArrayList<String> rows = new ArrayList<String>();
+			for (URLSpan url : urls)
+				rows.add(url.getURL());
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.link_dialog_list_item, rows);
+			ListView linkListView = new ListView(this);
+			linkListView.setAdapter(adapter);
+			linkListView.setScrollingCacheEnabled(false);
+			linkListView.setAdapter(adapter);
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+			alertDialogBuilder.setView(linkListView);
+			alertDialogBuilder.create().show();
+		}
 	}
 }
