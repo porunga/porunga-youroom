@@ -23,12 +23,14 @@ public class AppHolder extends Application {
 		return dirtyFlgList.get(roomId);
 	}
 	public void setDirty(String roomId, boolean dirtyFlg) {
+		Log.i("CACHE", String.format("set DirtyFlg %s [%s]", dirtyFlg, roomId));
 		if (dirtyFlgList.containsKey(roomId)) {
 			dirtyFlgList.remove(roomId);
 		}
 		dirtyFlgList.put(roomId, dirtyFlg);
 	}
 	public void clearDirty() {
+		Log.i("CACHE", "clear DirtyFlg");
 		dirtyFlgList.clear();
 	}
 
@@ -56,6 +58,7 @@ public class AppHolder extends Application {
 			Log.i("CACHE", "Create Database");
 			db.beginTransaction();
 			try {
+				db.execSQL("create table rooms     (roomId text primary key, room blob not null); ");
 				db.execSQL("create table entries   (entryId text primary key, roomId text not null, updatedTime text not null, entry blob not null); ");
 				db.execSQL("create table timelines (entryId text primary key, roomId text not null, page text not null, entry blob not null); ");
 				db.setTransactionSuccessful();

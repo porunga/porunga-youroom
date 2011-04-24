@@ -3,9 +3,6 @@ package com.porunga.youroomclient;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.porunga.youroomclient.R;
-
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -40,7 +37,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 
-		Class distActivity = GroupActivity.class;
+		Class<GroupActivity> distActivity = GroupActivity.class;
 		EditText emailText = (EditText) findViewById(R.id.login_email);
 		email = emailText.getText().toString();
 

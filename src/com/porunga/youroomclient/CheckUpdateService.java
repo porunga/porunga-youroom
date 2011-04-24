@@ -7,10 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -47,7 +43,7 @@ public class CheckUpdateService extends Service {
 		String lastAccessTime = youRoomUtil.getAccessTime();
 		youRoomUtil.storeUpdateCheckTime(lastAccessTime);
 
-		CheckUpdateEntryTask task = new CheckUpdateEntryTask();
+		CheckUpdateEntryTask task = new CheckUpdateEntryTask(this);
 		task.execute();
 		
 		CacheDeleteTask cacheDeleteTask = new CacheDeleteTask();
@@ -75,61 +71,69 @@ public class CheckUpdateService extends Service {
 		Toast.makeText(this, "更新確認を終了しました。", Toast.LENGTH_LONG).show();
 	}
 
-	private ArrayList<YouRoomEntry> acquireHomeEntryList(Map<String, String> parameterMap) {
-
-		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
-		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
-		String homeTimeline = youRoomCommand.acquireHomeTimeline(parameterMap);
-
-		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
-
-		try {
-			JSONArray jsons = new JSONArray(homeTimeline);
-			for (int i = 0; i < jsons.length(); i++) {
-				YouRoomEntry roomEntry = new YouRoomEntry();
-				JSONObject jObject = jsons.getJSONObject(i);
-				JSONObject entryObject = jObject.getJSONObject("entry");
-
-				int id = entryObject.getInt("id");
-				String participationName = entryObject.getJSONObject("participation").getString("name");
-				String content = entryObject.getString("content");
-
-				String createdTime = entryObject.getString("created_at");
-				String updatedTime = entryObject.getString("updated_at");
-
-				roomEntry.setId(id);
-				roomEntry.setUpdatedTime(updatedTime);
-				roomEntry.setParticipationName(participationName);
-				roomEntry.setCreatedTime(createdTime);
-				roomEntry.setContent(content);
-
-				int compareResult = YouRoomUtil.calendarCompareTo(youRoomUtil.getUpdateCheckTime(), updatedTime);
-				if (compareResult < 0) {
-					dataList.add(roomEntry);
-				}
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-
-		return dataList;
-	}
+//	private ArrayList<YouRoomEntry> acquireHomeEntryList(Map<String, String> parameterMap) {
+//
+//		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
+//		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
+//		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
+//		String homeTimeline = youRoomCommand.acquireHomeTimeline(parameterMap);
+//
+//		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
+//
+//		try {
+//			JSONArray jsons = new JSONArray(homeTimeline);
+//			for (int i = 0; i < jsons.length(); i++) {
+//				YouRoomEntry roomEntry = new YouRoomEntry();
+//				JSONObject jObject = jsons.getJSONObject(i);
+//				JSONObject entryObject = jObject.getJSONObject("entry");
+//
+//				int id = entryObject.getInt("id");
+//				String participationName = entryObject.getJSONObject("participation").getString("name");
+//				String content = entryObject.getString("content");
+//
+//				String createdTime = entryObject.getString("created_at");
+//				String updatedTime = entryObject.getString("updated_at");
+//
+//				roomEntry.setId(id);
+//				roomEntry.setUpdatedTime(updatedTime);
+//				roomEntry.setParticipationName(participationName);
+//				roomEntry.setCreatedTime(createdTime);
+//				roomEntry.setContent(content);
+//
+//				int compareResult = YouRoomUtil.calendarCompareTo(youRoomUtil.getUpdateCheckTime(), updatedTime);
+//				if (compareResult < 0) {
+//					dataList.add(roomEntry);
+//				}
+//			}
+//		} catch (JSONException e) {
+//			e.printStackTrace();
+//		}
+//
+//		return dataList;
+//	}
 
 	public class CheckUpdateEntryTask extends AsyncTask<String, Void, ArrayList<YouRoomEntry>> {
+		private Service service;
+		private boolean[] errFlg = {false};
+
+		public CheckUpdateEntryTask(Service service) {
+			this.service = service;
+		}
 
 		@Override
 		protected ArrayList<YouRoomEntry> doInBackground(String... times) {
+			YouRoomCommandProxy proxy = new YouRoomCommandProxy(service);
 			Map<String, String> parameterMap = new HashMap<String, String>();
-			ArrayList<YouRoomEntry> dataList = acquireHomeEntryList(parameterMap);
+			ArrayList<YouRoomEntry> dataList = proxy.acquireHomeEntryList(parameterMap, errFlg);
 			return dataList;
 		}
 
 		@Override
 		protected void onPostExecute(ArrayList<YouRoomEntry> dataList) {
-
+			if (errFlg[0]) {
+				Toast.makeText(getBaseContext(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+			}
 			String message = "";
-
 			int updateItemCount = dataList.size();
 			if (updateItemCount > 0) {
 				if (updateItemCount == 10) {
@@ -138,7 +142,7 @@ public class CheckUpdateService extends Service {
 					message = updateItemCount + "件の更新があります。";
 				}
 
-				Class distActivity = GroupActivity.class;
+				Class<GroupActivity> distActivity = GroupActivity.class;
 				NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 				Notification notification = new Notification(R.drawable.myrooms, message, System.currentTimeMillis());
 				notification.flags = Notification.FLAG_AUTO_CANCEL;

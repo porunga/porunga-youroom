@@ -59,6 +59,7 @@ public final class R {
         public static final int deps_max=0x7f04000a;
         public static final int login_button=0x7f040003;
         public static final int login_submit=0x7f040001;
+        public static final int network_error=0x7f04000c;
         public static final int over_char_num=0x7f04000b;
         public static final int post_button=0x7f040007;
         public static final int post_ng=0x7f040009;

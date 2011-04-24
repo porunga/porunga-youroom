@@ -5,14 +5,14 @@ package com.porunga.youroomclient;
  * を参考に（ほぼそのまま）作成
  */
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
+
+import android.util.Log;
 
 public class Xauth {
 
@@ -33,13 +33,11 @@ public class Xauth {
 		youRoomAccess.setApi(api);
 		youRoomAccess.setParameter(xauthParameterMap);
 
-		HttpResponse objResponse = youRoomAccess.authenticate();
-		// TODO if (objResponse == null )
-
-		int statusCode = objResponse.getStatusLine().getStatusCode();
-
-		if (statusCode == HttpURLConnection.HTTP_OK) {
-			try {
+		try {
+			HttpResponse objResponse = youRoomAccess.authenticate();
+			// TODO if (objResponse == null )
+			int statusCode = objResponse.getStatusLine().getStatusCode();
+			if (statusCode == HttpURLConnection.HTTP_OK) {
 				String result = EntityUtils.toString(objResponse.getEntity(), "UTF-8");
 				String[] parameters = result.split("&");
 				for (String parameter : parameters) {
@@ -53,11 +51,10 @@ public class Xauth {
 						oAuthTokenMap.put(key, value);
 					}
 				}
-			} catch (ParseException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
+		} catch (Exception e) {
+			Log.w("NW", "Network Error occured");
+			e.printStackTrace();
 		}
 		return oAuthTokenMap;
 	}

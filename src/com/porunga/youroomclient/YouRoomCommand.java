@@ -1,12 +1,10 @@
 package com.porunga.youroomclient;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
 
 import android.util.Log;
@@ -46,7 +44,7 @@ public class YouRoomCommand {
 	 * return oAuthTokenMap; }
 	 */
 
-	public String getMyGroup() {
+	public String getMyGroup() throws YouRoomServerException {
 		Log.i("ACCESS", "getMyGroup");
 
 		String method = "GET";
@@ -67,16 +65,14 @@ public class YouRoomCommand {
 			try {
 				result = EntityUtils.toString(objResponse.getEntity(), "UTF-8");
 				decodeResult = UnicodeEscape.decode(result);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				throw new YouRoomServerException(e);
 			}
 		}
 		return decodeResult;
 	}
 
-	public String getEntry(String roomId, String entryId) {
+	public String getEntry(String roomId, String entryId) throws YouRoomServerException {
 		Log.i("ACCESS", "getEntry");
 
 		String method = "GET";
@@ -96,16 +92,14 @@ public class YouRoomCommand {
 			try {
 				result = EntityUtils.toString(objResponse.getEntity(), "UTF-8");
 				decodeResult = UnicodeEscape.decode(result);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				throw new YouRoomServerException(e);
 			}
 		}
 		return decodeResult;
 	}
 
-	public String getRoomTimeLine(String roomId, Map<String, String> parameterMap) {
+	public String getRoomTimeLine(String roomId, Map<String, String> parameterMap) throws YouRoomServerException {
 		Log.i("ACCESS", "getRoomTimeLine");
 
 		String method = "GET";
@@ -125,16 +119,14 @@ public class YouRoomCommand {
 			try {
 				result = EntityUtils.toString(objResponse.getEntity(), "UTF-8");
 				decodeResult = UnicodeEscape.decode(result);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				throw new YouRoomServerException(e);
 			}
 		}
 		return decodeResult;
 	}
 
-	public String acquireHomeTimeline(Map<String, String> parameterMap) {
+	public String acquireHomeTimeline(Map<String, String> parameterMap) throws YouRoomServerException {
 		Log.i("ACCESS", "acquireHomeTimeline");
 
 		String method = "GET";
@@ -154,16 +146,14 @@ public class YouRoomCommand {
 			try {
 				result = EntityUtils.toString(objResponse.getEntity(), "UTF-8");
 				decodeResult = UnicodeEscape.decode(result);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				throw new YouRoomServerException(e);
 			}
 		}
 		return decodeResult;
 	}
 
-	public String createEntry(String roomId, String parentId, String entryContent) {
+	public String createEntry(String roomId, String parentId, String entryContent) throws YouRoomServerException {
 		Log.i("ACCESS", "createEntry");
 
 		String method = "POST";
