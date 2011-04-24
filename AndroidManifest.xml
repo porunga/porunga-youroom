@@ -5,16 +5,12 @@
 
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
-	<application android:label="@string/app_name" android:icon="@drawable/myrooms"
-		android:name="com.porunga.youroomclient.AppHolder" android:debuggable="true">
-		<activity android:label="@string/app_name"
-			android:name="com.porunga.youroomclient.RoomActivity">
-		</activity>
-		<activity android:name="com.porunga.youroomclient.LoginActivity"></activity>
-		<activity android:name="com.porunga.youroomclient.EntryActivity"></activity>
-		<activity android:name="com.porunga.youroomclient.CreateEntryActivity"
-			android:windowSoftInputMode="adjustResize"></activity>
-		<activity android:name="com.porunga.youroomclient.GroupActivity">
+	<application android:label="@string/app_name" android:icon="@drawable/myrooms" android:name="com.porunga.youroomclient.AppHolder" android:debuggable="true">
+		<activity android:label="@string/app_name" android:name="com.porunga.youroomclient.RoomActivity" android:configChanges="orientation"></activity>
+		<activity android:name="com.porunga.youroomclient.LoginActivity" android:configChanges="orientation"></activity>
+		<activity android:name="com.porunga.youroomclient.EntryActivity" android:configChanges="orientation"></activity>
+		<activity android:name="com.porunga.youroomclient.CreateEntryActivity"></activity>
+		<activity android:name="com.porunga.youroomclient.GroupActivity" android:configChanges="orientation">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
