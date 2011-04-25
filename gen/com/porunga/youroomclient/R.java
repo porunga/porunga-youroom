@@ -62,6 +62,7 @@ public final class R {
         public static final int post_ng=0x7f040009;
         public static final int post_ok=0x7f040008;
         public static final int reacquire_group=0x7f040004;
+        public static final int reacquire_room=0x7f04000d;
         public static final int uncheck_update=0x7f040006;
     }
 }

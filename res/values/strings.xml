@@ -13,4 +13,5 @@
     <string name="deps_max">これ以上はコメントできません</string>
     <string name="over_char_num">文字数が140文字を超えています</string>
     <string name="network_error">おや？回線の調子が悪いようです。後ほどやりなおしてください。</string>
+    <string name="reacquire_room">更新</string>
 </resources>

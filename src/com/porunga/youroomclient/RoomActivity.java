@@ -12,6 +12,8 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -31,6 +33,9 @@ public class RoomActivity extends Activity implements OnClickListener {
 	private ListView listView;
 	private int page = 1;
 	private TextView textview;
+	
+	private final int REACQUIRE_ROOM = 1;
+	
 	//private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 
 	//private YouRoomGroup group;
@@ -126,7 +131,37 @@ public class RoomActivity extends Activity implements OnClickListener {
 			}
 		});
 	}
-		
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(Menu.NONE, REACQUIRE_ROOM, REACQUIRE_ROOM, R.string.reacquire_room);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	public boolean onOptionsItemSelected(MenuItem item) {
+		boolean ret = true;
+
+		switch (item.getItemId()) {
+		case REACQUIRE_ROOM:
+			progressDialog = new ProgressDialog(this);
+			setProgressDialog(progressDialog);
+			progressDialog.show();
+			adapter.clear();
+			page = 1;
+			Map<String, String> parameterMap = new HashMap<String, String>();
+			parameterMap.put("page", String.valueOf(page));
+			((AppHolder) getApplication()).setDirty(roomId, true);
+			GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap, this);
+			task.execute();
+			page++;
+			ret = true;
+			break;
+		default:
+			ret = super.onOptionsItemSelected(item);
+			break;
+		}
+		return ret;
+	}
 
 	// ListViewカスタマイズ用のArrayAdapter
 	public class YouRoomEntryAdapter extends ArrayAdapter<YouRoomEntry> {
