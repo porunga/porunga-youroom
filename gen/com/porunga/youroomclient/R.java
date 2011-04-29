@@ -15,21 +15,20 @@ public final class R {
         public static final int myrooms=0x7f020001;
     }
     public static final class id {
-        public static final int LoginLayout=0x7f05000f;
+        public static final int LoginLayout=0x7f05000e;
         public static final int entry_content=0x7f050001;
-        public static final int imageView1=0x7f05000e;
         public static final int linearLayout1=0x7f050004;
         public static final int linearLayout2=0x7f050005;
         public static final int linearLayout3=0x7f050007;
         public static final int linearLayout4=0x7f050008;
         public static final int linearLayout5=0x7f05000b;
         public static final int listView1=0x7f050003;
-        public static final int login_button=0x7f050014;
-        public static final int login_email=0x7f050010;
-        public static final int login_password=0x7f050012;
-        public static final int login_submit=0x7f050013;
+        public static final int login_button=0x7f050013;
+        public static final int login_email=0x7f05000f;
+        public static final int login_password=0x7f050011;
+        public static final int login_submit=0x7f050012;
         public static final int number_of_characters=0x7f050000;
-        public static final int password=0x7f050011;
+        public static final int password=0x7f050010;
         public static final int post_button=0x7f050002;
         public static final int textView1=0x7f050009;
         public static final int textView2=0x7f05000a;
