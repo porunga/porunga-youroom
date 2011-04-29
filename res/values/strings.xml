@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">youRoomClient</string>
+    <string name="app_name">Pollux</string>
     <string name="login_submit">ログイン</string>
     <string name="delete_token">ログアウト</string>
     <string name="login_button">ログイン</string>
