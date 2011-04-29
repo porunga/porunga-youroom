@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,7 +33,10 @@ public class RoomActivity extends Activity implements OnClickListener {
 	ProgressDialog progressDialog;
 	private ListView listView;
 	private int page = 1;
-	private TextView textview;
+	private TextView footerView;
+	// The maximum number of entries from youRoom API
+	private final int MAX_ROOM_COUNT = 10;
+	private final int FOOTER_MIN_HEIGHT = 65;
 	
 	private final int REACQUIRE_ROOM = 1;
 	
@@ -56,11 +60,11 @@ public class RoomActivity extends Activity implements OnClickListener {
 		roomId = intent.getStringExtra("roomId");
 		listView = (ListView) findViewById(R.id.listView1);
 		
-		textview = new TextView(this);
-		textview.setText("-----読み込み-----");
-		textview.setMinHeight(50);
-		textview.setBackgroundColor(Color.WHITE);
-		listView.addFooterView(textview);
+		footerView = new TextView(this);
+		footerView.setText("もっと読む");
+		footerView.setGravity(Gravity.CENTER);
+		footerView.setTextColor(Color.LTGRAY);
+		listView.addFooterView(footerView);
 		
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 		adapter = new YouRoomEntryAdapter(this, R.layout.room_list_item, dataList);
@@ -85,6 +89,8 @@ public class RoomActivity extends Activity implements OnClickListener {
 
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		parameterMap.put("page", String.valueOf(page));
+		footerView.setMinHeight(FOOTER_MIN_HEIGHT);
+		footerView.setVisibility(View.GONE);
 		GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap, activity);
 		task.execute();
 		page++;
@@ -92,10 +98,12 @@ public class RoomActivity extends Activity implements OnClickListener {
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				if (view == textview) {
+				if (view == footerView) {
 					progressDialog.show();
 					Map<String, String> parameterMap = new HashMap<String, String>();
 					parameterMap.put("page", String.valueOf(page));
+					footerView.setMinHeight(FOOTER_MIN_HEIGHT);
+					footerView.setVisibility(View.GONE);
 					GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap, activity);
 					task.execute();
 					page++;
@@ -150,6 +158,8 @@ public class RoomActivity extends Activity implements OnClickListener {
 			page = 1;
 			Map<String, String> parameterMap = new HashMap<String, String>();
 			parameterMap.put("page", String.valueOf(page));
+			footerView.setMinHeight(FOOTER_MIN_HEIGHT);
+			footerView.setVisibility(View.GONE);
 			((AppHolder) getApplication()).setDirty(roomId, true);
 			GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap, this);
 			task.execute();
@@ -327,6 +337,11 @@ public class RoomActivity extends Activity implements OnClickListener {
 			}
 			adapter.notifyDataSetChanged();
 			listView.setSelection(count);
+			if (dataList.size() < MAX_ROOM_COUNT) {
+				footerView.setMinHeight(0);
+			} else {
+				footerView.setVisibility(View.VISIBLE);
+			}
 			progressDialog.dismiss();
 		}
 	}
