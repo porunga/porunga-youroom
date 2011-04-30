@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -15,8 +16,14 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.text.style.URLSpan;
+import android.text.util.Linkify;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.view.WindowManager.LayoutParams;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -41,14 +48,17 @@ public class RoomActivity extends Activity implements OnClickListener {
 	private final int REACQUIRE_ROOM = 1;
 	
 	//private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
+	private TextView textview;
 
-	//private YouRoomGroup group;
-	//private EditText entryContentText;
+	// private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
+
+	// private YouRoomGroup group;
+	// private EditText entryContentText;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		// this.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		setContentView(R.layout.room_list);
 
@@ -70,12 +80,17 @@ public class RoomActivity extends Activity implements OnClickListener {
 		adapter = new YouRoomEntryAdapter(this, R.layout.room_list_item, dataList);
 		listView.setAdapter(adapter);
 	}
-	
+
 	@Override
 	protected void onRestart() {
 		super.onRestart();
 		page = 1;
 		adapter.clear();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
 	}
 
 	@Override
@@ -136,6 +151,17 @@ public class RoomActivity extends Activity implements OnClickListener {
 						startActivity(intent);
 					}
 				}
+			}
+		});
+
+		listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				ListView listView = (ListView) parent;
+				YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
+				showLinkDialog(item.getContent());
+				return true;
 			}
 		});
 	}
@@ -265,43 +291,46 @@ public class RoomActivity extends Activity implements OnClickListener {
 		}
 	}
 
-//	private ArrayList<YouRoomEntry> getRoomEntryList(String roomId, Map<String, String> parameterMap) {
-//
-//		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-//		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
-//		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
-//		String roomTL = "";
-//		roomTL = youRoomCommand.getRoomTimeLine(roomId, parameterMap);
-//
-//		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
-//
-//		try {
-//			JSONArray jsons = new JSONArray(roomTL);
-//			for (int i = 0; i < jsons.length(); i++) {
-//				YouRoomEntry roomEntry = new YouRoomEntry();
-//				JSONObject jObject = jsons.getJSONObject(i);
-//				JSONObject entryObject = jObject.getJSONObject("entry");
-//
-//				int id = entryObject.getInt("id");
-//				String participationName = entryObject.getJSONObject("participation").getString("name");
-//				String content = entryObject.getString("content");
-//
-//				String createdTime = entryObject.getString("created_at");
-//				String updatedTime = entryObject.getString("updated_at");
-//
-//				roomEntry.setId(id);
-//				roomEntry.setUpdatedTime(updatedTime);
-//				roomEntry.setParticipationName(participationName);
-//				roomEntry.setCreatedTime(createdTime);
-//				roomEntry.setContent(content);
-//
-//				dataList.add(roomEntry);
-//			}
-//		} catch (JSONException e) {
-//			e.printStackTrace();
-//		}
-//		return dataList;
-//	}
+	// private ArrayList<YouRoomEntry> getRoomEntryList(String roomId,
+	// Map<String, String> parameterMap) {
+	//
+	// YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
+	// HashMap<String, String> oAuthTokenMap =
+	// youRoomUtil.getOauthTokenFromLocal();
+	// YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
+	// String roomTL = "";
+	// roomTL = youRoomCommand.getRoomTimeLine(roomId, parameterMap);
+	//
+	// ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
+	//
+	// try {
+	// JSONArray jsons = new JSONArray(roomTL);
+	// for (int i = 0; i < jsons.length(); i++) {
+	// YouRoomEntry roomEntry = new YouRoomEntry();
+	// JSONObject jObject = jsons.getJSONObject(i);
+	// JSONObject entryObject = jObject.getJSONObject("entry");
+	//
+	// int id = entryObject.getInt("id");
+	// String participationName =
+	// entryObject.getJSONObject("participation").getString("name");
+	// String content = entryObject.getString("content");
+	//
+	// String createdTime = entryObject.getString("created_at");
+	// String updatedTime = entryObject.getString("updated_at");
+	//
+	// roomEntry.setId(id);
+	// roomEntry.setUpdatedTime(updatedTime);
+	// roomEntry.setParticipationName(participationName);
+	// roomEntry.setCreatedTime(createdTime);
+	// roomEntry.setContent(content);
+	//
+	// dataList.add(roomEntry);
+	// }
+	// } catch (JSONException e) {
+	// e.printStackTrace();
+	// }
+	// return dataList;
+	// }
 
 	public class GetRoomEntryTask extends AsyncTask<Void, Void, ArrayList<YouRoomEntry>> {
 		private String roomId;
@@ -328,10 +357,10 @@ public class RoomActivity extends Activity implements OnClickListener {
 				Toast.makeText(getBaseContext(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
 			}
 			int count = adapter.getCount();
-//			Iterator iterator = dataList.iterator();
-//			while (iterator.hasNext()) {
-//				adapter.add((YouRoomEntry) iterator.next());
-//			}
+			// Iterator iterator = dataList.iterator();
+			// while (iterator.hasNext()) {
+			// adapter.add((YouRoomEntry) iterator.next());
+			// }
 			for (YouRoomEntry youRoomEntry : dataList) {
 				adapter.add(youRoomEntry);
 			}
@@ -360,9 +389,26 @@ public class RoomActivity extends Activity implements OnClickListener {
 		Intent intent = new Intent(getApplication(), CreateEntryActivity.class);
 		intent.putExtra("roomId", String.valueOf(roomId));
 		intent.putExtra("youRoomEntry", new YouRoomEntry());
-
 		startActivity(intent);
-
 	}
 
+	public void showLinkDialog(String content) {
+		TextView text = new TextView(this);
+		text.setAutoLinkMask(Linkify.ALL);
+		text.setText(content);
+		URLSpan[] urls = text.getUrls();
+		if (urls.length != 0) {
+			ArrayList<String> rows = new ArrayList<String>();
+			for (URLSpan url : urls)
+				rows.add(url.getURL());
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.link_dialog_list_item, rows);
+			ListView linkListView = new ListView(this);
+			linkListView.setAdapter(adapter);
+			linkListView.setScrollingCacheEnabled(false);
+			linkListView.setAdapter(adapter);
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+			alertDialogBuilder.setView(linkListView);
+			alertDialogBuilder.create().show();
+		}
+	}
 }
