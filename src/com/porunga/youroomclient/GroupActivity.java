@@ -9,6 +9,8 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -86,6 +89,19 @@ public class GroupActivity extends Activity {
 					youRoomUtil.storeRoomAccessTime(roomId, time);
 
 					startActivity(intent);
+				}
+			});
+			listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+				@Override
+				public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+					// TODO Auto-generated method stub
+					ListView listView = (ListView) parent;
+					YouRoomGroup item = (YouRoomGroup) listView.getItemAtPosition(position);
+					String roomId = String.valueOf(item.getId());
+					SQLiteDatabase cacheDb = ((AppHolder)getApplication()).getCacheDb();
+					cacheDb.execSQL("delete from rooms where roomId = ?;",new String[] {roomId});
+					return false;
 				}
 			});
 		}
@@ -171,12 +187,18 @@ public class GroupActivity extends Activity {
 				view = inflater.inflate(R.layout.group_list_item, null);
 			}
 			YouRoomGroup group = (YouRoomGroup) this.getItem(position);
+			ImageView roomImage = null;
 			TextView name = null;
 			TextView updateTime = null;
 
 			if (group != null) {
+				roomImage = (ImageView)view.findViewById(R.id.room_image);
 				name = (TextView) view.findViewById(R.id.textView1);
 				updateTime = (TextView) view.findViewById(R.id.textView2);
+			}
+			if (roomImage != null){
+				byte[] data = group.getRoomImage();
+				roomImage.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
 			}
 			if (name != null) {
 				name.setText(group.getName());

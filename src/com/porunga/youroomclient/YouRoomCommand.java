@@ -1,5 +1,6 @@
 package com.porunga.youroomclient;
 
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +8,8 @@ import java.util.Map;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 public class YouRoomCommand {
@@ -97,6 +100,31 @@ public class YouRoomCommand {
 			}
 		}
 		return decodeResult;
+	}
+	public Bitmap getRoomImage(String roomId) throws YouRoomServerException {
+		Log.i("ACCESS", "getRoomImage");
+
+		String method = "GET";
+		String api = "https://www.youroom.in/r/" + roomId + "/picture";
+		
+		youRoomAccess.setMethod(method);
+		youRoomAccess.setApi(api);
+		HttpResponse objResponse = youRoomAccess.requestGet();
+
+		int statusCode = objResponse.getStatusLine().getStatusCode();
+		Bitmap roomImageBitmap = null;
+		if (statusCode == HttpURLConnection.HTTP_OK) {
+			InputStream is;
+
+			try {
+				is = objResponse.getEntity().getContent();
+				roomImageBitmap = BitmapFactory.decodeStream(is);
+				is.close();
+			} catch (Exception e) {
+				throw new YouRoomServerException(e);
+			}
+		}
+		return roomImageBitmap;
 	}
 
 	public String getRoomTimeLine(String roomId, Map<String, String> parameterMap) throws YouRoomServerException {
