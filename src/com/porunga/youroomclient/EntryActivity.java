@@ -4,19 +4,14 @@ import java.util.ArrayList;
 import java.util.concurrent.RejectedExecutionException;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.style.URLSpan;
-import android.text.util.Linkify;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -37,6 +32,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 	String rootId;
 
 	private final static int MAX_LEVEL = 6;
+	private ContentsDialogUtil contentsDialogUtil = new ContentsDialogUtil(this);
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -101,8 +97,11 @@ public class EntryActivity extends Activity implements OnClickListener {
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 				ListView listView = (ListView) parent;
 				YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
-				showLinkDialog(item.getContent());
-				return true;
+				if (item != null) {
+					contentsDialogUtil.showContentsDialog(item,roomId);
+					return true;
+				} else
+					return false;
 			}
 		});
 
@@ -135,12 +134,14 @@ public class EntryActivity extends Activity implements OnClickListener {
 			TextView content = null;
 			TextView updateTime = null;
 			TextView level = null;
+			TextView attachmentType = null;
 
 			if (roomEntry != null) {
-				name = (TextView) view.findViewById(R.id.textView1);
-				updateTime = (TextView) view.findViewById(R.id.textView2);
-				content = (TextView) view.findViewById(R.id.textView3);
-				level = (TextView) view.findViewById(R.id.textView5);
+				name = (TextView) view.findViewById(R.id.name);
+				updateTime = (TextView) view.findViewById(R.id.update_time);
+				content = (TextView) view.findViewById(R.id.content);
+				level = (TextView) view.findViewById(R.id.level);
+				attachmentType = (TextView) view.findViewById(R.id.attachment_type);
 			}
 			if (name != null) {
 				name.setText(roomEntry.getParticipationName());
@@ -157,6 +158,26 @@ public class EntryActivity extends Activity implements OnClickListener {
 				for (int i = 0; i < roomEntry.getLevel(); i++)
 					commentLevel += "> ";
 				level.setText(commentLevel);
+			}
+			String type = roomEntry.getAttachmentType();
+
+			if (attachmentType != null) {
+				if (type.equals("")) {
+					attachmentType.setText("");
+				} else {
+					StringBuffer sb = new StringBuffer();
+					sb.append(getString(R.string.display_attachment));
+					if (type.equals("Text"))
+						sb.append(getString(R.string.attachment_type_text));
+					if (type.equals("Image"))
+						sb.append(getString(R.string.attachment_type_image));
+					if (type.equals("File"))
+						sb.append(getString(R.string.attachment_type_file));
+					if (type.equals("Link"))
+						sb.append(getString(R.string.attachment_type_link));
+
+					attachmentType.setText(sb.toString());
+				}
 			}
 
 			UserSession session = UserSession.getInstance();
@@ -252,23 +273,5 @@ public class EntryActivity extends Activity implements OnClickListener {
 		startActivity(intentCreateEntry);
 
 	}
-	public void showLinkDialog(String content) {
-		TextView text = new TextView(this);
-		text.setAutoLinkMask(Linkify.ALL);
-		text.setText(content);
-		URLSpan[] urls = text.getUrls();
-		if (urls.length != 0) {
-			ArrayList<String> rows = new ArrayList<String>();
-			for (URLSpan url : urls)
-				rows.add(url.getURL());
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.link_dialog_list_item, rows);
-			ListView linkListView = new ListView(this);
-			linkListView.setAdapter(adapter);
-			linkListView.setScrollingCacheEnabled(false);
-			linkListView.setAdapter(adapter);
-			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-			alertDialogBuilder.setView(linkListView);
-			alertDialogBuilder.create().show();
-		}
-	}
+
 }

@@ -101,12 +101,13 @@ public class YouRoomCommand {
 		}
 		return decodeResult;
 	}
+
 	public Bitmap getRoomImage(String roomId) throws YouRoomServerException {
 		Log.i("ACCESS", "getRoomImage");
 
 		String method = "GET";
 		String api = "https://www.youroom.in/r/" + roomId + "/picture";
-		
+
 		youRoomAccess.setMethod(method);
 		youRoomAccess.setApi(api);
 		HttpResponse objResponse = youRoomAccess.requestGet();
@@ -114,10 +115,8 @@ public class YouRoomCommand {
 		int statusCode = objResponse.getStatusLine().getStatusCode();
 		Bitmap roomImageBitmap = null;
 		if (statusCode == HttpURLConnection.HTTP_OK) {
-			InputStream is;
-
 			try {
-				is = objResponse.getEntity().getContent();
+				InputStream is = objResponse.getEntity().getContent();
 				roomImageBitmap = BitmapFactory.decodeStream(is);
 				is.close();
 			} catch (Exception e) {
@@ -125,6 +124,30 @@ public class YouRoomCommand {
 			}
 		}
 		return roomImageBitmap;
+	}
+
+	public Bitmap getAttachmentImage(String roomId, String entryId) throws YouRoomServerException {
+		Log.i("ACCESS", "getAttachmentImage");
+
+		String method = "GET";
+		String api = "https://www.youroom.in/r/" + roomId + "/entries/" + entryId + "/attachment";
+
+		youRoomAccess.setMethod(method);
+		youRoomAccess.setApi(api);
+		HttpResponse objResponse = youRoomAccess.requestGet();
+
+		int statusCode = objResponse.getStatusLine().getStatusCode();
+		Bitmap attachmentImageBitmap = null;
+		if (statusCode == HttpURLConnection.HTTP_OK) {
+			try {
+				InputStream is = objResponse.getEntity().getContent();
+				attachmentImageBitmap = BitmapFactory.decodeStream(is);
+				is.close();
+			} catch (Exception e) {
+				throw new YouRoomServerException(e);
+			}
+		}
+		return attachmentImageBitmap;
 	}
 
 	public String getRoomTimeLine(String roomId, Map<String, String> parameterMap) throws YouRoomServerException {

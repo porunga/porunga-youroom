@@ -101,7 +101,7 @@ public class GroupActivity extends Activity {
 					String roomId = String.valueOf(item.getId());
 					SQLiteDatabase cacheDb = ((AppHolder)getApplication()).getCacheDb();
 					cacheDb.execSQL("delete from rooms where roomId = ?;",new String[] {roomId});
-					return false;
+					return true;
 				}
 			});
 		}

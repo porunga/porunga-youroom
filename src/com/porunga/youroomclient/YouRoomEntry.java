@@ -19,6 +19,10 @@ public class YouRoomEntry implements Serializable {
 	private String participationId;
 	private int level;
 	private ArrayList<YouRoomEntry> children;
+	private String attachmentType = "";
+	private String text = "";
+	private String link = "";
+	private String fileName = "";
 
 	public int getLevel() {
 		return level;
@@ -106,5 +110,37 @@ public class YouRoomEntry implements Serializable {
 
 	public void setChildren(ArrayList<YouRoomEntry> children) {
 		this.children = children;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public String getLink() {
+		return link;
+	}
+
+	public void setLink(String link) {
+		this.link = link;
+	}
+
+	public String getAttachmentType() {
+		return attachmentType;
+	}
+
+	public void setAttachmentType(String attachmentType) {
+		this.attachmentType = attachmentType;
+	}
+	
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 }

@@ -420,6 +420,21 @@ public class YouRoomCommandProxy {
 			entry.setUpdatedTime(json.getString("updated_at"));
 			entry.setContent(json.getString("content"));
 			entry.setDescendantsCount(json.optInt("descendants_count"));
+			if (json.has("attachment")) {
+				JSONObject attachment = json.getJSONObject("attachment");
+				entry.setAttachmentType(attachment.getString("attachment_type"));
+				if (attachment.getString("attachment_type").equals("Text")) {
+					entry.setText(attachment.getJSONObject("data").getString("text"));
+				}
+
+				if (attachment.getString("attachment_type").equals("Link")) {
+					entry.setLink(attachment.getJSONObject("data").getString("url"));
+				}
+
+				if (attachment.getString("attachment_type").equals("Image") || attachment.getString("attachment_type").equals("File")) {
+					entry.setFileName(attachment.getString("filename"));
+				}
+			}
 			if (json.has("children")) {
 				JSONArray cArray = json.getJSONArray("children");
 				ArrayList<YouRoomEntry> children = new ArrayList<YouRoomEntry>(cArray.length());
