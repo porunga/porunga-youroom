@@ -1,7 +1,21 @@
 
-    <LinearLayout android:id="@+id/linearLayout1" android:layout_width="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="horizontal" android:layout_height="wrap_content">
-        <LinearLayout android:id="@+id/linearLayout2" android:layout_height="wrap_content" android:layout_width="fill_parent" android:orientation="vertical" android:layout_weight="1" android:layout_margin="1pt" android:paddingLeft="5dip" android:paddingRight="10dip">
-            <TextView android:text="TextView" android:id="@+id/textView1" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_margin="1pt" android:textSize="7pt"></TextView>
-            <TextView android:id="@+id/textView2" android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_gravity="right" android:text="TextView" android:textStyle="italic" android:layout_margin="1pt" android:textSize="5pt"></TextView>
-        </LinearLayout>
-    </LinearLayout>
+<LinearLayout android:id="@+id/linearLayout1"
+	android:layout_width="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="horizontal" android:layout_height="wrap_content">
+	<ImageView android:src="@drawable/icon"
+		android:layout_height="wrap_content" android:layout_width="wrap_content"
+		android:id="@+id/room_image" android:layout_gravity="center" android:minHeight="48px" android:minWidth="48px"></ImageView>
+	<LinearLayout android:id="@+id/linearLayout2"
+		android:layout_height="wrap_content" android:layout_width="fill_parent"
+		android:orientation="vertical" android:layout_weight="1"
+		android:layout_margin="1pt" android:paddingLeft="5dip"
+		android:paddingRight="10dip">
+		<TextView android:text="TextView" android:id="@+id/textView1"
+			android:layout_height="wrap_content" android:layout_width="fill_parent"
+			android:layout_margin="1pt" android:textSize="7pt"></TextView>
+		<TextView android:id="@+id/textView2" android:layout_height="wrap_content"
+			android:layout_width="wrap_content" android:layout_gravity="right"
+			android:text="TextView" android:textStyle="italic"
+			android:layout_margin="1pt" android:textSize="5pt"></TextView>
+	</LinearLayout>
+</LinearLayout>

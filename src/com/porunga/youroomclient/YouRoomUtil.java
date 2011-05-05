@@ -13,12 +13,12 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
 public class YouRoomUtil extends ContextWrapper {
-
 	private static final String PREFERENCE_KEY = "AccessToken";
 	private static final String LAST_ACCESS_TIME_KEY = "LastAccessTime";
-	SharedPreferences sharedpref;
-	String TOKEN_MAP_KEY = "oauth_token";
-	String TOKEN_SECRET_MAP_KEY = "oauth_token_secret";
+	private SharedPreferences sharedpref;
+	private String TOKEN_MAP_KEY = "oauth_token";
+	private String TOKEN_SECRET_MAP_KEY = "oauth_token_secret";
+
 
 	public YouRoomUtil(Context base) {
 		super(base);
@@ -269,5 +269,4 @@ public class YouRoomUtil extends ContextWrapper {
 		}
 		return result;
 	}
-
 }

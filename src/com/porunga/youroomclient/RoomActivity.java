@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,14 +16,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.text.style.URLSpan;
-import android.text.util.Linkify;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
-import android.view.WindowManager.LayoutParams;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -44,11 +38,9 @@ public class RoomActivity extends Activity implements OnClickListener {
 	// The maximum number of entries from youRoom API
 	private final int MAX_ROOM_COUNT = 10;
 	private final int FOOTER_MIN_HEIGHT = 65;
-	
 	private final int REACQUIRE_ROOM = 1;
-	
-	//private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
-	private TextView textview;
+
+	private ContentsDialogUtil contentsDialogUtil = new ContentsDialogUtil(this);
 
 	// private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 
@@ -69,13 +61,13 @@ public class RoomActivity extends Activity implements OnClickListener {
 		Intent intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
 		listView = (ListView) findViewById(R.id.listView1);
-		
+
 		footerView = new TextView(this);
 		footerView.setText("もっと読む");
 		footerView.setGravity(Gravity.CENTER);
 		footerView.setTextColor(Color.LTGRAY);
 		listView.addFooterView(footerView);
-		
+
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 		adapter = new YouRoomEntryAdapter(this, R.layout.room_list_item, dataList);
 		listView.setAdapter(adapter);
@@ -160,12 +152,17 @@ public class RoomActivity extends Activity implements OnClickListener {
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 				ListView listView = (ListView) parent;
 				YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
-				showLinkDialog(item.getContent());
+				if (item == null)
+					return false;
+//				String entryId = String.valueOf(item.getId());
+//				SQLiteDatabase cacheDb = ((AppHolder) getApplication()).getCacheDb();
+//				cacheDb.execSQL("delete from entries where entryId = ? and roomId = ? ;", new String[] { entryId, roomId });
+				contentsDialogUtil.showContentsDialog(item,roomId);
 				return true;
 			}
 		});
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, REACQUIRE_ROOM, REACQUIRE_ROOM, R.string.reacquire_room);
@@ -221,11 +218,13 @@ public class RoomActivity extends Activity implements OnClickListener {
 			TextView content = null;
 			TextView createdTime = null;
 			TextView descendantsCount = null;
+			TextView attachmentType = null;
 
 			if (roomEntry != null) {
-				name = (TextView) view.findViewById(R.id.textView1);
-				createdTime = (TextView) view.findViewById(R.id.textView2);
-				content = (TextView) view.findViewById(R.id.textView3);
+				name = (TextView) view.findViewById(R.id.name);
+				createdTime = (TextView) view.findViewById(R.id.created_time);
+				content = (TextView) view.findViewById(R.id.content);
+				attachmentType = (TextView) view.findViewById(R.id.attachment_type);
 			}
 			if (name != null) {
 				name.setText(roomEntry.getParticipationName());
@@ -238,7 +237,28 @@ public class RoomActivity extends Activity implements OnClickListener {
 				content.setText(roomEntry.getContent());
 			}
 
-			descendantsCount = (TextView) view.findViewById(R.id.textView4);
+			String type = roomEntry.getAttachmentType();
+
+			if (attachmentType != null) {
+				if (type.equals("")) {
+					attachmentType.setText("");
+				} else {
+					StringBuffer sb = new StringBuffer();
+					sb.append(getString(R.string.display_attachment));
+					if (type.equals("Text"))
+						sb.append(getString(R.string.attachment_type_text));
+					if (type.equals("Image"))
+						sb.append(getString(R.string.attachment_type_image));
+					if (type.equals("File"))
+						sb.append(getString(R.string.attachment_type_file));
+					if (type.equals("Link"))
+						sb.append(getString(R.string.attachment_type_link));
+
+					attachmentType.setText(sb.toString());
+				}
+			}
+
+			descendantsCount = (TextView) view.findViewById(R.id.descendants_count);
 			int count = roomEntry.getDescendantsCount();
 			if (count == -1) {
 				GetEntryTask task = new GetEntryTask(descendantsCount, roomId, activity);
@@ -265,7 +285,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 		private String roomId;
 		private TextView textView;
 		private Activity activity;
-		private boolean[] errFlg = {false};
+		private boolean[] errFlg = { false };
 
 		public GetEntryTask(TextView textView, String roomId, Activity activity) {
 			this.roomId = roomId;
@@ -336,7 +356,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 		private String roomId;
 		private Map<String, String> parameterMap;
 		private Activity activity;
-		private boolean[] errFlg = {false};
+		private boolean[] errFlg = { false };
 
 		public GetRoomEntryTask(String roomId, Map<String, String> parameterMap, Activity activity) {
 			this.roomId = roomId;
@@ -390,25 +410,5 @@ public class RoomActivity extends Activity implements OnClickListener {
 		intent.putExtra("roomId", String.valueOf(roomId));
 		intent.putExtra("youRoomEntry", new YouRoomEntry());
 		startActivity(intent);
-	}
-
-	public void showLinkDialog(String content) {
-		TextView text = new TextView(this);
-		text.setAutoLinkMask(Linkify.ALL);
-		text.setText(content);
-		URLSpan[] urls = text.getUrls();
-		if (urls.length != 0) {
-			ArrayList<String> rows = new ArrayList<String>();
-			for (URLSpan url : urls)
-				rows.add(url.getURL());
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.link_dialog_list_item, rows);
-			ListView linkListView = new ListView(this);
-			linkListView.setAdapter(adapter);
-			linkListView.setScrollingCacheEnabled(false);
-			linkListView.setAdapter(adapter);
-			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-			alertDialogBuilder.setView(linkListView);
-			alertDialogBuilder.create().show();
-		}
 	}
 }
