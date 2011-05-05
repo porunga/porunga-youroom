@@ -1,0 +1,5 @@
+
+    <resources>
+        <string name="ID_updateTimePreference">updateTimePreference</string>
+        <string name="ID_notificationPreference">notificationPreference</string>
+    </resources>

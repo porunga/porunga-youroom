@@ -17,6 +17,7 @@
 			</intent-filter>
 		</activity>
 		<service android:name="com.porunga.youroomclient.CheckUpdateService"></service>
+		<activity android:name="com.porunga.youroomclient.SettingActivity"></activity>
 
 	</application>
 </manifest>

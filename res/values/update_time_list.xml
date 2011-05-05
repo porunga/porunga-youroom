@@ -1,0 +1,14 @@
+    <resources>
+        <string-array name="update_time_name_list">
+            <item>確認しない</item>
+            <item>15分ごとに確認</item>
+            <item>30分ごとに確認</item>
+            <item>60分ごとに確認</item>
+        </string-array>
+        <string-array name="update_time_value_list">
+            <item>not_set</item>
+            <item>15</item>
+            <item>30</item>
+            <item>60</item>
+        </string-array>
+    </resources>

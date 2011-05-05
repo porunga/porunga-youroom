@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+        <PreferenceCategory android:key="@string/ID_notificationPreference" android:title="@string/notificationPreferenceTitle">
+            <ListPreference android:entryValues="@array/update_time_value_list" android:entries="@array/update_time_name_list" android:defaultValue="not_set" android:key="@string/ID_updateTimePreference" android:dialogTitle="@string/updateTimePreferenceTitle" android:title="@string/updateTimePreferenceTitle"></ListPreference>
+        </PreferenceCategory>
+    </PreferenceScreen>

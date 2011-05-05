@@ -1,11 +1,8 @@
 package com.porunga.youroomclient;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -29,8 +26,7 @@ public class GroupActivity extends Activity {
 
 	private final int DELETE_TOKEN = 1;
 	private final int REACQUIRE_GROUP = 2;
-	private final int CHECK_UPDATE = 3;
-	private final int UNCHECK_UPDATE = 4;
+	private final int SETTING = 3;
 
 	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 	private YouRoomGroupAdapter adapter;
@@ -100,16 +96,12 @@ public class GroupActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, DELETE_TOKEN, DELETE_TOKEN, R.string.delete_token);
 		menu.add(Menu.NONE, REACQUIRE_GROUP, REACQUIRE_GROUP, R.string.reacquire_group);
-		menu.add(Menu.NONE, CHECK_UPDATE, CHECK_UPDATE, R.string.check_update);
-		menu.add(Menu.NONE, UNCHECK_UPDATE, UNCHECK_UPDATE, R.string.uncheck_update);
+		menu.add(Menu.NONE, SETTING, SETTING, R.string.setting);
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {
 		boolean ret = true;
-		AlarmManager alarmManager;
-		Intent serviceIntent;
-		PendingIntent pendingIntent;
 
 		switch (item.getItemId()) {
 		case DELETE_TOKEN:
@@ -129,22 +121,9 @@ public class GroupActivity extends Activity {
 			((AppHolder)getApplication()).clearDirty();
 			ret = true;
 			break;
-		case CHECK_UPDATE:
-			serviceIntent = new Intent(this, CheckUpdateService.class);
-			alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-			pendingIntent = PendingIntent.getService(getApplicationContext(), 0, serviceIntent, 0);
-			Calendar cal = Calendar.getInstance();
-			cal.setTimeInMillis(System.currentTimeMillis());
-			cal.add(Calendar.SECOND, 1);
-			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES, pendingIntent);
-			ret = true;
-			break;
-		case UNCHECK_UPDATE:
-			serviceIntent = new Intent(this, CheckUpdateService.class);
-			alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-			pendingIntent = PendingIntent.getService(getApplicationContext(), 0, serviceIntent, 0);
-			pendingIntent.cancel();
-			alarmManager.cancel(pendingIntent);
+		case SETTING:
+			Intent intent = new Intent(this, SettingActivity.class);
+			startActivity(intent);
 			ret = true;
 			break;
 		default:
