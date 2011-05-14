@@ -35,7 +35,6 @@ public class RoomActivity extends Activity implements OnClickListener {
 
 	private String roomId;
 	YouRoomEntryAdapter adapter;
-	ProgressDialog progressDialog;
 	private ListView listView;
 	private int page = 1;
 	private TextView footerView;
@@ -97,10 +96,6 @@ public class RoomActivity extends Activity implements OnClickListener {
 		super.onStart();
 		final Activity activity = this;
 
-		progressDialog = new ProgressDialog(this);
-		setProgressDialog(progressDialog);
-		progressDialog.show();
-
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		parameterMap.put("page", String.valueOf(page));
 		footerView.setMinHeight(FOOTER_MIN_HEIGHT);
@@ -113,7 +108,6 @@ public class RoomActivity extends Activity implements OnClickListener {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				if (view == footerView) {
-					progressDialog.show();
 					Map<String, String> parameterMap = new HashMap<String, String>();
 					parameterMap.put("page", String.valueOf(page));
 					footerView.setMinHeight(FOOTER_MIN_HEIGHT);
@@ -183,9 +177,6 @@ public class RoomActivity extends Activity implements OnClickListener {
 
 		switch (item.getItemId()) {
 		case REACQUIRE_ROOM:
-			progressDialog = new ProgressDialog(this);
-			setProgressDialog(progressDialog);
-			progressDialog.show();
 			adapter.clear();
 			page = 1;
 			Map<String, String> parameterMap = new HashMap<String, String>();
@@ -416,6 +407,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 		private Map<String, String> parameterMap;
 		private Activity activity;
 		private boolean[] errFlg = { false };
+		private ProgressDialog progressDialog;
 
 		public GetRoomEntryTask(String roomId, Map<String, String> parameterMap, Activity activity) {
 			this.roomId = roomId;
@@ -423,6 +415,12 @@ public class RoomActivity extends Activity implements OnClickListener {
 			this.activity = activity;
 		}
 
+		protected void onPreExecute() {
+			progressDialog = new ProgressDialog(activity);
+			setProgressDialog(progressDialog);
+			progressDialog.show();
+		}
+		
 		@Override
 		protected ArrayList<YouRoomEntry> doInBackground(Void... ids) {
 			YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
@@ -472,10 +470,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 			startActivity(intent);
 			break;
 
-		case R.id.reload_button:
-			progressDialog = new ProgressDialog(this);
-			setProgressDialog(progressDialog);
-			progressDialog.show();
+		case R.id.reload_button:	
 			adapter.clear();
 			page = 1;
 			Map<String, String> parameterMap = new HashMap<String, String>();
