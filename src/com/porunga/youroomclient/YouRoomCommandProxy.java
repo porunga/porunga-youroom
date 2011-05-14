@@ -2,6 +2,7 @@ package com.porunga.youroomclient;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -68,13 +69,57 @@ public class YouRoomCommandProxy {
 			roomImage = BitmapFactory.decodeByteArray(data, 0, data.length);
 		} else {
 			try {
-				roomImage = youRoomCommand.getRoomImage(roomId);
+				roomImage = youRoomCommand.getImage("https://www.youroom.in/r/" + roomId + "/picture");
 			} catch (YouRoomServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		return roomImage;
+	}
+
+	public Bitmap getMemberImage(String roomId, String participationId, boolean[] errFlg) {
+		Bitmap memberImage = null;
+		byte[] image = null;
+		Cursor c = null;
+		try {
+			c = cacheDb.rawQuery("select image from memberImages where participationId = ?;", new String[] { participationId });
+			if (c.moveToFirst()) {
+				image = c.getBlob(0);
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			throw new RuntimeException(e1);
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+
+		if (image != null) {
+			memberImage = BitmapFactory.decodeByteArray(image, 0, image.length);
+		} else {
+			try {
+				memberImage = youRoomCommand.getImage("https://www.youroom.in/r/" + roomId + "/participations/" + participationId + "/picture");
+			} catch (YouRoomServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				Log.w("NW", "Network Error occured");
+				errFlg[0] = true;
+				throw new RuntimeException(e);
+			}
+			ByteArrayOutputStream bout = new ByteArrayOutputStream();
+			memberImage.compress(Bitmap.CompressFormat.PNG, 50 ,bout);
+			image = bout.toByteArray();
+			cacheDb.beginTransaction();
+			try {
+				cacheDb.execSQL("insert into memberImages(participationId, image) values(?, ?) ;", new Object[] { participationId, image });
+				cacheDb.setTransactionSuccessful();
+			} finally {
+				cacheDb.endTransaction();
+			}
+		}
+		return memberImage;
 	}
 
 	public ArrayList<YouRoomGroup> getMyGroupList(boolean[] errFlg) {
@@ -416,6 +461,7 @@ public class YouRoomCommandProxy {
 		try {
 			entry.setId(json.getInt("id"));
 			entry.setParticipationName(json.getJSONObject("participation").getString("name"));
+			entry.setParticipationId(json.getJSONObject("participation").getString("id"));
 			entry.setCreatedTime(json.getString("created_at"));
 			entry.setUpdatedTime(json.getString("updated_at"));
 			entry.setContent(json.getString("content"));

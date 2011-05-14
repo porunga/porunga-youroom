@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.client.HttpClient;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,7 +24,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,9 +58,12 @@ public class RoomActivity extends Activity implements OnClickListener {
 		// this.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		setContentView(R.layout.room_list);
 
-		Button postButton = (Button) findViewById(R.id.post_button);
-		postButton.setText(getString(R.string.post_button));
+		ImageButton postButton = (ImageButton) findViewById(R.id.post_button);
+		// postButton.setText(getString(R.string.post_button));
 		postButton.setOnClickListener(this);
+
+		ImageButton updateButton = (ImageButton) findViewById(R.id.reload_button);
+		updateButton.setOnClickListener(this);
 
 		Intent intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
@@ -154,10 +161,12 @@ public class RoomActivity extends Activity implements OnClickListener {
 				YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
 				if (item == null)
 					return false;
-//				String entryId = String.valueOf(item.getId());
-//				SQLiteDatabase cacheDb = ((AppHolder) getApplication()).getCacheDb();
-//				cacheDb.execSQL("delete from entries where entryId = ? and roomId = ? ;", new String[] { entryId, roomId });
-				contentsDialogUtil.showContentsDialog(item,roomId);
+				// String entryId = String.valueOf(item.getId());
+				// SQLiteDatabase cacheDb = ((AppHolder)
+				// getApplication()).getCacheDb();
+				// cacheDb.execSQL("delete from entries where entryId = ? and roomId = ? ;",
+				// new String[] { entryId, roomId });
+				contentsDialogUtil.showContentsDialog(item, roomId);
 				return true;
 			}
 		});
@@ -219,12 +228,14 @@ public class RoomActivity extends Activity implements OnClickListener {
 			TextView createdTime = null;
 			TextView descendantsCount = null;
 			TextView attachmentType = null;
+			ImageView memberImageView = new ImageView(getBaseContext());
 
 			if (roomEntry != null) {
 				name = (TextView) view.findViewById(R.id.name);
 				createdTime = (TextView) view.findViewById(R.id.created_time);
 				content = (TextView) view.findViewById(R.id.content);
 				attachmentType = (TextView) view.findViewById(R.id.attachment_type);
+				memberImageView = (ImageView) view.findViewById(R.id.member_image);
 			}
 			if (name != null) {
 				name.setText(roomEntry.getParticipationName());
@@ -257,10 +268,19 @@ public class RoomActivity extends Activity implements OnClickListener {
 					attachmentType.setText(sb.toString());
 				}
 			}
+			
+			if (memberImageView != null) {
+				memberImageView.setImageResource(R.drawable.default_member_image);
+				String participationId = roomEntry.getParticipationId();
+				memberImageView.setTag(participationId);
+				DownloadImageTask downloadImageTask = new DownloadImageTask(memberImageView, activity);
+				downloadImageTask.execute(roomId, participationId);
+			}
 
 			descendantsCount = (TextView) view.findViewById(R.id.descendants_count);
 			int count = roomEntry.getDescendantsCount();
 			if (count == -1) {
+				descendantsCount.setText("");
 				GetEntryTask task = new GetEntryTask(descendantsCount, roomId, activity);
 				task.execute(roomEntry);
 			} else {
@@ -278,6 +298,45 @@ public class RoomActivity extends Activity implements OnClickListener {
 			}
 
 			return view;
+		}
+
+		public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+			private ImageView memberImage;
+			private Activity activity;
+			private boolean[] errFlg = { false };
+			private String tag;
+
+			public DownloadImageTask(ImageView memberImage, Activity activity) {
+				this.memberImage = memberImage;
+				this.activity = activity;
+				this.tag = memberImage.getTag().toString();
+			}
+
+			@Override
+			protected Bitmap doInBackground(String... params) {
+
+				YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
+				Bitmap image;
+				synchronized (activity.getBaseContext()) {
+					try {
+						image = proxy.getMemberImage(params[0], params[1], errFlg);
+					} catch (Exception e) {
+						errFlg[0] = true;
+						image = BitmapFactory.decodeResource(getResources(), R.drawable.icon);
+					}
+					return image;
+				}
+			}
+
+			@Override
+			protected void onPostExecute(Bitmap image) {
+				if (errFlg[0]) {
+					Toast.makeText(getBaseContext(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+				}
+				if (tag.equals(memberImage.getTag().toString()))
+					this.memberImage.setImageBitmap(image);
+				this.memberImage.setVisibility(View.VISIBLE);
+			}
 		}
 	}
 
@@ -402,13 +461,32 @@ public class RoomActivity extends Activity implements OnClickListener {
 	}
 
 	@Override
-	public void onClick(View arg0) {
+	public void onClick(View view) {
 
 		// TODO Auto-generated method stub
+		switch (view.getId()) {
+		case R.id.post_button:
+			Intent intent = new Intent(getApplication(), CreateEntryActivity.class);
+			intent.putExtra("roomId", String.valueOf(roomId));
+			intent.putExtra("youRoomEntry", new YouRoomEntry());
+			startActivity(intent);
+			break;
 
-		Intent intent = new Intent(getApplication(), CreateEntryActivity.class);
-		intent.putExtra("roomId", String.valueOf(roomId));
-		intent.putExtra("youRoomEntry", new YouRoomEntry());
-		startActivity(intent);
+		case R.id.reload_button:
+			progressDialog = new ProgressDialog(this);
+			setProgressDialog(progressDialog);
+			progressDialog.show();
+			adapter.clear();
+			page = 1;
+			Map<String, String> parameterMap = new HashMap<String, String>();
+			parameterMap.put("page", String.valueOf(page));
+			footerView.setMinHeight(FOOTER_MIN_HEIGHT);
+			footerView.setVisibility(View.GONE);
+			((AppHolder) getApplication()).setDirty(roomId, true);
+			GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap, this);
+			task.execute();
+			page++;
+			break;
+		}
 	}
 }

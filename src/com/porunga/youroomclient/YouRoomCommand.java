@@ -102,11 +102,11 @@ public class YouRoomCommand {
 		return decodeResult;
 	}
 
-	public Bitmap getRoomImage(String roomId) throws YouRoomServerException {
+	public Bitmap getImage(String api) throws YouRoomServerException {
 		Log.i("ACCESS", "getRoomImage");
 
 		String method = "GET";
-		String api = "https://www.youroom.in/r/" + roomId + "/picture";
+//		String api = "https://www.youroom.in/r/" + roomId + "/picture";
 
 		youRoomAccess.setMethod(method);
 		youRoomAccess.setApi(api);

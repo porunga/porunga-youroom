@@ -116,7 +116,6 @@ public class YouRoomAccess {
 	}
 
 	public HttpResponse requestGet() throws YouRoomServerException {
-
 		oauthParametersMap = createParametersMap();
 		String apiParamter = createParameters();
 		HttpResponse objResponse = null;
@@ -165,11 +164,9 @@ public class YouRoomAccess {
 		}
 		StringBuilder builder = new StringBuilder();
 		for (Map.Entry<String, String> param : parameterMap.entrySet()) {
-
 			builder.append(param.getKey() + "=");
 			builder.append(param.getValue());
 			builder.append("&");
-
 		}
 		return builder.toString().substring(0, builder.length() - 1);
 	}

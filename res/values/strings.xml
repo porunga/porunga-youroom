@@ -6,12 +6,14 @@
     <string name="login_button">ログイン</string>
     <string name="reacquire_group">更新</string>
     <string name="post_button">投稿する</string>
+    <string name="now_posting">投稿中</string>
     <string name="post_ok">投稿しました</string>
     <string name="post_ng">投稿に失敗しました</string>
     <string name="deps_max">これ以上はコメントできません</string>
     <string name="over_char_num">文字数が140文字を超えています</string>
     <string name="network_error">おや？回線の調子が悪いようです。後ほどやりなおしてください。</string>
     <string name="reacquire_room">更新</string>
+    <string name="app_description">polluxは、グループ内情報共有ツール\n\n\"youRoom(ユールーム)\"のクライアントアプリです。\n\n各ルームの新着情報のチェックや新規投稿などを行うことが可能です。</string>
     <string name="setting">設定</string>
     <string name="updateTimePreferenceTitle">定期新着確認</string>
     <string name="notificationPreferenceTitle">新着通知</string>

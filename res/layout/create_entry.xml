@@ -2,13 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
-	<TextView android:layout_width="wrap_content" android:text="TextView"
-		android:id="@+id/number_of_characters" android:layout_height="wrap_content"
-		android:gravity="right" android:layout_gravity="bottom|right"></TextView>
+	<TextView android:layout_width="wrap_content" android:id="@+id/number_of_characters"
+		android:layout_height="wrap_content" android:gravity="right"
+		android:layout_gravity="bottom|right"></TextView>
 	<EditText android:gravity="top|left" android:cursorVisible="true"
 		android:id="@+id/entry_content" android:layout_width="fill_parent"
 		android:layout_weight="1" android:layout_height="fill_parent"></EditText>
-	<Button android:id="@+id/post_button" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:saveEnabled="true"
-		android:layout_gravity="right"></Button>
+	<LinearLayout android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:orientation="horizontal"
+		android:layout_gravity="bottom" android:gravity="right">
+		<ImageButton android:id="@+id/post_button"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:saveEnabled="true" android:layout_gravity="center"
+			android:background="@null" android:src="@drawable/post_image"></ImageButton>
+		<TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_gravity="center" android:text="@string/post_button" android:id="@+id/post_text" android:layout_margin="5px"></TextView>
+	</LinearLayout>
 </LinearLayout>

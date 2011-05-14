@@ -7,6 +7,8 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,10 +19,13 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.porunga.youroomclient.RoomActivity.YouRoomEntryAdapter.DownloadImageTask;
 
 public class EntryActivity extends Activity implements OnClickListener {
 	String roomId;
@@ -56,8 +61,8 @@ public class EntryActivity extends Activity implements OnClickListener {
 		YouRoomCommandProxy proxy = new YouRoomCommandProxy(this);
 		YouRoomEntry youRoomEntry = proxy.getEntry(roomId, rootId);
 
-		Button postButton = (Button) findViewById(R.id.post_button);
-		postButton.setText(getString(R.string.post_button));
+		ImageButton postButton = (ImageButton) findViewById(R.id.post_button);
+		// postButton.setText(getString(R.string.post_button));
 		postButton.setOnClickListener(this);
 		parentEntryCount = youRoomEntry.getDescendantsCount();
 
@@ -98,7 +103,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 				ListView listView = (ListView) parent;
 				YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
 				if (item != null) {
-					contentsDialogUtil.showContentsDialog(item,roomId);
+					contentsDialogUtil.showContentsDialog(item, roomId);
 					return true;
 				} else
 					return false;
@@ -118,10 +123,12 @@ public class EntryActivity extends Activity implements OnClickListener {
 	// ListViewカスタマイズ用のArrayAdapter
 	public class YouRoomChildEntryAdapter extends ArrayAdapter<YouRoomEntry> {
 		private LayoutInflater inflater;
+		private Activity activity;
 
-		public YouRoomChildEntryAdapter(Context context, int textViewResourceId, ArrayList<YouRoomEntry> items) {
-			super(context, textViewResourceId, items);
-			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		public YouRoomChildEntryAdapter(Activity activity, int textViewResourceId, ArrayList<YouRoomEntry> items) {
+			super(activity, textViewResourceId, items);
+			this.inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			this.activity = activity;
 		}
 
 		public View getView(final int position, View convertView, ViewGroup parent) {
@@ -132,33 +139,71 @@ public class EntryActivity extends Activity implements OnClickListener {
 			YouRoomEntry roomEntry = (YouRoomEntry) this.getItem(position);
 			TextView name = null;
 			TextView content = null;
-			TextView updateTime = null;
-			TextView level = null;
+			TextView createdTime = null;
+			ImageView level = null;
+			// TextView level = null;
+			ImageView memberImageView = null;
 			TextView attachmentType = null;
 
 			if (roomEntry != null) {
 				name = (TextView) view.findViewById(R.id.name);
-				updateTime = (TextView) view.findViewById(R.id.update_time);
+				createdTime = (TextView) view.findViewById(R.id.update_time);
 				content = (TextView) view.findViewById(R.id.content);
-				level = (TextView) view.findViewById(R.id.level);
+				level = (ImageView) view.findViewById(R.id.level);
+				// level = (TextView) view.findViewById(R.id.level);
+				memberImageView = (ImageView) view.findViewById(R.id.member_image);
 				attachmentType = (TextView) view.findViewById(R.id.attachment_type);
 			}
 			if (name != null) {
 				name.setText(roomEntry.getParticipationName());
 			}
-			if (updateTime != null) {
-				updateTime.setTextColor(Color.LTGRAY);
-				updateTime.setText(YouRoomUtil.convertDatetime(roomEntry.getUpdatedTime()));
+			if (createdTime != null) {
+				createdTime.setTextColor(Color.LTGRAY);
+				createdTime.setText(YouRoomUtil.convertDatetime(roomEntry.getCreatedTime()));
 			}
 			if (content != null) {
 				content.setText(roomEntry.getContent());
 			}
+
 			if (level != null) {
-				String commentLevel = "";
-				for (int i = 0; i < roomEntry.getLevel(); i++)
-					commentLevel += "> ";
-				level.setText(commentLevel);
+				switch (roomEntry.getLevel()) {
+				case 1:
+					level.setImageResource(R.drawable.level_image1);
+					break;
+				case 2:
+					level.setImageResource(R.drawable.level_image2);
+					break;
+				case 3:
+					level.setImageResource(R.drawable.level_image3);
+					break;
+				case 4:
+					level.setImageResource(R.drawable.level_image4);
+					break;
+				case 5:
+					level.setImageResource(R.drawable.level_image5);
+					break;
+				case 6:
+					level.setImageResource(R.drawable.level_image6);
+					break;
+				default:
+					level.setImageResource(R.drawable.transecate_background);
+				}
+				// String commentLevel = "";
+				//
+				// for (int i = 0; i < roomEntry.getLevel(); i++){
+				// commentLevel += "> ";
+				// level.setText(commentLevel);
+				// }
 			}
+
+			if (memberImageView != null) {
+				memberImageView.setImageResource(R.drawable.default_member_image);
+				String participationId = roomEntry.getParticipationId();
+				memberImageView.setTag(participationId);
+				DownloadImageTask downloadImageTask = new DownloadImageTask(memberImageView, activity);
+				downloadImageTask.execute(roomId, participationId);
+			}
+
 			String type = roomEntry.getAttachmentType();
 
 			if (attachmentType != null) {
@@ -185,11 +230,50 @@ public class EntryActivity extends Activity implements OnClickListener {
 			if (roomAccessTime != null) {
 				int compareResult = YouRoomUtil.calendarCompareTo(roomAccessTime, roomEntry.getUpdatedTime());
 				if (compareResult < 0) {
-					updateTime.setTextColor(Color.RED);
+					createdTime.setTextColor(Color.RED);
 				}
 			}
 
 			return view;
+		}
+		
+		public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+			private ImageView memberImage;
+			private Activity activity;
+			private boolean[] errFlg = { false };
+			private String tag;
+
+			public DownloadImageTask(ImageView memberImage, Activity activity) {
+				this.memberImage = memberImage;
+				this.activity = activity;
+				this.tag = memberImage.getTag().toString();
+			}
+
+			@Override
+			protected Bitmap doInBackground(String... params) {
+
+				YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
+				Bitmap image;
+				synchronized (activity.getBaseContext()) {
+					try {
+						image = proxy.getMemberImage(params[0], params[1], errFlg);
+					} catch (Exception e) {
+						errFlg[0] = true;
+						image = BitmapFactory.decodeResource(getResources(), R.drawable.icon);
+					}
+					return image;
+				}
+			}
+
+			@Override
+			protected void onPostExecute(Bitmap image) {
+				if (errFlg[0]) {
+					Toast.makeText(getBaseContext(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+				}
+				if (tag.equals(memberImage.getTag().toString()))
+					this.memberImage.setImageBitmap(image);
+				this.memberImage.setVisibility(View.VISIBLE);
+			}
 		}
 	}
 

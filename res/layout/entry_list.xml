@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 
-		<Button android:id="@+id/post_button"
-			android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="right"></Button>
-
 	<ListView android:id="@+id/listView1" android:layout_width="fill_parent"
-		android:layout_height="fill_parent"></ListView>
-</LinearLayout>
+		android:layout_height="fill_parent" android:paddingBottom="36px" android:fadingEdge="none"></ListView>
+	<LinearLayout android:id="@+id/linearLayout1"
+		android:layout_height="wrap_content" android:layout_gravity="bottom"
+		android:orientation="horizontal" android:layout_width="fill_parent" android:background="#00000000">
+		<ImageButton android:id="@+id/post_button"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:src="@drawable/post_image" android:background="@null"
+			android:layout_weight="1" android:minWidth="0px"
+			android:layout_gravity="center"></ImageButton>
+		<ImageButton android:id="@+id/reload_button"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:src="@drawable/reload_image" android:background="@null"
+			android:layout_weight="1" android:minWidth="0px"
+			android:layout_gravity="center" android:visibility="invisible"></ImageButton>
+	</LinearLayout>
+</FrameLayout>
