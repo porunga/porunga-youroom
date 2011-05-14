@@ -6,10 +6,11 @@
     <string name="login_button">ログイン</string>
     <string name="reacquire_group">更新</string>
     <string name="post_button">投稿する</string>
-    <string name="now_posting">投稿中</string>
+    <string name="now_posting">投稿中...</string>
     <string name="post_ok">投稿しました</string>
     <string name="post_ng">投稿に失敗しました</string>
     <string name="deps_max">これ以上はコメントできません</string>
+    <string name="content_empty">おや？操作ミスですか？</string>
     <string name="over_char_num">文字数が140文字を超えています</string>
     <string name="network_error">おや？回線の調子が悪いようです。後ほどやりなおしてください。</string>
     <string name="reacquire_room">更新</string>

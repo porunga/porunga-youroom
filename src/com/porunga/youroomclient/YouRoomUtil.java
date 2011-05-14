@@ -19,7 +19,6 @@ public class YouRoomUtil extends ContextWrapper {
 	private String TOKEN_MAP_KEY = "oauth_token";
 	private String TOKEN_SECRET_MAP_KEY = "oauth_token_secret";
 
-
 	public YouRoomUtil(Context base) {
 		super(base);
 	}
@@ -183,10 +182,12 @@ public class YouRoomUtil extends ContextWrapper {
 
 		SimpleDateFormat format = new SimpleDateFormat("HH:mm");
 
-//		if ((milliseconds/1000) < 60) {
-//			return String.valueOf((milliseconds/1000) + "秒前");
-//		}else 
+		// if ((milliseconds/1000) < 60) {
+		// return String.valueOf((milliseconds/1000) + "秒前");
+		// }else
 		if (milliseconds / (1000 * 60) < 60) {
+			return String.valueOf("0分前");
+		} else if (milliseconds / (1000 * 60) < 60) {
 			return String.valueOf(milliseconds / (1000 * 60) + "分前");
 		} else if (milliseconds / (1000 * 60 * 60) < 24) {
 			return String.valueOf(milliseconds / (1000 * 60 * 60) + "時間前");
