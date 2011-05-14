@@ -185,7 +185,7 @@ public class YouRoomUtil extends ContextWrapper {
 		// if ((milliseconds/1000) < 60) {
 		// return String.valueOf((milliseconds/1000) + "秒前");
 		// }else
-		if (milliseconds / (1000 * 60) < 60) {
+		if (milliseconds / (1000 * 60) < 0) {
 			return String.valueOf("0分前");
 		} else if (milliseconds / (1000 * 60) < 60) {
 			return String.valueOf(milliseconds / (1000 * 60) + "分前");

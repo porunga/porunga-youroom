@@ -8,7 +8,7 @@
 		<ImageView android:layout_height="wrap_content" android:id="@+id/level"
 			android:layout_width="wrap_content" android:minHeight="16px"
 			android:layout_gravity="left"></ImageView>
-		<ImageView android:src="@drawable/icon"
+		<ImageView android:src="@drawable/default_member_image"
 			android:id="@+id/member_image" android:layout_gravity="top"
 			android:minHeight="48px" android:minWidth="48px" android:layout_height="48px" android:layout_width="48px" android:scaleType="centerInside"></ImageView>
 		<LinearLayout android:layout_width="fill_parent"
