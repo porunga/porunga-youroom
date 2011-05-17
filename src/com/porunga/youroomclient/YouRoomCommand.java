@@ -103,7 +103,7 @@ public class YouRoomCommand {
 	}
 
 	public Bitmap getImage(String api) throws YouRoomServerException {
-		Log.i("ACCESS", "getRoomImage");
+		Log.i("ACCESS", "getImage");
 
 		String method = "GET";
 //		String api = "https://www.youroom.in/r/" + roomId + "/picture";

@@ -14,7 +14,7 @@
 			android:layout_width="fill_parent">
 		<LinearLayout android:id="@+id/post_layout"
 			android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="right"
-			android:layout_width="wrap_content" android:padding="10px" android:fitsSystemWindows="true">
+			android:layout_width="wrap_content" android:padding="10dip" android:fitsSystemWindows="true">
 			<ImageView android:id="@+id/post_button"
 				android:layout_width="wrap_content" android:layout_height="wrap_content"
 				android:saveEnabled="true" android:layout_gravity="center"
@@ -23,7 +23,7 @@
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:layout_gravity="center"
 				android:text="@string/post_button" android:id="@+id/post_text"
-				android:layout_margin="5px" android:gravity="right"></TextView>
+				android:layout_margin="5dip" android:gravity="right"></TextView>
 		</LinearLayout>
 	</LinearLayout>
 </LinearLayout>

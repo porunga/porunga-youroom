@@ -3,19 +3,19 @@
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 	<ListView android:id="@+id/listView1" android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:paddingBottom="36px" android:fadingEdge="none"></ListView>
+		android:layout_height="fill_parent" android:paddingBottom="36dip" android:fadingEdge="none"></ListView>
 	<LinearLayout android:id="@+id/linearLayout1"
 		android:layout_height="wrap_content" android:layout_gravity="bottom"
 		android:orientation="horizontal" android:layout_width="fill_parent" android:background="@drawable/transecate_background">
 		<ImageButton android:id="@+id/post_button"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:src="@drawable/post_image" android:background="@null"
-			android:layout_weight="1" android:minWidth="0px"
+			android:layout_weight="1" android:minWidth="0dip"
 			android:layout_gravity="center"></ImageButton>
 		<ImageButton android:id="@+id/reload_button"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:src="@drawable/reload_image" android:background="@null"
-			android:layout_weight="1" android:minWidth="0px"
+			android:layout_weight="1" android:minWidth="0dip"
 			android:layout_gravity="center"></ImageButton>
 	</LinearLayout>
 
