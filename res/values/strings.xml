@@ -18,6 +18,11 @@
     <string name="setting">設定</string>
     <string name="updateTimePreferenceTitle">定期新着確認</string>
     <string name="notificationPreferenceTitle">新着通知</string>
+    <string name="deleteCachePreferenceTitle">キャッシュの削除</string>
+    <string name="deleteCache">キャッシュを削除する</string>
+    <string name="deleteCacheSummary">全てのルームのキャッシュを削除する</string>
+    <string name="deleteCacheDialogTitle">キャッシュを削除しますか？</string>
+    <string name="deleteCacheDialogMessage">キャッシュを削除すると、キャッシュ再構築のため次回起動時には時間がかかります</string>
     <string name="now_loading">読み込み中</string>
     <string name="display_attachment">添付：</string>
     <string name="attachment_type_text">ロングテキスト</string>
