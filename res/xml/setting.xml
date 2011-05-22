@@ -9,9 +9,9 @@
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:title="@string/deleteCachePreferenceTitle">
-		<com.porunga.youroomclient.DeleteCacheDialogPreference
+		<com.porunga.youroomclient.CacheDeleteDialogPreference
 			android:title="@string/deleteCache"
 			android:summary="@string/deleteCacheSummary">
-		</com.porunga.youroomclient.DeleteCacheDialogPreference>
+		</com.porunga.youroomclient.CacheDeleteDialogPreference>
 	</PreferenceCategory>
 </PreferenceScreen>
