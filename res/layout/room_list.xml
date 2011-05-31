@@ -6,7 +6,7 @@
 		android:layout_height="fill_parent" android:paddingBottom="36dip" android:fadingEdge="none"></ListView>
 	<LinearLayout android:id="@+id/linearLayout1"
 		android:layout_height="wrap_content" android:layout_gravity="bottom"
-		android:orientation="horizontal" android:layout_width="fill_parent" android:background="@drawable/transecate_background">
+		android:orientation="horizontal" android:layout_width="fill_parent" android:background="@drawable/transparent_background">
 		<ImageButton android:id="@+id/post_button"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:src="@drawable/post_image" android:background="@null"

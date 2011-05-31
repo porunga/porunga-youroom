@@ -124,6 +124,7 @@ public class YouRoomCommandProxy {
 
 	public ArrayList<YouRoomGroup> getMyGroupList(boolean[] errFlg) {
 		ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
+		
 		try {
 			String myGroups = youRoomCommand.getMyGroup();
 			cacheDb.beginTransaction();
@@ -171,6 +172,7 @@ public class YouRoomCommandProxy {
 					(new ObjectOutputStream(baos)).writeObject(group);
 					cacheDb.execSQL("delete from rooms where roomId = ?;", new String[] { roomId });
 					cacheDb.execSQL("insert into rooms(roomId, room) values(?, ?) ;", new Object[] { roomId, baos.toByteArray() });
+					
 				}
 				cacheDb.setTransactionSuccessful();
 			} finally {
@@ -180,7 +182,8 @@ public class YouRoomCommandProxy {
 			e.printStackTrace();
 			Log.w("NW", "Network Error occured");
 			errFlg[0] = true;
-
+			dataList.clear();
+			
 			Cursor c = null;
 			try {
 				c = cacheDb.rawQuery("select room from rooms ;", new String[] {});
@@ -211,6 +214,32 @@ public class YouRoomCommandProxy {
 		return dataList;
 	}
 
+	public ArrayList<YouRoomGroup> getMyGroupListFromCache() {
+		ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
+		Cursor c = null;
+		try {
+			c = cacheDb.rawQuery("select room from rooms ;", new String[] {});
+			if (c.moveToFirst()) {
+				do {
+					ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(c.getBlob(0)));
+					dataList.add((YouRoomGroup) ois.readObject());
+				} while (c.moveToNext());
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			throw new RuntimeException(e1);
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+
+		String currentTime = YouRoomUtil.getRFC3339FormattedTime();
+		youRoomUtil.storeAccessTime(currentTime);
+
+		return dataList;
+	}
+	
 	public ArrayList<YouRoomEntry> acquireHomeEntryList(Map<String, String> parameterMap, boolean[] errFlg) {
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 		try {

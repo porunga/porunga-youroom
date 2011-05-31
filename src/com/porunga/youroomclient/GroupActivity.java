@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -55,14 +56,20 @@ public class GroupActivity extends Activity {
 			login_button.setOnClickListener(loginClickListener);
 
 		} else {
+			requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
 			setContentView(R.layout.group_view);
 
 			progressDialog = new ProgressDialog(this);
 			setProgressDialog(progressDialog);
-			progressDialog.show();
 
 			ListView listView = (ListView) findViewById(R.id.listView1);
 			ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
+			YouRoomCommandProxy proxy = new YouRoomCommandProxy(this);
+			dataList = proxy.getMyGroupListFromCache();
+			if (dataList.isEmpty())
+				progressDialog.show();
+
 			GetGroupTask task = new GetGroupTask(this);
 			task.execute();
 
@@ -95,8 +102,8 @@ public class GroupActivity extends Activity {
 					ListView listView = (ListView) parent;
 					YouRoomGroup item = (YouRoomGroup) listView.getItemAtPosition(position);
 					String roomId = String.valueOf(item.getId());
-					SQLiteDatabase cacheDb = ((AppHolder)getApplication()).getCacheDb();
-					cacheDb.execSQL("delete from rooms where roomId = ?;",new String[] {roomId});
+					SQLiteDatabase cacheDb = ((AppHolder) getApplication()).getCacheDb();
+					cacheDb.execSQL("delete from rooms where roomId = ?;", new String[] { roomId });
 					return true;
 				}
 			});
@@ -134,7 +141,7 @@ public class GroupActivity extends Activity {
 			adapter.clear();
 			GetGroupTask task = new GetGroupTask(this);
 			task.execute();
-			((AppHolder)getApplication()).clearDirty();
+			((AppHolder) getApplication()).clearDirty();
 			ret = true;
 			break;
 		case SETTING:
@@ -152,11 +159,12 @@ public class GroupActivity extends Activity {
 	// ListViewカスタマイズ用のArrayAdapter
 	public class YouRoomGroupAdapter extends ArrayAdapter<YouRoomGroup> {
 		private LayoutInflater inflater;
-		//private ArrayList<YouRoomGroup> items;
+
+		// private ArrayList<YouRoomGroup> items;
 
 		public YouRoomGroupAdapter(Context context, int textViewResourceId, ArrayList<YouRoomGroup> items) {
 			super(context, textViewResourceId, items);
-			//this.items = items;
+			// this.items = items;
 			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
@@ -171,11 +179,11 @@ public class GroupActivity extends Activity {
 			TextView updateTime = null;
 
 			if (group != null) {
-				roomImage = (ImageView)view.findViewById(R.id.room_image);
+				roomImage = (ImageView) view.findViewById(R.id.room_image);
 				name = (TextView) view.findViewById(R.id.textView1);
 				updateTime = (TextView) view.findViewById(R.id.textView2);
 			}
-			if (roomImage != null){
+			if (roomImage != null) {
 				byte[] data = group.getRoomImage();
 				roomImage.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
 			}
@@ -200,74 +208,17 @@ public class GroupActivity extends Activity {
 		}
 	}
 
-//	private ArrayList<YouRoomGroup> getMyGroupList() {
-//
-//		// input
-//		// output [YouRoomGroup...] or []
-//
-//		YouRoomUtil youRoomUtil = new YouRoomUtil(getApplication());
-//		HashMap<String, String> oAuthTokenMap = youRoomUtil.getOauthTokenFromLocal();
-//		YouRoomCommand youRoomCommand = new YouRoomCommand(oAuthTokenMap);
-//		String myGroups = youRoomCommand.getMyGroup();
-//		ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
-//
-//		try {
-//			JSONArray jsons = new JSONArray(myGroups);
-//			for (int i = 0; i < jsons.length(); i++) {
-//				YouRoomGroup group = new YouRoomGroup();
-//				JSONObject jObject = jsons.getJSONObject(i);
-//				JSONObject groupObject = jObject.getJSONObject("group");
-//
-//				int id = groupObject.getInt("id");
-//				String name = groupObject.getString("name");
-//
-//				String createdTime = groupObject.getString("created_at");
-//				String updatedTime = groupObject.getString("updated_at");
-//
-//				group.setId(id);
-//				group.setName(name);
-//				group.setUpdatedTime(updatedTime);
-//				group.setCreatedTime(createdTime);
-//
-//				String roomId = String.valueOf(id);
-//				String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
-//				String time;
-//				if (lastAccessTime == null) {
-//					time = youRoomUtil.getAccessTime();
-//					if (time == null) { // ここに入ることはないはず。
-//						time = YouRoomUtil.getRFC3339FormattedTime();
-//					}
-//					youRoomUtil.storeRoomAccessTime(roomId, time);
-//				}
-//
-//				UserSession session = UserSession.getInstance();
-//				roomId = String.valueOf(id);
-//				lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
-//				session.setRoomAccessTime(roomId, lastAccessTime);
-//
-//				dataList.add(group);
-//			}
-//		} catch (JSONException e) {
-//			e.printStackTrace();
-//		}
-//
-//		// 暫定的なチェック
-//		// String lastAccessTime = youRoomUtil.getAccessTime();
-//		// UserSession session = UserSession.getInstance();
-//		// session.setLastAccessTime(lastAccessTime);
-//		// String currentTime = YouRoomUtil.getYesterdayFormattedTime();
-//		String currentTime = YouRoomUtil.getRFC3339FormattedTime();
-//		youRoomUtil.storeAccessTime(currentTime);
-//
-//		return dataList;
-//	}
-
 	public class GetGroupTask extends AsyncTask<Void, Void, ArrayList<YouRoomGroup>> {
 		private Activity activity;
-		private boolean[] errFlg = {false};
-		
+		private boolean[] errFlg = { false };
+
 		public GetGroupTask(Activity activity) {
 			this.activity = activity;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			setProgressBarIndeterminateVisibility(true);
 		}
 
 		@Override
@@ -282,15 +233,17 @@ public class GroupActivity extends Activity {
 			if (errFlg[0]) {
 				Toast.makeText(getBaseContext(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
 			}
-//			Iterator iterator = dataList.iterator();
-//			while (iterator.hasNext()) {
-//				adapter.add((YouRoomGroup) iterator.next());
-//			}
-			for(YouRoomGroup group : dataList) {
+			// Iterator iterator = dataList.iterator();
+			// while (iterator.hasNext()) {
+			// adapter.add((YouRoomGroup) iterator.next());
+			// }
+			for (YouRoomGroup group : dataList) {
 				adapter.add(group);
 			}
 			adapter.notifyDataSetChanged();
 			progressDialog.dismiss();
+			setProgressBarIndeterminateVisibility(false);
+
 		}
 	}
 

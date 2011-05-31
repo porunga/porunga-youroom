@@ -186,7 +186,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 					level.setImageResource(R.drawable.level_image6);
 					break;
 				default:
-					level.setImageResource(R.drawable.transecate_background);
+					level.setImageResource(R.drawable.transparent_background);
 				}
 				// String commentLevel = "";
 				//
