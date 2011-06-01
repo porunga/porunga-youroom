@@ -237,6 +237,7 @@ public class GroupActivity extends Activity {
 			// while (iterator.hasNext()) {
 			// adapter.add((YouRoomGroup) iterator.next());
 			// }
+			adapter.clear();
 			for (YouRoomGroup group : dataList) {
 				adapter.add(group);
 			}

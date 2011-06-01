@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 public class CreateEntryActivity extends Activity implements OnClickListener {
 	private static final String POST_OK = "201";
-	private static final int MAX_CHAR_NUM = 140;
+	private static final int MAX_CHAR_NUM = 280;
 	protected boolean postable = false;
 	private EditText entryContentText;
 	protected ProgressDialog dialog;
