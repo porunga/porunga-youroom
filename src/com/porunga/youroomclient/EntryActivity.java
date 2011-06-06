@@ -3,6 +3,8 @@ package com.porunga.youroomclient;
 import java.util.ArrayList;
 import java.util.concurrent.RejectedExecutionException;
 
+import com.porunga.youroomclient.RoomActivity.DestroyEntryTask;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -12,6 +14,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,24 +29,31 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.porunga.youroomclient.RoomActivity.YouRoomEntryAdapter.DownloadImageTask;
-
 public class EntryActivity extends Activity implements OnClickListener {
-	String roomId;
-	YouRoomChildEntryAdapter adapter;
-	ProgressDialog progressDialog;
-	int parentEntryCount;
-	int requestCount;
-	Intent intent;
-	String rootId;
+
+	private static final int RELOAD = 0;
+	private static final int EDIT = 3;
+	private static final int DELETE = 4;
+	private String roomId;
+	private YouRoomChildEntryAdapter adapter;
+	private ProgressDialog progressDialog;
+	private int parentEntryCount;
+	private int requestCount;
+	private Intent intent;
+	private String rootId;
 
 	private final static int MAX_LEVEL = 6;
-	private ContentsDialogUtil contentsDialogUtil = new ContentsDialogUtil(this);
+
+	private MainHandler handler = new MainHandler();
+	private ContentsDialogUtil contentsDialogUtil;
+
+	protected YouRoomCommandProxy proxy;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.entry_list);
+		contentsDialogUtil = new ContentsDialogUtil(this, new YouRoomCommandProxy(this),handler);
 	}
 
 	@Override
@@ -57,8 +68,8 @@ public class EntryActivity extends Activity implements OnClickListener {
 		roomId = intent.getStringExtra("roomId");
 		YouRoomEntry pseudYouRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
 		rootId = String.valueOf(pseudYouRoomEntry.getId());
+		proxy = new YouRoomCommandProxy(this);
 
-		YouRoomCommandProxy proxy = new YouRoomCommandProxy(this);
 		YouRoomEntry youRoomEntry = proxy.getEntry(roomId, rootId);
 
 		ImageButton postButton = (ImageButton) findViewById(R.id.post_button);
@@ -88,6 +99,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 					Toast.makeText(getBaseContext(), getString(R.string.deps_max), Toast.LENGTH_SHORT).show();
 				else {
 					Intent intentCreateEntry = new Intent(getApplication(), CreateEntryActivity.class);
+					intentCreateEntry.putExtra("action", "create");
 					intentCreateEntry.putExtra("roomId", String.valueOf(roomId));
 					intentCreateEntry.putExtra("youRoomEntry", item);
 					intentCreateEntry.putExtra("rootId", rootId);
@@ -236,7 +248,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 			return view;
 		}
-		
+
 		public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 			private ImageView memberImage;
 			private Activity activity;
@@ -252,7 +264,6 @@ public class EntryActivity extends Activity implements OnClickListener {
 			@Override
 			protected Bitmap doInBackground(String... params) {
 
-				YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
 				Bitmap image;
 				synchronized (activity.getBaseContext()) {
 					try {
@@ -350,6 +361,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 		// TODO Auto-generated method stub
 		YouRoomEntry youRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
 		Intent intentCreateEntry = new Intent(getApplication(), CreateEntryActivity.class);
+		intentCreateEntry.putExtra("action", "create");
 		intentCreateEntry.putExtra("roomId", String.valueOf(roomId));
 		intentCreateEntry.putExtra("youRoomEntry", youRoomEntry);
 		intentCreateEntry.putExtra("rootId", rootId);
@@ -358,4 +370,83 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 	}
 
+	private void destroyEntry(String[] params){
+		DestroyEntryTask task = new DestroyEntryTask(this);
+		task.execute(params);
+	}
+
+	public class DestroyEntryTask extends AsyncTask<String, Void, String> {
+		private Activity activity;
+		private ProgressDialog progressDialog;
+
+		public DestroyEntryTask(Activity activity) {
+			this.activity = activity;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			progressDialog = new ProgressDialog(activity);
+			progressDialog.setMessage(getString(R.string.now_deleting));
+			progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			progressDialog.show();
+		}
+
+		@Override
+		protected String doInBackground(String... params) {
+			YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
+			String status = "";
+			try {
+				status = proxy.destroyEntry(params[0], params[1], params[2]);
+			} catch (YouRoomServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return status;
+		}
+
+		@Override
+		protected void onPostExecute(String status) {
+			progressDialog.dismiss();
+			Toast.makeText(getBaseContext(), status, Toast.LENGTH_SHORT).show();
+			handler.sendEmptyMessage(RELOAD);
+		}
+	}
+
+	private class MainHandler extends Handler {
+
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+
+			case RELOAD: {
+				adapter.clear();
+				YouRoomEntry youRoomEntry = proxy.getEntry(roomId, rootId);
+				GetChildEntryTask task = new GetChildEntryTask();
+				try {
+					task.execute(youRoomEntry);
+				} catch (RejectedExecutionException e) {
+					// TODO
+					// AsyncTaskでは内部的にキューを持っていますが、このキューサイズを超えるタスクをexecuteすると、ブロックされずに例外が発生します。らしいので、一旦握りつぶしている
+					e.printStackTrace();
+				}
+				break;
+			}
+			case EDIT: {
+				Intent intent = new Intent(getApplication(), CreateEntryActivity.class);
+				intent.putExtra("action", "edit");
+				intent.putExtra("rootId", rootId);
+				intent.putExtra("roomId", roomId);
+				intent.putExtra("youRoomEntry", (YouRoomEntry) msg.obj);
+				startActivity(intent);
+				break;
+			}
+
+			case DELETE: {
+				String[] params = (String[]) msg.obj;
+				destroyEntry(params);
+				
+				break;
+			}
+			}
+		}
+	}
 }

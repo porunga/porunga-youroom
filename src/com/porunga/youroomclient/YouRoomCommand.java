@@ -176,6 +176,34 @@ public class YouRoomCommand {
 		}
 		return decodeResult;
 	}
+	
+	public String getCredentials() throws YouRoomServerException {
+		Log.i("ACCESS", "VerifyCredentials");
+
+		String method = "GET";
+		String api = "https://www.youroom.in/verify_credentials";
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("format", "json");
+
+		youRoomAccess.setMethod(method);
+		youRoomAccess.setApi(api);
+		youRoomAccess.setParameter(parameterMap);
+		HttpResponse objResponse = youRoomAccess.requestGet();
+		// TODO if (objResponse == null )
+
+		int statusCode = objResponse.getStatusLine().getStatusCode();
+		String decodeResult = "";
+		if (statusCode == HttpURLConnection.HTTP_OK) {
+			String result;
+			try {
+				result = EntityUtils.toString(objResponse.getEntity(), "UTF-8");
+				decodeResult = UnicodeEscape.decode(result);
+			} catch (Exception e) {
+				throw new YouRoomServerException(e);
+			}
+		}
+		return decodeResult;
+	}
 
 	public String acquireHomeTimeline(Map<String, String> parameterMap) throws YouRoomServerException {
 		Log.i("ACCESS", "acquireHomeTimeline");
@@ -219,6 +247,40 @@ public class YouRoomCommand {
 		youRoomAccess.setApi(api);
 		youRoomAccess.setParameter(parameterMap);
 		HttpResponse objResponse = youRoomAccess.requestPost();
+
+		int statusCode = objResponse.getStatusLine().getStatusCode();
+
+		return String.valueOf(statusCode);
+	}
+	
+	public String editEntry(String roomId, String entryId, String entryContent) throws YouRoomServerException {
+		Log.i("ACCESS", "editEntry");
+
+		String method = "PUT";
+		String api = "https://www.youroom.in/r/" + roomId + "/entries/"+entryId;
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("format", "json");
+		parameterMap.put("entry[content]", entryContent);
+
+		youRoomAccess.setMethod(method);
+		youRoomAccess.setApi(api);
+		youRoomAccess.setParameter(parameterMap);
+		HttpResponse objResponse = youRoomAccess.requestPut();
+
+		int statusCode = objResponse.getStatusLine().getStatusCode();
+
+		return String.valueOf(statusCode);
+	}
+	
+	public String destroyEntry(String roomId, String entryId) throws YouRoomServerException {
+		Log.i("ACCESS", "destroyEntry");
+
+		String method = "DELETE";
+		String api = "https://www.youroom.in/r/" + roomId + "/entries/"+entryId;
+		
+		youRoomAccess.setMethod(method);
+		youRoomAccess.setApi(api);
+		HttpResponse objResponse = youRoomAccess.requestDelete();
 
 		int statusCode = objResponse.getStatusLine().getStatusCode();
 

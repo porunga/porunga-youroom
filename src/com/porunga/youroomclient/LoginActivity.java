@@ -50,7 +50,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 		dialog.setMessage("ログインしています");
 		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 		dialog.show();
-
+		final YouRoomCommandProxy proxy = new YouRoomCommandProxy(this);
+		
 		(new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -62,6 +63,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 							// ログイン時間を起点とするため、ログイン時間を最終アクセス時間として記録
 							String currentTime = YouRoomUtil.getRFC3339FormattedTime();
 							youRoomUtil.storeAccessTime(currentTime);
+							proxy.getCredential(null);
 							startActivity(intent);
 							dialog.dismiss();
 							finish();

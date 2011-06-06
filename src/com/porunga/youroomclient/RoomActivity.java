@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.http.client.HttpClient;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +16,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -42,8 +45,12 @@ public class RoomActivity extends Activity implements OnClickListener {
 	private final int MAX_ROOM_COUNT = 10;
 	private final int FOOTER_MIN_HEIGHT = 65;
 	private final int REACQUIRE_ROOM = 1;
+	private static final int RELOAD = 0;
+	private static final int EDIT = 3;
+	private static final int DELETE = 4;
 
-	private ContentsDialogUtil contentsDialogUtil = new ContentsDialogUtil(this);
+	private MainHandler handler = new MainHandler();
+	private ContentsDialogUtil contentsDialogUtil;
 
 	// private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 
@@ -61,8 +68,8 @@ public class RoomActivity extends Activity implements OnClickListener {
 		// postButton.setText(getString(R.string.post_button));
 		postButton.setOnClickListener(this);
 
-		ImageButton updateButton = (ImageButton) findViewById(R.id.reload_button);
-		updateButton.setOnClickListener(this);
+		ImageButton reloadButton = (ImageButton) findViewById(R.id.reload_button);
+		reloadButton.setOnClickListener(this);
 
 		Intent intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
@@ -77,6 +84,8 @@ public class RoomActivity extends Activity implements OnClickListener {
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 		adapter = new YouRoomEntryAdapter(this, R.layout.room_list_item, dataList);
 		listView.setAdapter(adapter);
+		
+		contentsDialogUtil = new ContentsDialogUtil(this, new YouRoomCommandProxy(this),handler);
 	}
 
 	@Override
@@ -123,6 +132,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 
 					} else if (item.getDescendantsCount() == 0) {
 						Intent intent = new Intent(getApplication(), CreateEntryActivity.class);
+						intent.putExtra("action", "create");
 						intent.putExtra("roomId", String.valueOf(roomId));
 						intent.putExtra("youRoomEntry", item);
 
@@ -259,7 +269,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 					attachmentType.setText(sb.toString());
 				}
 			}
-			
+
 			if (memberImageView != null) {
 				memberImageView.setImageResource(R.drawable.default_member_image);
 				String participationId = roomEntry.getParticipationId();
@@ -420,7 +430,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 			setProgressDialog(progressDialog);
 			progressDialog.show();
 		}
-		
+
 		@Override
 		protected ArrayList<YouRoomEntry> doInBackground(Void... ids) {
 			YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
@@ -465,23 +475,97 @@ public class RoomActivity extends Activity implements OnClickListener {
 		switch (view.getId()) {
 		case R.id.post_button:
 			Intent intent = new Intent(getApplication(), CreateEntryActivity.class);
+			intent.putExtra("action", "create");
 			intent.putExtra("roomId", String.valueOf(roomId));
 			intent.putExtra("youRoomEntry", new YouRoomEntry());
 			startActivity(intent);
 			break;
 
-		case R.id.reload_button:	
-			adapter.clear();
-			page = 1;
-			Map<String, String> parameterMap = new HashMap<String, String>();
-			parameterMap.put("page", String.valueOf(page));
-			footerView.setMinHeight(FOOTER_MIN_HEIGHT);
-			footerView.setVisibility(View.GONE);
-			((AppHolder) getApplication()).setDirty(roomId, true);
-			GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap, this);
-			task.execute();
-			page++;
+		case R.id.reload_button:
+			reloadList();
 			break;
+		}
+	}
+
+	private void reloadList() {
+		adapter.clear();
+		page = 1;
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("page", String.valueOf(page));
+		footerView.setMinHeight(FOOTER_MIN_HEIGHT);
+		footerView.setVisibility(View.GONE);
+		((AppHolder) getApplication()).setDirty(roomId, true);
+		GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap, this);
+		task.execute();
+		page++;
+	}
+	
+	private void destroyEntry(String[] params){
+		DestroyEntryTask task = new DestroyEntryTask(this);
+		task.execute(params);
+	}
+
+	public class DestroyEntryTask extends AsyncTask<String, Void, String> {
+		private Activity activity;
+		private ProgressDialog progressDialog;
+
+		public DestroyEntryTask(Activity activity) {
+			this.activity = activity;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			progressDialog = new ProgressDialog(activity);
+			progressDialog.setMessage(getString(R.string.now_deleting));
+			progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			progressDialog.show();
+		}
+
+		@Override
+		protected String doInBackground(String... params) {
+			YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
+			String status = "";
+			try {
+				status = proxy.destroyEntry(params[0], params[1], params[2]);
+			} catch (YouRoomServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return status;
+		}
+
+		@Override
+		protected void onPostExecute(String status) {
+			progressDialog.dismiss();
+			Toast.makeText(getBaseContext(), status, Toast.LENGTH_SHORT).show();
+			handler.sendEmptyMessage(RELOAD);
+		}
+	}
+
+	private class MainHandler extends Handler {
+
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+
+			case RELOAD: {
+				reloadList();
+				break;
+			}
+			case EDIT: {
+				Intent intent = new Intent(getApplication(), CreateEntryActivity.class);
+				intent.putExtra("action", "edit");
+				intent.putExtra("roomId", String.valueOf(roomId));
+				intent.putExtra("youRoomEntry", (YouRoomEntry) msg.obj);
+				startActivity(intent);
+				break;
+			}
+			case DELETE: {
+				String[] params = (String[]) msg.obj;
+				destroyEntry(params);
+				
+				break;
+			}
+			}
 		}
 	}
 }

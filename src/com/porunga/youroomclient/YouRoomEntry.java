@@ -11,7 +11,7 @@ public class YouRoomEntry implements Serializable {
 	private int id = -1;
 	private String content;
 	private int rootId;
-	private int parentId;
+	private int parentId = 0;
 	private String createdTime;
 	private String updatedTime;
 	private int descendantsCount = -1;
@@ -135,7 +135,7 @@ public class YouRoomEntry implements Serializable {
 	public void setAttachmentType(String attachmentType) {
 		this.attachmentType = attachmentType;
 	}
-	
+
 	public String getFileName() {
 		return fileName;
 	}

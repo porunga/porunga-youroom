@@ -2,7 +2,6 @@ package com.porunga.youroomclient;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -13,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.Service;
 import android.content.Context;
 import android.database.Cursor;
@@ -30,6 +30,7 @@ public class YouRoomCommandProxy {
 	private YouRoomUtil youRoomUtil = null;
 
 	public YouRoomCommandProxy(Activity activity) {
+		Application app = activity.getApplication();
 		appHolder = (AppHolder) activity.getApplication();
 		init(activity);
 	}
@@ -109,7 +110,7 @@ public class YouRoomCommandProxy {
 				throw new RuntimeException(e);
 			}
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			memberImage.compress(Bitmap.CompressFormat.PNG, 50 ,bout);
+			memberImage.compress(Bitmap.CompressFormat.PNG, 50, bout);
 			image = bout.toByteArray();
 			cacheDb.beginTransaction();
 			try {
@@ -124,7 +125,7 @@ public class YouRoomCommandProxy {
 
 	public ArrayList<YouRoomGroup> getMyGroupList(boolean[] errFlg) {
 		ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
-		
+
 		try {
 			String myGroups = youRoomCommand.getMyGroup();
 			cacheDb.beginTransaction();
@@ -172,7 +173,7 @@ public class YouRoomCommandProxy {
 					(new ObjectOutputStream(baos)).writeObject(group);
 					cacheDb.execSQL("delete from rooms where roomId = ?;", new String[] { roomId });
 					cacheDb.execSQL("insert into rooms(roomId, room) values(?, ?) ;", new Object[] { roomId, baos.toByteArray() });
-					
+
 				}
 				cacheDb.setTransactionSuccessful();
 			} finally {
@@ -182,25 +183,27 @@ public class YouRoomCommandProxy {
 			e.printStackTrace();
 			Log.w("NW", "Network Error occured");
 			errFlg[0] = true;
-			dataList.clear();
-			
-			Cursor c = null;
-			try {
-				c = cacheDb.rawQuery("select room from rooms ;", new String[] {});
-				if (c.moveToFirst()) {
-					do {
-						ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(c.getBlob(0)));
-						dataList.add((YouRoomGroup) ois.readObject());
-					} while (c.moveToNext());
-				}
-			} catch (Exception e1) {
-				e1.printStackTrace();
-				throw new RuntimeException(e1);
-			} finally {
-				if (c != null) {
-					c.close();
-				}
-			}
+			// dataList.clear();
+			//
+			// Cursor c = null;
+			// try {
+			// c = cacheDb.rawQuery("select room from rooms ;", new String[]
+			// {});
+			// if (c.moveToFirst()) {
+			// do {
+			// ObjectInputStream ois = new ObjectInputStream(new
+			// ByteArrayInputStream(c.getBlob(0)));
+			// dataList.add((YouRoomGroup) ois.readObject());
+			// } while (c.moveToNext());
+			// }
+			// } catch (Exception e1) {
+			// e1.printStackTrace();
+			// throw new RuntimeException(e1);
+			// } finally {
+			// if (c != null) {
+			// c.close();
+			// }
+			// }
 		}
 
 		// 暫定的なチェック
@@ -239,7 +242,7 @@ public class YouRoomCommandProxy {
 
 		return dataList;
 	}
-	
+
 	public ArrayList<YouRoomEntry> acquireHomeEntryList(Map<String, String> parameterMap, boolean[] errFlg) {
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 		try {
@@ -279,6 +282,56 @@ public class YouRoomCommandProxy {
 		}
 
 		return dataList;
+	}
+
+	public Credential getCredential(String roomId) {
+		Credential credential = new Credential();
+		Cursor c = null;
+		cacheDb.beginTransaction();
+		try {
+			if (roomId == null)
+				c = cacheDb.rawQuery("select * from credentials;", null);
+			else
+				c = cacheDb.rawQuery("select * from credentials where roomId = ?;", new String[] { roomId });
+			if (c.getCount() == 0) {
+				Log.i("CACHE", String.format("Credential Cache Miss [%s]", roomId));
+				JSONObject json = new JSONObject(youRoomCommand.getCredentials());
+				JSONArray participations = json.getJSONObject("user").getJSONArray("participations");
+				for (int i = 0; i < participations.length(); i++) {
+					JSONObject participation = participations.getJSONObject(i);
+
+					String groupId = String.valueOf(participation.getJSONObject("group").getInt("id"));
+					if (roomId == null || groupId.equals(roomId)) {
+						String participationId = String.valueOf(participation.getInt("id"));
+						int admin = participation.getBoolean("admin") ? 1 : 0;
+						credential.setParticipationId(participationId);
+						credential.setRoomId(groupId);
+						credential.setAdmin(admin);
+						cacheDb.execSQL("insert into credentials(roomId, participationId, admin) values(?, ?, ?) ;", new Object[] { groupId, participationId, admin });
+					}
+				}
+				cacheDb.setTransactionSuccessful();
+			} else {
+				Log.i("CACHE", String.format("Credentials Cache Hit  [%s]", roomId));
+				if (c.getCount() == 1) {
+					c.moveToFirst();
+					credential.setRoomId(c.getString(0));
+					credential.setParticipationId(c.getString(1));
+					credential.setAdmin(c.getInt(2));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.w("NW", "Network Error occured");
+
+		} finally {
+			cacheDb.endTransaction();
+			if (c != null) {
+				c.close();
+			}
+		}
+
+		return credential;
 	}
 
 	public ArrayList<YouRoomEntry> getRoomEntryList(String roomId, Map<String, String> parameterMap, boolean[] errFlg) {
@@ -458,11 +511,15 @@ public class YouRoomCommandProxy {
 		return entry;
 	}
 
-	public String createEntry(String roomId, String parentId, String entryContent, String rootId) {
+	public String postEntry(String roomId, String parentId, String entryContent, String rootId, String action) {
 		cacheDb.beginTransaction();
 		String statusCode = null;
 		try {
-			statusCode = youRoomCommand.createEntry(roomId, parentId, entryContent);
+			if (action.equals("create"))
+				statusCode = youRoomCommand.createEntry(roomId, parentId, entryContent);
+			else
+				statusCode = youRoomCommand.editEntry(roomId, parentId, entryContent);
+
 			if (POST_OK.equals(statusCode)) {
 				appHolder.setDirty(roomId, true);
 				if (rootId != null) {
@@ -485,10 +542,45 @@ public class YouRoomCommandProxy {
 		return statusCode;
 	}
 
+	public String destroyEntry(String roomId, String entryId, String rootId) throws YouRoomServerException {
+		cacheDb.beginTransaction();
+		String statusCode = null;
+		try {
+
+			statusCode = youRoomCommand.destroyEntry(roomId, entryId);
+
+			// if (POST_OK.equals(statusCode)) {
+			appHolder.setDirty(roomId, true);
+			if (rootId != null) {
+				JSONObject json = (new JSONObject(youRoomCommand.getEntry(roomId, rootId))).getJSONObject("entry");
+				YouRoomEntry entry = buildEntryFromJson(json);
+				String updatedTime = entry.getUpdatedTime();
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				(new ObjectOutputStream(baos)).writeObject(entry);
+				cacheDb.execSQL("delete from entries where entryId = ? and roomId = ? ;", new String[] { rootId, roomId });
+				cacheDb.execSQL("insert into entries(entryId, roomId, updatedTime, entry) values(?, ?, ?, ?) ;", new Object[] { rootId, roomId, updatedTime, baos.toByteArray() });
+				cacheDb.setTransactionSuccessful();
+			}
+			// }
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.w("NW", "Network Error occured");
+		} finally {
+			cacheDb.endTransaction();
+		}
+		return statusCode;
+	}
+
 	private YouRoomEntry buildEntryFromJson(JSONObject json) {
 		YouRoomEntry entry = new YouRoomEntry();
 		try {
-			entry.setId(json.getInt("id"));
+			int id = json.getInt("id");
+			int rootId = json.getInt("root_id");
+			entry.setId(id);
+			entry.setRootId(rootId);
+			if (id != rootId)
+				entry.setParentId(json.getInt("parent_id"));
+
 			entry.setParticipationName(json.getJSONObject("participation").getString("name"));
 			entry.setParticipationId(json.getJSONObject("participation").getString("id"));
 			entry.setCreatedTime(json.getString("created_at"));
