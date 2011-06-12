@@ -23,6 +23,7 @@ public class YouRoomEntry implements Serializable {
 	private String text = "";
 	private String link = "";
 	private String fileName = "";
+	private boolean canUpdate=false;
 
 	public int getLevel() {
 		return level;
@@ -142,5 +143,13 @@ public class YouRoomEntry implements Serializable {
 
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
+	}
+	
+	public boolean getCanUpdate() {
+		return canUpdate;
+	}
+
+	public void setCanUpdate(boolean canUpdate) {
+		this.canUpdate = canUpdate;
 	}
 }

@@ -587,6 +587,7 @@ public class YouRoomCommandProxy {
 			entry.setUpdatedTime(json.getString("updated_at"));
 			entry.setContent(json.getString("content"));
 			entry.setDescendantsCount(json.optInt("descendants_count"));
+			entry.setCanUpdate(json.getBoolean("can_update"));
 			if (json.has("attachment")) {
 				JSONObject attachment = json.getJSONObject("attachment");
 				entry.setAttachmentType(attachment.getString("attachment_type"));

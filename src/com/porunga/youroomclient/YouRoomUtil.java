@@ -18,6 +18,11 @@ public class YouRoomUtil extends ContextWrapper {
 	private SharedPreferences sharedpref;
 	private String TOKEN_MAP_KEY = "oauth_token";
 	private String TOKEN_SECRET_MAP_KEY = "oauth_token_secret";
+	
+	public static final int RELOAD = 0;
+	public static final int EDIT = 1;
+	public static final int DELETE = 2;
+	
 
 	public YouRoomUtil(Context base) {
 		super(base);

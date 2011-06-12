@@ -30,10 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class EntryActivity extends Activity implements OnClickListener {
-
-	private static final int RELOAD = 0;
-	private static final int EDIT = 3;
-	private static final int DELETE = 4;
+	
 	private String roomId;
 	private YouRoomChildEntryAdapter adapter;
 	private ProgressDialog progressDialog;
@@ -407,8 +404,8 @@ public class EntryActivity extends Activity implements OnClickListener {
 		@Override
 		protected void onPostExecute(String status) {
 			progressDialog.dismiss();
-			Toast.makeText(getBaseContext(), status, Toast.LENGTH_SHORT).show();
-			handler.sendEmptyMessage(RELOAD);
+//			Toast.makeText(getBaseContext(), status, Toast.LENGTH_SHORT).show();
+			handler.sendEmptyMessage(YouRoomUtil.RELOAD);
 		}
 	}
 
@@ -417,7 +414,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 
-			case RELOAD: {
+			case YouRoomUtil.RELOAD: {
 				adapter.clear();
 				YouRoomEntry youRoomEntry = proxy.getEntry(roomId, rootId);
 				GetChildEntryTask task = new GetChildEntryTask();
@@ -430,7 +427,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 				}
 				break;
 			}
-			case EDIT: {
+			case YouRoomUtil.EDIT: {
 				Intent intent = new Intent(getApplication(), CreateEntryActivity.class);
 				intent.putExtra("action", "edit");
 				intent.putExtra("rootId", rootId);
@@ -440,7 +437,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 				break;
 			}
 
-			case DELETE: {
+			case YouRoomUtil.DELETE: {
 				String[] params = (String[]) msg.obj;
 				destroyEntry(params);
 				

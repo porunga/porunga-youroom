@@ -30,11 +30,8 @@ import android.widget.Toast;
 
 public class ContentsDialogUtil extends YouRoomUtil {
 
-	private static final int RELOAD = 0; // アプリ共通
 	private static final int SHOW_IMAGE_DIALOG = 1;
 	private static final int SHOW_RESULT = 2;
-	private static final int EDIT = 3; // アプリ共通
-	private static final int DELETE = 4; // アプリ共通
 
 	private static final String ATTACHMENT_TYPE_TEXT = "Text";
 	private static final String ATTACHMENT_TYPE_LINK = "Link";
@@ -49,13 +46,10 @@ public class ContentsDialogUtil extends YouRoomUtil {
 	protected DialogHandler dialogHandler = new DialogHandler();
 	private Handler handler = null;
 	protected String status_code;
-	private Context base;
-	private YouRoomCommandProxy proxy;
 
 	public ContentsDialogUtil(Context base, YouRoomCommandProxy proxy, Handler handler) {
 		super(base);
 		this.handler = handler;
-		this.proxy = proxy;
 
 		// TODO Auto-generated constructor stub
 	}
@@ -87,10 +81,10 @@ public class ContentsDialogUtil extends YouRoomUtil {
 		for (URLSpan url : urls)
 			rows.add(new DialogContent(ATTACHMENT_TYPE_LINK, url.getURL()));
 
-		Credential credential = proxy.getCredential(roomId);
-		if (isEditable(roomId, item, credential))
+//		Credential credential = proxy.getCredential(roomId);
+		if (isEditable(item))
 			rows.add(new DialogContent(EDIT_ENTRY, getString(R.string.edit_entry)));
-		if (isDeletable(roomId, item, credential))
+		if (isDeletable(item))
 			rows.add(new DialogContent(DELETE_ENTRY, getString(R.string.delete_entry)));
 
 		DialogContentsAdapter adapter = new DialogContentsAdapter(this, R.layout.dialog_list_item, rows);
@@ -123,7 +117,7 @@ public class ContentsDialogUtil extends YouRoomUtil {
 						public void onClick(DialogInterface dialog, int id) {
 							String[] params = { roomId, entryId, rootId };
 							Message msg = new Message();
-							msg.what = DELETE;
+							msg.what = YouRoomUtil.DELETE;
 							msg.obj = params;
 							handler.sendMessage(msg);
 						}
@@ -132,7 +126,7 @@ public class ContentsDialogUtil extends YouRoomUtil {
 				}
 				if (category.equals(EDIT_ENTRY)) {
 					Message msg = new Message();
-					msg.what = EDIT;
+					msg.what = YouRoomUtil.EDIT;
 					msg.obj = item;
 					handler.sendMessage(msg);
 				}
@@ -148,25 +142,17 @@ public class ContentsDialogUtil extends YouRoomUtil {
 		}
 	}
 
-	private boolean isDeletable(String roomId, YouRoomEntry item, Credential credential) {
+	private boolean isDeletable(YouRoomEntry item) {
 
 		if (item.getParentId() == 0 || item.getChildren().size() == 0) {
-			if (credential.getAdmin() == 1)
-				return true;
-			if (credential.getParticipationId().equals(item.getParticipationId()))
-				return true;
+			return item.getCanUpdate();
 		}
+
 		return false;
 	}
 
-	private boolean isEditable(String roomId, YouRoomEntry item, Credential credential) {
-
-		if (credential.getAdmin() == 1)
-			return true;
-		if (credential.getParticipationId().equals(item.getParticipationId()))
-			return true;
-
-		return false;
+	private boolean isEditable(YouRoomEntry item) {
+		return item.getCanUpdate();
 	}
 
 	public class DialogContentsAdapter extends ArrayAdapter<DialogContent> {

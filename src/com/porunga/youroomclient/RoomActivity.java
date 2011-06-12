@@ -45,9 +45,6 @@ public class RoomActivity extends Activity implements OnClickListener {
 	private final int MAX_ROOM_COUNT = 10;
 	private final int FOOTER_MIN_HEIGHT = 65;
 	private final int REACQUIRE_ROOM = 1;
-	private static final int RELOAD = 0;
-	private static final int EDIT = 3;
-	private static final int DELETE = 4;
 
 	private MainHandler handler = new MainHandler();
 	private ContentsDialogUtil contentsDialogUtil;
@@ -537,8 +534,8 @@ public class RoomActivity extends Activity implements OnClickListener {
 		@Override
 		protected void onPostExecute(String status) {
 			progressDialog.dismiss();
-			Toast.makeText(getBaseContext(), status, Toast.LENGTH_SHORT).show();
-			handler.sendEmptyMessage(RELOAD);
+//			Toast.makeText(getBaseContext(), status, Toast.LENGTH_SHORT).show();
+			handler.sendEmptyMessage(YouRoomUtil.RELOAD);
 		}
 	}
 
@@ -547,11 +544,11 @@ public class RoomActivity extends Activity implements OnClickListener {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 
-			case RELOAD: {
+			case YouRoomUtil.RELOAD: {
 				reloadList();
 				break;
 			}
-			case EDIT: {
+			case YouRoomUtil.EDIT: {
 				Intent intent = new Intent(getApplication(), CreateEntryActivity.class);
 				intent.putExtra("action", "edit");
 				intent.putExtra("roomId", String.valueOf(roomId));
@@ -559,7 +556,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 				startActivity(intent);
 				break;
 			}
-			case DELETE: {
+			case YouRoomUtil.DELETE: {
 				String[] params = (String[]) msg.obj;
 				destroyEntry(params);
 				
