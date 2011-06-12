@@ -67,8 +67,6 @@ public class GroupActivity extends Activity {
 			ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
 			YouRoomCommandProxy proxy = new YouRoomCommandProxy(this);
 			dataList = proxy.getMyGroupListFromCache();
-			if (dataList.isEmpty())
-				progressDialog.show();
 
 			GetGroupTask task = new GetGroupTask(this);
 			task.execute();
@@ -232,16 +230,17 @@ public class GroupActivity extends Activity {
 		protected void onPostExecute(ArrayList<YouRoomGroup> dataList) {
 			if (errFlg[0]) {
 				Toast.makeText(getBaseContext(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+			} else {
+				// Iterator iterator = dataList.iterator();
+				// while (iterator.hasNext()) {
+				// adapter.add((YouRoomGroup) iterator.next());
+				// }
+				adapter.clear();
+				for (YouRoomGroup group : dataList) {
+					adapter.add(group);
+				}
+				adapter.notifyDataSetChanged();
 			}
-			// Iterator iterator = dataList.iterator();
-			// while (iterator.hasNext()) {
-			// adapter.add((YouRoomGroup) iterator.next());
-			// }
-			adapter.clear();
-			for (YouRoomGroup group : dataList) {
-				adapter.add(group);
-			}
-			adapter.notifyDataSetChanged();
 			progressDialog.dismiss();
 			setProgressBarIndeterminateVisibility(false);
 

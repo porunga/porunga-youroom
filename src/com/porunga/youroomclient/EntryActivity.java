@@ -3,8 +3,6 @@ package com.porunga.youroomclient;
 import java.util.ArrayList;
 import java.util.concurrent.RejectedExecutionException;
 
-import com.porunga.youroomclient.RoomActivity.DestroyEntryTask;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -21,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
@@ -30,7 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class EntryActivity extends Activity implements OnClickListener {
-	
+
 	private String roomId;
 	private YouRoomChildEntryAdapter adapter;
 	private ProgressDialog progressDialog;
@@ -38,6 +37,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 	private int requestCount;
 	private Intent intent;
 	private String rootId;
+	private boolean updateFlag = false;
 
 	private final static int MAX_LEVEL = 6;
 
@@ -49,8 +49,10 @@ public class EntryActivity extends Activity implements OnClickListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.entry_list);
-		contentsDialogUtil = new ContentsDialogUtil(this, new YouRoomCommandProxy(this),handler);
+		contentsDialogUtil = new ContentsDialogUtil(this, new YouRoomCommandProxy(this), handler);
 	}
 
 	@Override
@@ -64,26 +66,28 @@ public class EntryActivity extends Activity implements OnClickListener {
 		intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
 		YouRoomEntry pseudYouRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
+		updateFlag=intent.getBooleanExtra("update_flag", false);
 		rootId = String.valueOf(pseudYouRoomEntry.getId());
 		proxy = new YouRoomCommandProxy(this);
 
-		YouRoomEntry youRoomEntry = proxy.getEntry(roomId, rootId);
+		YouRoomEntry youRoomEntry = proxy.getEntryFromCache(roomId, rootId);
 
 		ImageButton postButton = (ImageButton) findViewById(R.id.post_button);
 		// postButton.setText(getString(R.string.post_button));
 		postButton.setOnClickListener(this);
-		parentEntryCount = youRoomEntry.getDescendantsCount();
+		// parentEntryCount = youRoomEntry.getDescendantsCount();
 
 		// TODO if String decodeResult = "";
 		ListView listView = (ListView) findViewById(R.id.listView1);
 
-		// progressDialog = new ProgressDialog(this);
-		// setProgressDialog(progressDialog);
-		// progressDialog.show();
-
-		int level = -1;
-		youRoomEntry.setLevel(level);
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
+
+		if (youRoomEntry != null) {
+			int level = -1;
+			youRoomEntry.setLevel(level);
+			addChildEntries(dataList, youRoomEntry, level);
+
+		}
 		adapter = new YouRoomChildEntryAdapter(this, R.layout.entry_list_item, dataList);
 		listView.setAdapter(adapter);
 
@@ -118,14 +122,15 @@ public class EntryActivity extends Activity implements OnClickListener {
 					return false;
 			}
 		});
-
-		GetChildEntryTask task = new GetChildEntryTask();
-		try {
-			task.execute(youRoomEntry);
-		} catch (RejectedExecutionException e) {
-			// TODO
-			// AsyncTaskでは内部的にキューを持っていますが、このキューサイズを超えるタスクをexecuteすると、ブロックされずに例外が発生します。らしいので、一旦握りつぶしている
-			e.printStackTrace();
+		if (updateFlag || dataList.size() ==0) {
+			GetChildEntryTask task = new GetChildEntryTask();
+			try {
+				task.execute(pseudYouRoomEntry);
+			} catch (RejectedExecutionException e) {
+				// TODO
+				// AsyncTaskでは内部的にキューを持っていますが、このキューサイズを超えるタスクをexecuteすると、ブロックされずに例外が発生します。らしいので、一旦握りつぶしている
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -300,6 +305,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 		// private String roomId;
 		private YouRoomEntry roomChildEntry;
 		private Object objLock = new Object();
+		private boolean[] errFlg = { false };
 
 		public GetChildEntryTask(String roomId) {
 			// this.roomId = roomId;
@@ -309,49 +315,48 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 		}
 
+		protected void onPreExecute() {
+			setProgressBarIndeterminateVisibility(true);
+		}
+
 		@Override
 		protected ArrayList<YouRoomEntry> doInBackground(YouRoomEntry... roomChildEntries) {
 			ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
-			roomChildEntries[0].setLevel(0);
-			dataList.add(roomChildEntries[0]);
-			for (YouRoomEntry child : roomChildEntries[0].getChildren()) {
+			YouRoomEntry item = proxy.getEntry(roomId, String.valueOf(roomChildEntries[0].getId()), roomChildEntries[0].getUpdatedTime(), errFlg);
+			item.setLevel(0);
+			dataList.add(item);
+			for (YouRoomEntry child : item.getChildren()) {
 				addChildEntries(dataList, child, 1);
 			}
 
 			return dataList;
 		}
 
-		// @Override
-		// protected void onProgressUpdate(Integer... progress) {
-		// progressDialog.setProgress(progress[0]);
-		// }
-
 		@Override
 		protected void onPostExecute(ArrayList<YouRoomEntry> dataChildList) {
-			synchronized (objLock) {
-				if (dataChildList.size() > 0) {
-					for (int i = 0; i < dataChildList.size(); i++) {
-						adapter.insert(dataChildList.get(i), adapter.getPosition(roomChildEntry) + i + 1);
+			if (errFlg[0]) {
+				Toast.makeText(getBaseContext(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+
+			} else {
+				adapter.clear();
+				synchronized (objLock) {
+					if (dataChildList.size() > 0) {
+						for (int i = 0; i < dataChildList.size(); i++) {
+							adapter.insert(dataChildList.get(i), adapter.getPosition(roomChildEntry) + i + 1);
+						}
 					}
+					requestCount++;
+					// publishProgress(requestCount);
+					Log.e("count", "requestCount = " + requestCount);
 				}
-				requestCount++;
-				// publishProgress(requestCount);
-				Log.e("count", "requestCount = " + requestCount);
+				adapter.notifyDataSetChanged();
 			}
-			adapter.notifyDataSetChanged();
+			setProgressBarIndeterminateVisibility(false);
 			// // 親が一回呼ばれるので+1
 			// if (parentEntryCount <= requestCount + 1)
 			// progressDialog.dismiss();
 		}
 	}
-
-	// public void setProgressDialog(ProgressDialog progressDialog) {
-	// progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	// progressDialog.setMessage("処理を実行しています");
-	// progressDialog.setIndeterminate(false);
-	// progressDialog.setMax(parentEntryCount);
-	// progressDialog.setCancelable(true);
-	// }
 
 	@Override
 	public void onClick(View v) {
@@ -367,7 +372,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 	}
 
-	private void destroyEntry(String[] params){
+	private void destroyEntry(String[] params) {
 		DestroyEntryTask task = new DestroyEntryTask(this);
 		task.execute(params);
 	}
@@ -404,7 +409,8 @@ public class EntryActivity extends Activity implements OnClickListener {
 		@Override
 		protected void onPostExecute(String status) {
 			progressDialog.dismiss();
-//			Toast.makeText(getBaseContext(), status, Toast.LENGTH_SHORT).show();
+			// Toast.makeText(getBaseContext(), status,
+			// Toast.LENGTH_SHORT).show();
 			handler.sendEmptyMessage(YouRoomUtil.RELOAD);
 		}
 	}
@@ -416,7 +422,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 			case YouRoomUtil.RELOAD: {
 				adapter.clear();
-				YouRoomEntry youRoomEntry = proxy.getEntry(roomId, rootId);
+				YouRoomEntry youRoomEntry = proxy.getEntryFromCache(roomId, rootId);
 				GetChildEntryTask task = new GetChildEntryTask();
 				try {
 					task.execute(youRoomEntry);
@@ -440,7 +446,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 			case YouRoomUtil.DELETE: {
 				String[] params = (String[]) msg.obj;
 				destroyEntry(params);
-				
+
 				break;
 			}
 			}
