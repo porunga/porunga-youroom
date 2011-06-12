@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -159,13 +160,15 @@ public class GroupActivity extends Activity {
 	// ListViewカスタマイズ用のArrayAdapter
 	public class YouRoomGroupAdapter extends ArrayAdapter<YouRoomGroup> {
 		private LayoutInflater inflater;
+		private Activity activity;
 
 		// private ArrayList<YouRoomGroup> items;
 
-		public YouRoomGroupAdapter(Context context, int textViewResourceId, ArrayList<YouRoomGroup> items) {
-			super(context, textViewResourceId, items);
+		public YouRoomGroupAdapter(Activity activity, int textViewResourceId, ArrayList<YouRoomGroup> items) {
+			super(activity, textViewResourceId, items);
 			// this.items = items;
-			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			this.activity = activity;
+			this.inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
 		public View getView(final int position, View convertView, ViewGroup parent) {
@@ -185,7 +188,15 @@ public class GroupActivity extends Activity {
 			}
 			if (roomImage != null) {
 				byte[] data = group.getRoomImage();
-				roomImage.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
+				Bitmap roomImageBitmap = null;
+				roomImage.setTag(String.valueOf(group.getId()));
+				if (data != null) {
+					roomImageBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+					roomImage.setImageBitmap(roomImageBitmap);
+				} else {
+					GetRoomImageTask getRoomImageTask = new GetRoomImageTask(roomImage, activity);
+					getRoomImageTask.execute(group);
+				}
 			}
 			if (name != null) {
 				name.setText(group.getName());
@@ -245,6 +256,50 @@ public class GroupActivity extends Activity {
 			progressDialog.dismiss();
 			setProgressBarIndeterminateVisibility(false);
 
+		}
+	}
+
+	public class GetRoomImageTask extends AsyncTask<YouRoomGroup, Void, Bitmap> {
+		private ImageView roomImage;
+		private Activity activity;
+		private YouRoomGroup group;
+		private boolean[] errFlg = { false };
+		private String tag;
+
+		public GetRoomImageTask(ImageView roomImage, Activity activity) {
+			this.roomImage = roomImage;
+			this.activity = activity;
+			this.tag = roomImage.getTag().toString();
+		}
+
+		@Override
+		protected Bitmap doInBackground(YouRoomGroup... params) {
+			Bitmap roomImageBitmap;
+			group = params[0];
+			String roomId = String.valueOf(group.getId());
+
+			YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
+			try {
+				roomImageBitmap = proxy.getRoomImageFromCache(roomId);
+				if (roomImageBitmap == null) {
+					roomImageBitmap = proxy.getRoomImage(roomId, errFlg);
+					group.setRoomImage(roomImageBitmap);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				errFlg[0] = true;
+				roomImageBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon);
+			}
+			return roomImageBitmap;
+		}
+
+		@Override
+		protected void onPostExecute(Bitmap roomImageBitmap) {
+			if (errFlg[0]) {
+				Toast.makeText(getBaseContext(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+			}
+			if (tag.equals(roomImage.getTag().toString()))
+				this.roomImage.setImageBitmap(roomImageBitmap);
 		}
 	}
 

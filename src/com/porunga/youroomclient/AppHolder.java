@@ -62,6 +62,7 @@ public class AppHolder extends Application {
 				db.execSQL("create table entries       (entryId text primary key, roomId text not null, updatedTime text not null, entry blob not null); ");
 				db.execSQL("create table timelines     (entryId text primary key, roomId text not null, page text not null, entry blob not null); ");
 				db.execSQL("create table memberImages (participationId text primary key, image blob not null); ");
+				db.execSQL("create table roomImages (roomId text primary key, image blob not null); ");
 				db.setTransactionSuccessful();
 			} finally {
 				db.endTransaction();

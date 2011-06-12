@@ -45,15 +45,41 @@ public class YouRoomCommandProxy {
 		youRoomUtil = new YouRoomUtil(context);
 	}
 
-	private Bitmap getRoomImage(String roomId) {
+	public Bitmap getRoomImage(String roomId, boolean[] errFlg) {
 		Bitmap roomImage = null;
-		YouRoomGroup group = null;
+		byte[] image = null;
+
+		try {
+			roomImage = youRoomCommand.getImage("https://www.youroom.in/r/" + roomId + "/picture");
+		} catch (YouRoomServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Log.w("NW", "Network Error occured");
+			errFlg[0] = true;
+			throw new RuntimeException(e);
+		}
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		roomImage.compress(Bitmap.CompressFormat.PNG, 50, bout);
+		image = bout.toByteArray();
+		cacheDb.beginTransaction();
+		try {
+			cacheDb.execSQL("delete from roomImages where roomId = ?;", new String[] { roomId });
+			cacheDb.execSQL("insert into roomImages(roomId, image) values(?, ?) ;", new Object[] { roomId, image });
+			cacheDb.setTransactionSuccessful();
+		} finally {
+			cacheDb.endTransaction();
+		}
+		return roomImage;
+	}
+
+	public Bitmap getRoomImageFromCache(String roomId) {
+		Bitmap roomImage = null;
+		byte[] image = null;
 		Cursor c = null;
 		try {
-			c = cacheDb.rawQuery("select room from rooms where roomId = ?;", new String[] { roomId });
+			c = cacheDb.rawQuery("select image from roomImages where roomId = ?;", new String[] { roomId });
 			if (c.moveToFirst()) {
-				ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(c.getBlob(0)));
-				group = (YouRoomGroup) ois.readObject();
+				image = c.getBlob(0);
 			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
@@ -64,20 +90,12 @@ public class YouRoomCommandProxy {
 			}
 		}
 
-		if (group != null) {
-			byte[] data = group.getRoomImage();
-			roomImage = BitmapFactory.decodeByteArray(data, 0, data.length);
-		} else {
-			try {
-				roomImage = youRoomCommand.getImage("https://www.youroom.in/r/" + roomId + "/picture");
-			} catch (YouRoomServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		if (image != null) {
+			roomImage = BitmapFactory.decodeByteArray(image, 0, image.length);
 		}
 		return roomImage;
 	}
-
+	
 	public Bitmap getMemberImage(String roomId, String participationId, boolean[] errFlg) {
 		Bitmap memberImage = null;
 		byte[] image = null;
@@ -148,8 +166,9 @@ public class YouRoomCommandProxy {
 					group.setCreatedTime(createdTime);
 
 					String roomId = String.valueOf(id);
-					Bitmap roomImageBitmap = this.getRoomImage(roomId);
-					group.setRoomImage(roomImageBitmap);
+					Bitmap roomImageBitmap = this.getRoomImageFromCache(roomId);
+					if (roomImageBitmap != null)
+						group.setRoomImage(roomImageBitmap);
 
 					String lastAccessTime = youRoomUtil.getRoomAccessTime(roomId);
 					String time;
@@ -217,12 +236,17 @@ public class YouRoomCommandProxy {
 	public ArrayList<YouRoomGroup> getMyGroupListFromCache() {
 		ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
 		Cursor c = null;
+		YouRoomGroup group = null;
 		try {
 			c = cacheDb.rawQuery("select room from rooms ;", new String[] {});
 			if (c.moveToFirst()) {
 				do {
 					ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(c.getBlob(0)));
-					dataList.add((YouRoomGroup) ois.readObject());
+					group = (YouRoomGroup) ois.readObject();
+					Bitmap roomImageBitmap = this.getRoomImageFromCache(String.valueOf(group.getId()));
+					if (roomImageBitmap != null)
+						group.setRoomImage(roomImageBitmap);
+					dataList.add(group);
 				} while (c.moveToNext());
 			}
 		} catch (Exception e1) {
