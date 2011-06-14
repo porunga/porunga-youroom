@@ -191,6 +191,7 @@ public class GroupActivity extends Activity {
 				byte[] data = group.getRoomImage();
 				Bitmap roomImageBitmap = null;
 				roomImage.setTag(String.valueOf(group.getId()));
+				roomImage.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.icon));
 				if (data != null) {
 					roomImageBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
 					roomImage.setImageBitmap(roomImageBitmap);
