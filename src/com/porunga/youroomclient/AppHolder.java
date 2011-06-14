@@ -11,17 +11,18 @@ import android.util.Log;
 public class AppHolder extends Application {
 	private SQLiteDatabase cacheDb = null;
 	private HashMap<String, Boolean> dirtyFlgList = new HashMap<String, Boolean>();
-	
+
 	public SQLiteDatabase getCacheDb() {
 		return cacheDb;
 	}
-	
+
 	public boolean isDirty(String roomId) {
 		if (!dirtyFlgList.containsKey(roomId)) {
 			dirtyFlgList.put(roomId, true);
 		}
 		return dirtyFlgList.get(roomId);
 	}
+
 	public void setDirty(String roomId, boolean dirtyFlg) {
 		Log.i("CACHE", String.format("set DirtyFlg %s [%s]", dirtyFlg, roomId));
 		if (dirtyFlgList.containsKey(roomId)) {
@@ -29,6 +30,7 @@ public class AppHolder extends Application {
 		}
 		dirtyFlgList.put(roomId, dirtyFlg);
 	}
+
 	public void clearDirty() {
 		Log.i("CACHE", "clear DirtyFlg");
 		dirtyFlgList.clear();
@@ -53,6 +55,7 @@ public class AppHolder extends Application {
 		public DBHelper(Context context) {
 			super(context, "porungadb", null, 1);
 		}
+
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			Log.i("CACHE", "Create Database");
@@ -63,11 +66,13 @@ public class AppHolder extends Application {
 				db.execSQL("create table timelines     (entryId text primary key, roomId text not null, page text not null, entry blob not null); ");
 				db.execSQL("create table memberImages (participationId text primary key, image blob not null); ");
 				db.execSQL("create table roomImages (roomId text primary key, image blob not null); ");
+//				db.execSQL("create table credentials  (roomId text primary key, participationId text not null, admin integer not null); ");
 				db.setTransactionSuccessful();
 			} finally {
 				db.endTransaction();
 			}
 		}
+
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		}

@@ -172,10 +172,10 @@ public class CheckUpdateService extends Service {
 			SQLiteStatement stmt = null;
 			cacheDb.beginTransaction();
 			try {
-				c = cacheDb.rawQuery("select entryId, updatedTime from entries where updatedTime < ? ;", new String[]{limit});
+				c = cacheDb.rawQuery("select entryId, updatedTime from entries where updatedTime < ? order by updatedTime asc;", new String[]{limit});
 				stmt = cacheDb.compileStatement("delete from entries where entryId = ? ;");
 				c.moveToFirst();
-				for (int i = 0; i < c.getCount(); i++) {
+				for (int i = 0; i < c.getCount() - 10; i++) {
 					Log.i("CACHE", String.format("Cache Delete [%d]", c.getInt(0)));
 					stmt.bindLong(1, c.getLong(0));
 					stmt.execute();

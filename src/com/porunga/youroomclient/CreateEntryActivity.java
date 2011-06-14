@@ -23,6 +23,7 @@ public class CreateEntryActivity extends Activity implements OnClickListener {
 	protected ProgressDialog dialog;
 	private LinearLayout postLayout;
 	private String unpostable_message = "";
+	private String action;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +35,25 @@ public class CreateEntryActivity extends Activity implements OnClickListener {
 		postLayout.setOnClickListener(this);
 
 		entryContentText = (EditText) findViewById(R.id.entry_content);
-		entryContentText.addTextChangedListener(new UITextWatcher());
+
+		Intent intent = getIntent();
+		action = intent.getStringExtra("action");
+		YouRoomEntry item = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
 
 		TextView numberOfCharacters = (TextView) findViewById(R.id.number_of_characters);
-		numberOfCharacters.setText(String.valueOf(MAX_CHAR_NUM));
-		unpostable_message = getString(R.string.content_empty);
+		if (action.equals("edit")) {
+			entryContentText.setText(item.getContent());
+
+			int charactersRest = MAX_CHAR_NUM - entryContentText.getText().length();
+			numberOfCharacters.setTextColor(Color.WHITE);
+			postable = true;
+			numberOfCharacters.setText(String.valueOf(charactersRest));
+
+		} else {
+			numberOfCharacters.setText(String.valueOf(MAX_CHAR_NUM));
+			unpostable_message = getString(R.string.content_empty);
+		}
+		entryContentText.addTextChangedListener(new UITextWatcher());
 	}
 
 	@Override
@@ -84,7 +99,7 @@ public class CreateEntryActivity extends Activity implements OnClickListener {
 		@Override
 		protected String doInBackground(String... entryContents) {
 			YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
-			String status = proxy.createEntry(roomId, parentId, entryContents[0], rootId);
+			String status = proxy.postEntry(roomId, parentId, entryContents[0], rootId, action);
 			return status;
 		}
 

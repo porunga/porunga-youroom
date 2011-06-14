@@ -11,7 +11,7 @@ public class YouRoomEntry implements Serializable {
 	private int id = -1;
 	private String content;
 	private int rootId;
-	private int parentId;
+	private int parentId = 0;
 	private String createdTime;
 	private String updatedTime;
 	private int descendantsCount = -1;
@@ -23,6 +23,7 @@ public class YouRoomEntry implements Serializable {
 	private String text = "";
 	private String link = "";
 	private String fileName = "";
+	private boolean canUpdate=false;
 
 	public int getLevel() {
 		return level;
@@ -135,12 +136,20 @@ public class YouRoomEntry implements Serializable {
 	public void setAttachmentType(String attachmentType) {
 		this.attachmentType = attachmentType;
 	}
-	
+
 	public String getFileName() {
 		return fileName;
 	}
 
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
+	}
+	
+	public boolean getCanUpdate() {
+		return canUpdate;
+	}
+
+	public void setCanUpdate(boolean canUpdate) {
+		this.canUpdate = canUpdate;
 	}
 }

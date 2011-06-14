@@ -20,8 +20,10 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
@@ -109,6 +111,56 @@ public class YouRoomAccess {
 		try {
 			objPost.addHeader("Authorization", createAuthorizationValue());
 			objResponse = objHttp.execute(objPost);
+		} catch (Exception e) {
+			throw new YouRoomServerException(e);
+		}
+		return objResponse;
+	}
+	
+	public HttpResponse requestPut() throws YouRoomServerException {
+		oauthParametersMap = createParametersMap();
+		// String apiParamter = createParameters();
+		HttpResponse objResponse = null;
+
+		HttpClient objHttp = new DefaultHttpClient();
+		HttpPut objPut = new HttpPut(api);
+
+		if (parameterMap != null && parameterMap.size() > 0) {
+			HttpEntity entity = null;
+			final List<NameValuePair> params = new ArrayList<NameValuePair>();
+
+			for (Map.Entry<String, String> param : parameterMap.entrySet()) {
+				params.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+			}
+
+			try {
+				entity = new UrlEncodedFormEntity(params, HTTP.UTF_8);
+			} catch (UnsupportedEncodingException e) {
+				throw new YouRoomServerException(e);
+			}
+			objPut.setEntity(entity);
+		}
+
+		try {
+			objPut.addHeader("Authorization", createAuthorizationValue());
+			objResponse = objHttp.execute(objPut);
+		} catch (Exception e) {
+			throw new YouRoomServerException(e);
+		}
+		return objResponse;
+	}
+	
+	public HttpResponse requestDelete() throws YouRoomServerException {
+		oauthParametersMap = createParametersMap();
+		// String apiParamter = createParameters();
+		HttpResponse objResponse = null;
+
+		HttpClient objHttp = new DefaultHttpClient();
+		HttpDelete objDelete = new HttpDelete(api);
+
+		try {
+			objDelete.addHeader("Authorization", createAuthorizationValue());
+			objResponse = objHttp.execute(objDelete);
 		} catch (Exception e) {
 			throw new YouRoomServerException(e);
 		}
