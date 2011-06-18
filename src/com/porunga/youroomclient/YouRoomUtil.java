@@ -18,14 +18,16 @@ public class YouRoomUtil extends ContextWrapper {
 	private SharedPreferences sharedpref;
 	private String TOKEN_MAP_KEY = "oauth_token";
 	private String TOKEN_SECRET_MAP_KEY = "oauth_token_secret";
-	
+	private static Context base;
+
 	public static final int RELOAD = 0;
 	public static final int EDIT = 1;
 	public static final int DELETE = 2;
-	
 
 	public YouRoomUtil(Context base) {
 		super(base);
+		this.base = base;
+
 	}
 
 	public HashMap<String, String> getOauthTokenFromLocal() {
@@ -179,28 +181,43 @@ public class YouRoomUtil extends ContextWrapper {
 
 		Calendar cal = getDesignatedCalendar(unformattedTime);
 		Calendar currentCal = getCurrentCalendar();
-		currentCal.add(Calendar.MONTH, 1);
 
 		Calendar displayCal = new GregorianCalendar();
 		long milliseconds = currentCal.getTimeInMillis() - cal.getTimeInMillis();
 		displayCal.setTimeInMillis(milliseconds);
 
 		SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+		StringBuffer dateBuf = new StringBuffer();
 
-		// if ((milliseconds/1000) < 60) {
-		// return String.valueOf((milliseconds/1000) + "秒前");
-		// }else
-		if (milliseconds / (1000 * 60) < 0) {
-			return String.valueOf("0分前");
+		if ((milliseconds / 1000) < 60) {
+			dateBuf.append(0);
+			dateBuf.append(base.getString(R.string.minutes_ago));
+			return dateBuf.toString();
 		} else if (milliseconds / (1000 * 60) < 60) {
-			return String.valueOf(milliseconds / (1000 * 60) + "分前");
+			dateBuf.append(milliseconds/(1000*60));
+			dateBuf.append(base.getString(R.string.minutes_ago));
+			return dateBuf.toString();
 		} else if (milliseconds / (1000 * 60 * 60) < 24) {
-			return String.valueOf(milliseconds / (1000 * 60 * 60) + "時間前");
+			dateBuf.append(milliseconds/(1000*60*60));
+			dateBuf.append(base.getString(R.string.hours_ago));
+			return dateBuf.toString();
 		} else if (displayCal.get(Calendar.YEAR) > 1970) {
-			return cal.get(Calendar.YEAR) + "/" + cal.get(Calendar.MONTH) + "/" + cal.get(Calendar.DAY_OF_MONTH) + " " + " " + format.format(cal.getTime());
+			dateBuf.append(cal.get(Calendar.YEAR));
+			dateBuf.append("/");
+			dateBuf.append(cal.get(Calendar.MONTH)+1);
+			dateBuf.append("/");
+			dateBuf.append(cal.get(Calendar.DAY_OF_MONTH));
+			dateBuf.append(" ");
+			dateBuf.append(format.format(cal.getTime()));
+			return dateBuf.toString();
 		} else {
-			return cal.get(Calendar.MONTH) + "/" + cal.get(Calendar.DAY_OF_MONTH) + " " + format.format(cal.getTime());
-		}
+			dateBuf.append(cal.get(Calendar.MONTH)+1);
+			dateBuf.append("/");
+			dateBuf.append(cal.get(Calendar.DAY_OF_MONTH));
+			dateBuf.append(" ");
+			dateBuf.append(format.format(cal.getTime()));
+			return dateBuf.toString();
+			}
 	}
 
 	public static Calendar getDesignatedCalendar(String unformattedTime) {
@@ -218,7 +235,7 @@ public class YouRoomUtil extends ContextWrapper {
 		int minute = Integer.parseInt(times[1]);
 		int second = Integer.parseInt(times[2]);
 
-		Calendar cal = new GregorianCalendar(year, month, day, hour, minute, second);
+		Calendar cal = new GregorianCalendar(year, month - 1, day, hour, minute, second);
 		cal.add(Calendar.HOUR, 9);
 
 		return cal;
