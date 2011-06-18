@@ -2,11 +2,14 @@ package com.porunga.youroomclient;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.io.ByteArrayOutputStream;
+import android.graphics.Bitmap;
 
 //ListViewカスタマイズ用のArrayAdapterに利用するクラス    
 public class YouRoomEntry implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	private static final int COMPRESS_QUALITY = 50;
 
 	private int id = -1;
 	private String content;
@@ -24,6 +27,8 @@ public class YouRoomEntry implements Serializable {
 	private String link = "";
 	private String fileName = "";
 	private boolean canUpdate=false;
+	private String roomId;
+	private byte[] memberImage;
 
 	public int getLevel() {
 		return level;
@@ -152,4 +157,28 @@ public class YouRoomEntry implements Serializable {
 	public void setCanUpdate(boolean canUpdate) {
 		this.canUpdate = canUpdate;
 	}
+
+	public String getRoomId() {
+		return roomId;
+	}
+
+	public void setRoomId(String roomId) {
+		this.roomId = roomId;
+	}
+
+	public byte[] getMemberImage() {
+		return memberImage;
+	}
+
+	public void setMemberImage(Bitmap memberImageBitmap) {
+		this.memberImage = serializeBitmap(memberImageBitmap);
+	}
+
+	final byte[] serializeBitmap(Bitmap memberImageBitmap) {
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		memberImageBitmap.compress(Bitmap.CompressFormat.PNG, COMPRESS_QUALITY, bout);
+		byte[] image = bout.toByteArray();
+		return image;
+	}
+
 }
