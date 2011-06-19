@@ -184,37 +184,32 @@ public class RoomActivity extends Activity implements OnClickListener {
 			}
 		});
 
-		// listView.setOnScrollListener(new OnScrollListener() {
-		// private int mark = 0;
-		//
-		// @Override
-		// public void onScroll(AbsListView view, int firstVisibleItem, int
-		// visibleItemCount, int totalItemCount) {
-		//
-		// if ((totalItemCount - visibleItemCount) == firstVisibleItem &&
-		// totalItemCount > mark && totalItemCount > MAX_ROOM_COUNT) {
-		// mark = totalItemCount;
-		// Map<String, String> parameterMap = new HashMap<String, String>();
-		// parameterMap.put("page", String.valueOf(page));
-		// // footerView.setMinimumHeight(FOOTER_MIN_HEIGHT);
-		// ProgressBar progress =
-		// (ProgressBar)footerView.findViewById(R.id.progbar);
-		// progress.setVisibility(View.VISIBLE);
-		// TextView footerText =
-		// (TextView)footerView.findViewById(R.id.footer_text_view);
-		// footerText.setText(getBaseContext().getString(R.string.now_loading));
-		// // footerView.setVisibility(View.GONE);
-		// GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap,
-		// activity);
-		// task.execute();
-		// page++;
-		// }
-		// }
-		//
-		// @Override
-		// public void onScrollStateChanged(AbsListView arg0, int arg1) {
-		// }
-		// });
+		listView.setOnScrollListener(new OnScrollListener() {
+			private int mark = 0;
+
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+				if ((totalItemCount - visibleItemCount) == firstVisibleItem && totalItemCount > mark && listView.getFooterViewsCount() == 2 && reloadButton.isClickable()) {
+					mark = totalItemCount;
+					Map<String, String> parameterMap = new HashMap<String, String>();
+					parameterMap.put("page", String.valueOf(page));
+					// footerView.setMinimumHeight(FOOTER_MIN_HEIGHT);
+					ProgressBar progress = (ProgressBar) footerView.findViewById(R.id.progbar);
+					progress.setVisibility(View.VISIBLE);
+					TextView footerText = (TextView) footerView.findViewById(R.id.footer_text_view);
+					footerText.setText(getBaseContext().getString(R.string.now_loading));
+					// footerView.setVisibility(View.GONE);
+					GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap, activity);
+					task.execute();
+					page++;
+				}
+			}
+
+			@Override
+			public void onScrollStateChanged(AbsListView arg0, int arg1) {
+			}
+		});
 
 		listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
