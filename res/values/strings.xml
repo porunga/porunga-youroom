@@ -24,7 +24,7 @@
 	<string name="deleteCacheSummary">全てのルームのキャッシュを削除する</string>
 	<string name="deleteCacheDialogTitle">キャッシュを削除しますか？</string>
 	<string name="deleteCacheDialogMessage">キャッシュを削除すると、キャッシュ再構築のため次回起動時には時間がかかります</string>
-	<string name="now_loading">読み込み中</string>
+	<string name="now_loading">読み込み中...</string>
 	<string name="display_attachment">添付：</string>
 	<string name="attachment_type_text">ロングテキスト</string>
 	<string name="attachment_type_image">画像</string>
@@ -38,4 +38,5 @@
 	<string name="sec_ago">秒前</string>
 	<string name="minutes_ago">分前</string>
 	<string name="hours_ago">時間前</string>
+	<string name="read_more">もっと読む</string>
 </resources>
