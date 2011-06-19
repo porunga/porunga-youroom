@@ -100,6 +100,33 @@ public class YouRoomCommandProxy {
 	public Bitmap getMemberImage(String roomId, String participationId, boolean[] errFlg) {
 		Bitmap memberImage = null;
 		byte[] image = null;
+
+		try {
+			memberImage = youRoomCommand.getImage("https://www.youroom.in/r/" + roomId + "/participations/" + participationId + "/picture");
+		} catch (YouRoomServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Log.w("NW", "Network Error occured");
+			errFlg[0] = true;
+			throw new RuntimeException(e);
+		}
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		memberImage.compress(Bitmap.CompressFormat.PNG, 50, bout);
+		image = bout.toByteArray();
+		cacheDb.beginTransaction();
+		try {
+			cacheDb.execSQL("delete from memberImages where participationId = ?;", new String[] { participationId });
+			cacheDb.execSQL("insert into memberImages(participationId, image) values(?, ?) ;", new Object[] { participationId, image });
+			cacheDb.setTransactionSuccessful();
+		} finally {
+			cacheDb.endTransaction();
+		}
+		return memberImage;
+	}
+
+	public Bitmap getMemberImageFromCache(String roomId, String participationId) {
+		Bitmap memberImage = null;
+		byte[] image = null;
 		Cursor c = null;
 		try {
 			c = cacheDb.rawQuery("select image from memberImages where participationId = ?;", new String[] { participationId });
@@ -117,26 +144,6 @@ public class YouRoomCommandProxy {
 
 		if (image != null) {
 			memberImage = BitmapFactory.decodeByteArray(image, 0, image.length);
-		} else {
-			try {
-				memberImage = youRoomCommand.getImage("https://www.youroom.in/r/" + roomId + "/participations/" + participationId + "/picture");
-			} catch (YouRoomServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				Log.w("NW", "Network Error occured");
-				errFlg[0] = true;
-				throw new RuntimeException(e);
-			}
-			ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			memberImage.compress(Bitmap.CompressFormat.PNG, 50, bout);
-			image = bout.toByteArray();
-			cacheDb.beginTransaction();
-			try {
-				cacheDb.execSQL("insert into memberImages(participationId, image) values(?, ?) ;", new Object[] { participationId, image });
-				cacheDb.setTransactionSuccessful();
-			} finally {
-				cacheDb.endTransaction();
-			}
 		}
 		return memberImage;
 	}
@@ -618,13 +625,23 @@ public class YouRoomCommandProxy {
 			if (id != rootId)
 				entry.setParentId(json.getInt("parent_id"));
 
+			String roomId = json.getJSONObject("participation").getJSONObject("group").getString("to_param");
+			String participationId = json.getJSONObject("participation").getString("id");
+
 			entry.setParticipationName(json.getJSONObject("participation").getString("name"));
-			entry.setParticipationId(json.getJSONObject("participation").getString("id"));
+			entry.setParticipationId(participationId);
 			entry.setCreatedTime(json.getString("created_at"));
 			entry.setUpdatedTime(json.getString("updated_at"));
 			entry.setContent(json.getString("content"));
 			entry.setDescendantsCount(json.optInt("descendants_count"));
 			entry.setCanUpdate(json.getBoolean("can_update"));
+			entry.setRoomId(roomId);
+			
+			Bitmap memberImageBitmap = null;
+			memberImageBitmap = this.getMemberImageFromCache(roomId, participationId);
+			if (memberImageBitmap != null)
+				entry.setMemberImage(memberImageBitmap);
+
 			if (json.has("attachment")) {
 				JSONObject attachment = json.getJSONObject("attachment");
 				entry.setAttachmentType(attachment.getString("attachment_type"));

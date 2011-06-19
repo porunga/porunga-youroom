@@ -26,6 +26,7 @@ public class CacheDeleteDialogPreference extends DialogPreference {
 				cacheDb.execSQL("delete from entries");
 				cacheDb.execSQL("delete from timelines");
 				cacheDb.execSQL("delete from memberImages");
+				cacheDb.execSQL("delete from roomImages");
 				cacheDb.setTransactionSuccessful();
 			} finally {
 				cacheDb.endTransaction();

@@ -214,8 +214,17 @@ public class EntryActivity extends Activity implements OnClickListener {
 				memberImageView.setImageResource(R.drawable.default_member_image);
 				String participationId = roomEntry.getParticipationId();
 				memberImageView.setTag(participationId);
-				DownloadImageTask downloadImageTask = new DownloadImageTask(memberImageView, activity);
-				downloadImageTask.execute(roomId, participationId);
+
+				byte[] data = roomEntry.getMemberImage();
+				Bitmap memberImageBitmap = null;
+
+				if (data != null) {
+					memberImageBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+					memberImageView.setImageBitmap(memberImageBitmap);
+				} else {
+					DownloadImageTask downloadImageTask = new DownloadImageTask(memberImageView, activity);
+					downloadImageTask.execute(roomEntry);
+				}
 			}
 
 			String type = roomEntry.getAttachmentType();
@@ -250,10 +259,12 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 			return view;
 		}
+		
+		public class DownloadImageTask extends AsyncTask<YouRoomEntry, Void, Bitmap> {
 
-		public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 			private ImageView memberImage;
 			private Activity activity;
+			private YouRoomEntry roomEntry;
 			private boolean[] errFlg = { false };
 			private String tag;
 
@@ -264,13 +275,22 @@ public class EntryActivity extends Activity implements OnClickListener {
 			}
 
 			@Override
-			protected Bitmap doInBackground(String... params) {
+			protected Bitmap doInBackground(YouRoomEntry... params) {
 
-				Bitmap image;
+				YouRoomCommandProxy proxy = new YouRoomCommandProxy(activity);
+				Bitmap image = null;
+				roomEntry = params[0];
+				String roomId = roomEntry.getRoomId();
+				String participationId = roomEntry.getParticipationId();
 				synchronized (activity.getBaseContext()) {
 					try {
-						image = proxy.getMemberImage(params[0], params[1], errFlg);
+						image = proxy.getMemberImageFromCache(roomId, participationId);
+						if (image == null) {
+							image = proxy.getMemberImage(roomId, participationId, errFlg);
+						}
+						roomEntry.setMemberImage(image);
 					} catch (Exception e) {
+						e.printStackTrace();
 						errFlg[0] = true;
 						image = BitmapFactory.decodeResource(getResources(), R.drawable.icon);
 					}
