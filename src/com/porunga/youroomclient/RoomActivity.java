@@ -44,6 +44,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 
 	private View footerView;
 	private TextView emptyView;
+	private ImageButton reloadButton;
 	// The maximum number of entries from youRoom API
 	private final int MAX_ROOM_COUNT = 10;
 	private final int FOOTER_MIN_HEIGHT = 65;
@@ -61,7 +62,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 		ImageButton postButton = (ImageButton) findViewById(R.id.post_button);
 		postButton.setOnClickListener(this);
 
-		ImageButton reloadButton = (ImageButton) findViewById(R.id.reload_button);
+		reloadButton = (ImageButton) findViewById(R.id.reload_button);
 		reloadButton.setOnClickListener(this);
 
 		listView = (ListView) findViewById(R.id.listView1);
@@ -463,6 +464,8 @@ public class RoomActivity extends Activity implements OnClickListener {
 
 		protected void onPreExecute() {
 			setProgressBarIndeterminateVisibility(true);
+			reloadButton.setImageResource(R.drawable.unclickable_reload_image);
+			reloadButton.setClickable(false);
 		}
 
 		@Override
@@ -523,6 +526,8 @@ public class RoomActivity extends Activity implements OnClickListener {
 			((AppHolder) getApplication()).setDirty(roomId, false);
 
 			setProgressBarIndeterminateVisibility(false);
+			reloadButton.setImageResource(R.drawable.reload_image);
+			reloadButton.setClickable(true);
 		}
 	}
 
