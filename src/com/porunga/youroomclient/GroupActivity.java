@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 //import android.app.ProgressDialog;
 
 public class GroupActivity extends Activity {
@@ -36,7 +37,8 @@ public class GroupActivity extends Activity {
 	private YouRoomUtil youRoomUtil = new YouRoomUtil(this);
 	private YouRoomGroupAdapter adapter;
 	private ListView listView;
-//	private ProgressDialog progressDialog;
+
+	// private ProgressDialog progressDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -62,15 +64,15 @@ public class GroupActivity extends Activity {
 
 			setContentView(R.layout.group_view);
 
-//			progressDialog = new ProgressDialog(this);
-//			setProgressDialog(progressDialog);
+			// progressDialog = new ProgressDialog(this);
+			// setProgressDialog(progressDialog);
 
 			listView = (ListView) findViewById(R.id.listView1);
 			ArrayList<YouRoomGroup> dataList = new ArrayList<YouRoomGroup>();
 			YouRoomCommandProxy proxy = new YouRoomCommandProxy(this);
 			dataList = proxy.getMyGroupListFromCache();
-//			if (dataList.isEmpty())
-//				progressDialog.show();
+			// if (dataList.isEmpty())
+			// progressDialog.show();
 
 			GetGroupTask task = new GetGroupTask(this);
 			task.execute();
@@ -137,10 +139,10 @@ public class GroupActivity extends Activity {
 			ret = true;
 			break;
 		case REACQUIRE_GROUP:
-//			progressDialog = new ProgressDialog(this);
-//			setProgressDialog(progressDialog);
-//			progressDialog.show();
-			//adapter.clear();
+			// progressDialog = new ProgressDialog(this);
+			// setProgressDialog(progressDialog);
+			// progressDialog.show();
+			// adapter.clear();
 			GetGroupTask task = new GetGroupTask(this);
 			task.execute();
 			((AppHolder) getApplication()).clearDirty();
@@ -279,7 +281,7 @@ public class GroupActivity extends Activity {
 		protected void onPreExecute() {
 			setProgressBarIndeterminateVisibility(true);
 		}
-		
+
 		@Override
 		protected Bitmap doInBackground(YouRoomGroup... params) {
 			Bitmap roomImageBitmap;
@@ -312,10 +314,9 @@ public class GroupActivity extends Activity {
 		}
 	}
 	/*
-	public void setProgressDialog(ProgressDialog progressDialog) {
-		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		progressDialog.setMessage("処理を実行しています");
-		progressDialog.setCancelable(true);
-	}
-	*/
+	 * public void setProgressDialog(ProgressDialog progressDialog) {
+	 * progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+	 * progressDialog.setMessage("処理を実行しています");
+	 * progressDialog.setCancelable(true); }
+	 */
 }

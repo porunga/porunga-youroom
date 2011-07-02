@@ -20,6 +20,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
@@ -32,8 +34,6 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 	private String roomId;
 	private YouRoomChildEntryAdapter adapter;
-	private ProgressDialog progressDialog;
-	private int parentEntryCount;
 	private int requestCount;
 	private Intent intent;
 	private String rootId;
@@ -45,6 +45,8 @@ public class EntryActivity extends Activity implements OnClickListener {
 	private ContentsDialogUtil contentsDialogUtil;
 
 	protected YouRoomCommandProxy proxy;
+	private TextView emptyView;
+	protected boolean scrollFlag = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -66,18 +68,15 @@ public class EntryActivity extends Activity implements OnClickListener {
 		intent = getIntent();
 		roomId = intent.getStringExtra("roomId");
 		YouRoomEntry pseudYouRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
-		updateFlag=intent.getBooleanExtra("update_flag", false);
+		updateFlag = intent.getBooleanExtra("update_flag", false);
 		rootId = String.valueOf(pseudYouRoomEntry.getId());
 		proxy = new YouRoomCommandProxy(this);
 
 		YouRoomEntry youRoomEntry = proxy.getEntryFromCache(roomId, rootId);
 
 		ImageButton postButton = (ImageButton) findViewById(R.id.post_button);
-		// postButton.setText(getString(R.string.post_button));
 		postButton.setOnClickListener(this);
-		// parentEntryCount = youRoomEntry.getDescendantsCount();
-
-		// TODO if String decodeResult = "";
+		
 		ListView listView = (ListView) findViewById(R.id.listView1);
 
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
@@ -87,6 +86,13 @@ public class EntryActivity extends Activity implements OnClickListener {
 			youRoomEntry.setLevel(level);
 			addChildEntries(dataList, youRoomEntry, level);
 
+		}
+
+		if (!scrollFlag) {
+			emptyView = new TextView(this);
+			emptyView.setHeight(0);
+			emptyView.setVisibility(View.GONE);
+			listView.addFooterView(emptyView);
 		}
 		adapter = new YouRoomChildEntryAdapter(this, R.layout.entry_list_item, dataList);
 		listView.setAdapter(adapter);
@@ -122,7 +128,22 @@ public class EntryActivity extends Activity implements OnClickListener {
 					return false;
 			}
 		});
-		if (updateFlag || dataList.size() ==0) {
+
+		listView.setOnScrollListener(new OnScrollListener() {
+
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+			}
+
+			@Override
+			public void onScrollStateChanged(AbsListView arg0, int arg1) {
+				if (!scrollFlag)
+					emptyView.setHeight(YouRoomUtil.FOOTER_MIN_HEIGHT);
+				scrollFlag = true;
+			}
+		});
+
+		if (updateFlag || dataList.size() == 0) {
 			GetChildEntryTask task = new GetChildEntryTask();
 			try {
 				task.execute(pseudYouRoomEntry);
@@ -259,7 +280,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 			return view;
 		}
-		
+
 		public class DownloadImageTask extends AsyncTask<YouRoomEntry, Void, Bitmap> {
 
 			private ImageView memberImage;
@@ -325,7 +346,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 		// private String roomId;
 		private YouRoomEntry roomChildEntry;
 		private Object objLock = new Object();
-		private boolean[] errFlg = { false ,false};
+		private boolean[] errFlg = { false, false };
 
 		public GetChildEntryTask(String roomId) {
 			// this.roomId = roomId;
@@ -354,7 +375,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 		@Override
 		protected void onPostExecute(ArrayList<YouRoomEntry> dataChildList) {
-			if(errFlg[1])
+			if (errFlg[1])
 				Toast.makeText(getBaseContext(), getString(R.string.out_of_memory_error), Toast.LENGTH_SHORT).show();
 			else if (errFlg[0]) {
 				Toast.makeText(getBaseContext(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
