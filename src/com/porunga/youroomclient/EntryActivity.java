@@ -1,7 +1,11 @@
 package com.porunga.youroomclient;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
+
+import com.porunga.youroomclient.RoomActivity.GetRoomEntryTask;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -43,6 +47,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 	private MainHandler handler = new MainHandler();
 	private ContentsDialogUtil contentsDialogUtil;
+	private ImageButton reloadButton;
 
 	protected YouRoomCommandProxy proxy;
 	private TextView emptyView;
@@ -76,7 +81,10 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 		ImageButton postButton = (ImageButton) findViewById(R.id.post_button);
 		postButton.setOnClickListener(this);
-		
+
+		reloadButton = (ImageButton) findViewById(R.id.reload_button);
+		reloadButton.setOnClickListener(this);
+
 		ListView listView = (ListView) findViewById(R.id.listView1);
 
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
@@ -149,7 +157,6 @@ public class EntryActivity extends Activity implements OnClickListener {
 				task.execute(pseudYouRoomEntry);
 			} catch (RejectedExecutionException e) {
 				// TODO
-				// AsyncTaskでは内部的にキューを持っていますが、このキューサイズを超えるタスクをexecuteすると、ブロックされずに例外が発生します。らしいので、一旦握りつぶしている
 				e.printStackTrace();
 			}
 		}
@@ -358,6 +365,8 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 		protected void onPreExecute() {
 			setProgressBarIndeterminateVisibility(true);
+			reloadButton.setImageResource(R.drawable.unclickable_reload_image);
+			reloadButton.setClickable(false);
 		}
 
 		@Override
@@ -395,6 +404,8 @@ public class EntryActivity extends Activity implements OnClickListener {
 				adapter.notifyDataSetChanged();
 			}
 			setProgressBarIndeterminateVisibility(false);
+			reloadButton.setImageResource(R.drawable.reload_image);
+			reloadButton.setClickable(true);
 			// // 親が一回呼ばれるので+1
 			// if (parentEntryCount <= requestCount + 1)
 			// progressDialog.dismiss();
@@ -402,17 +413,34 @@ public class EntryActivity extends Activity implements OnClickListener {
 	}
 
 	@Override
-	public void onClick(View v) {
+	public void onClick(View view) {
 		// TODO Auto-generated method stub
-		YouRoomEntry youRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
-		Intent intentCreateEntry = new Intent(getApplication(), CreateEntryActivity.class);
-		intentCreateEntry.putExtra("action", "create");
-		intentCreateEntry.putExtra("roomId", String.valueOf(roomId));
-		intentCreateEntry.putExtra("youRoomEntry", youRoomEntry);
-		intentCreateEntry.putExtra("rootId", rootId);
+		switch (view.getId()) {
+		case R.id.post_button:
+			YouRoomEntry youRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
+			Intent intentCreateEntry = new Intent(getApplication(), CreateEntryActivity.class);
+			intentCreateEntry.putExtra("action", "create");
+			intentCreateEntry.putExtra("roomId", String.valueOf(roomId));
+			intentCreateEntry.putExtra("youRoomEntry", youRoomEntry);
+			intentCreateEntry.putExtra("rootId", rootId);
+			startActivity(intentCreateEntry);
+			break;
+		case R.id.reload_button:
+			reloadList();
+			break;
+		}
 
-		startActivity(intentCreateEntry);
-
+	}
+	
+	private void reloadList() {
+		YouRoomEntry pseudYouRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
+		GetChildEntryTask task = new GetChildEntryTask();
+		try {
+			task.execute(pseudYouRoomEntry);
+		} catch (RejectedExecutionException e) {
+			// TODO
+			e.printStackTrace();
+		}
 	}
 
 	private void destroyEntry(String[] params) {
