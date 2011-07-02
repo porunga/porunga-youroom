@@ -82,7 +82,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 		ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 
 		if (youRoomEntry != null) {
-			int level = -1;
+			int level = 0;
 			youRoomEntry.setLevel(level);
 			addChildEntries(dataList, youRoomEntry, level);
 
