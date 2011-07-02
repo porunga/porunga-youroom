@@ -325,7 +325,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 		// private String roomId;
 		private YouRoomEntry roomChildEntry;
 		private Object objLock = new Object();
-		private boolean[] errFlg = { false };
+		private boolean[] errFlg = { false ,false};
 
 		public GetChildEntryTask(String roomId) {
 			// this.roomId = roomId;
@@ -354,7 +354,9 @@ public class EntryActivity extends Activity implements OnClickListener {
 
 		@Override
 		protected void onPostExecute(ArrayList<YouRoomEntry> dataChildList) {
-			if (errFlg[0]) {
+			if(errFlg[1])
+				Toast.makeText(getBaseContext(), getString(R.string.out_of_memory_error), Toast.LENGTH_SHORT).show();
+			else if (errFlg[0]) {
 				Toast.makeText(getBaseContext(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
 
 			} else {

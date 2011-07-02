@@ -13,6 +13,7 @@
 	<string name="content_empty">おや？操作ミスですか？</string>
 	<string name="over_char_num">文字数が140文字を超えています</string>
 	<string name="network_error">おや？回線の調子が悪いようです。後ほどやりなおしてください。</string>
+	<string name="out_of_memory_error">コメント数が多くて表示できません。</string>
 	<string name="reacquire_room">更新</string>
 	<string name="app_description">polluxは、グループ内情報共有ツール\n\n\"youRoom(ユールーム)\"のクライアントアプリです。\n\n各ルームの新着情報のチェックや新規投稿などを行うことが可能です。
 	</string>
