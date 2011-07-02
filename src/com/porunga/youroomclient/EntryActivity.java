@@ -211,24 +211,31 @@ public class EntryActivity extends Activity implements OnClickListener {
 				switch (roomEntry.getLevel()) {
 				case 1:
 					level.setImageResource(R.drawable.level_image1);
+					view.setBackgroundResource(R.color.list_row_background_level_1);
 					break;
 				case 2:
 					level.setImageResource(R.drawable.level_image2);
+					view.setBackgroundResource(R.color.list_row_background_level_2);
 					break;
 				case 3:
 					level.setImageResource(R.drawable.level_image3);
+					view.setBackgroundResource(R.color.list_row_background_level_3);
 					break;
 				case 4:
 					level.setImageResource(R.drawable.level_image4);
+					view.setBackgroundResource(R.color.list_row_background_level_4);
 					break;
 				case 5:
 					level.setImageResource(R.drawable.level_image5);
+					view.setBackgroundResource(R.color.list_row_background_level_5);
 					break;
 				case 6:
 					level.setImageResource(R.drawable.level_image6);
+					view.setBackgroundResource(R.color.list_row_background_level_6);
 					break;
 				default:
 					level.setImageResource(R.drawable.transparent_background);
+					view.setBackgroundResource(R.color.list_row_background_level_0);
 				}
 				// String commentLevel = "";
 				//

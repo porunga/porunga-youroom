@@ -5,12 +5,14 @@
 		android:layout_height="wrap_content" android:layout_width="fill_parent">
 		<!-- <TextView android:id="@+id/level" android:layout_width="wrap_content" 
 			android:layout_height="wrap_content" android:textStyle="bold" android:textSize="7pt"></TextView> -->
-		<ImageView android:layout_height="wrap_content" android:id="@+id/level"
-			android:layout_width="wrap_content" android:minHeight="16dip"
-			android:layout_gravity="left"></ImageView>
+		<ImageView android:layout_height="fill_parent" android:id="@+id/level"
+			android:layout_width="wrap_content" android:layout_gravity="left"
+			android:scaleType="fitXY"></ImageView>
 		<ImageView android:src="@drawable/default_member_image"
 			android:id="@+id/member_image" android:layout_gravity="top"
-			android:minHeight="48dip" android:minWidth="48dip" android:layout_height="48dip" android:layout_width="48dip" android:scaleType="centerInside"></ImageView>
+			android:minHeight="48dip" android:minWidth="48dip"
+			android:layout_height="48dip" android:layout_width="48dip"
+			android:scaleType="centerInside" android:paddingTop="8dip"></ImageView>
 		<LinearLayout android:layout_width="fill_parent"
 			android:layout_height="wrap_content" android:id="@+id/linearLayout3"
 			android:orientation="vertical" android:layout_margin="1pt">

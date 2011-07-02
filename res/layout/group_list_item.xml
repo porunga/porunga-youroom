@@ -2,7 +2,7 @@
 <LinearLayout android:id="@+id/linearLayout1"
 	android:layout_width="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="horizontal" android:layout_height="wrap_content">
-	<ImageView android:src="@drawable/icon"
+	<ImageView android:src="@drawable/default_room_image"
 		android:layout_height="wrap_content" android:layout_width="wrap_content"
 		android:id="@+id/room_image" android:layout_gravity="center" android:minHeight="48dip" android:minWidth="48dip"></ImageView>
 	<LinearLayout android:id="@+id/linearLayout2"

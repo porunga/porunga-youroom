@@ -4,7 +4,7 @@
 	android:layout_height="fill_parent">
 
 	<ListView android:id="@+id/listView1" android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:fadingEdge="none"></ListView>
+		android:layout_height="fill_parent" android:fadingEdge="none" android:dividerHeight="0sp" android:divider="#00000000"></ListView>
 	<LinearLayout android:id="@+id/linearLayout1"
 		android:layout_height="wrap_content" android:layout_gravity="bottom"
 		android:orientation="horizontal" android:layout_width="fill_parent" android:background="#00000000">
@@ -17,6 +17,6 @@
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:src="@drawable/reload_image" android:background="@null"
 			android:layout_weight="1" android:minWidth="0dip"
-			android:layout_gravity="center" android:visibility="invisible"></ImageButton>
+			android:layout_gravity="center"></ImageButton>
 	</LinearLayout>
 </FrameLayout>

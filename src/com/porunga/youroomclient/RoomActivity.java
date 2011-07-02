@@ -452,7 +452,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 				}
 				adapter.notifyDataSetChanged();
 			}
-			if (adapter.getCount() < MAX_ROOM_COUNT) {
+			if (adapter.getCount() < MAX_ROOM_COUNT && !errFlg[0]) {
 				// footerView.setMinimumHeight(0);
 				switch (listView.getFooterViewsCount()) {
 				case 1:
