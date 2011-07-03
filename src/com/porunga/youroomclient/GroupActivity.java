@@ -1,8 +1,12 @@
 package com.porunga.youroomclient;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,6 +15,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -109,6 +114,25 @@ public class GroupActivity extends Activity {
 					return true;
 				}
 			});
+			
+			Context context = this.getApplicationContext();
+			Intent serviceIntent = new Intent(context, CacheDeleteService.class);
+			AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+			PendingIntent pendingIntent = PendingIntent.getService(context, 0, serviceIntent, 0);
+
+			Calendar cal = Calendar.getInstance();
+			cal.setTimeInMillis(System.currentTimeMillis());
+			
+			cal.add(Calendar.DATE, 1);
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 1);
+			
+			SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+			String setTime = (cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.DAY_OF_MONTH) + " " + format.format(cal.getTime());
+			alarmManager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+			Log.i("CacheDeleteService", String.format("Set CacheDeleteTime [%s] ", setTime));			
+			
 		}
 	}
 

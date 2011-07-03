@@ -45,9 +45,6 @@ public class CheckUpdateService extends Service {
 
 		CheckUpdateEntryTask task = new CheckUpdateEntryTask(this);
 		task.execute();
-		
-		CacheDeleteTask cacheDeleteTask = new CacheDeleteTask();
-		cacheDeleteTask.execute(this);
 
 		/*
 		 * // require 2005-08-09T10:57:00-08:00 // actual
@@ -152,42 +149,6 @@ public class CheckUpdateService extends Service {
 				notification.setLatestEventInfo(getApplicationContext(), "youRoomClient", message, contentIntent);
 				notificationManager.notify(R.string.app_name, notification);
 			}
-		}
-	}
-	
-	public class CacheDeleteTask extends AsyncTask<Service, Void, Void> {
-		
-		@Override
-		protected Void doInBackground(Service... service) {
-			Log.i("CACHE", "CacheDelete");
-			
-			Calendar cal = Calendar.getInstance();
-			cal.setTimeInMillis(System.currentTimeMillis());
-			cal.add(Calendar.DATE, -3); //TODO 3日前固定
-			String limit = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(cal.getTime());
-			Log.i("CACHE", String.format("limit->%s", limit));
-			//String limit = "2011-04-09T00:00:00Z";
-			SQLiteDatabase cacheDb = ((AppHolder)service[0].getApplication()).getCacheDb();
-			Cursor c = null;
-			SQLiteStatement stmt = null;
-			cacheDb.beginTransaction();
-			try {
-				c = cacheDb.rawQuery("select entryId, updatedTime from entries where updatedTime < ? order by updatedTime asc;", new String[]{limit});
-				stmt = cacheDb.compileStatement("delete from entries where entryId = ? ;");
-				c.moveToFirst();
-				for (int i = 0; i < c.getCount() - 10; i++) {
-					Log.i("CACHE", String.format("Cache Delete [%d]", c.getInt(0)));
-					stmt.bindLong(1, c.getLong(0));
-					stmt.execute();
-					c.moveToNext();
-				}
-				cacheDb.setTransactionSuccessful();
-			} finally {
-				stmt.close();
-				c.close();
-				cacheDb.endTransaction();
-			}
-			return null;
 		}
 	}
 }

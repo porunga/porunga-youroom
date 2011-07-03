@@ -24,6 +24,7 @@
 				<category android:name="android.intent.category.DEFAULT"></category>
 			</intent-filter>
 		</receiver>
+		<service android:name="com.porunga.youroomclient.CacheDeleteService"></service>
 
 	</application>
 </manifest>

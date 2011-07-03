@@ -18,12 +18,22 @@ public class StartReceiver extends BroadcastReceiver {
 
 		Log.i("StartReceiver", "StartReceiver Start");
 
-		Intent serviceIntent = new Intent(arg0, CheckUpdateService.class);
-		AlarmManager alarmManager = (AlarmManager) arg0.getSystemService(Context.ALARM_SERVICE);
-		PendingIntent pendingIntent = PendingIntent.getService(arg0, 0, serviceIntent, 0);
+		callCheckUpdateService(arg0);
+		Log.i("StartReceiver", "StartReceiver call CheckUpdateService");
 
-		SharedPreferences sharedpref = PreferenceManager.getDefaultSharedPreferences(arg0);
-		CharSequence cs = arg0.getText(R.string.ID_updateTimePreference);
+//		callCacheDeleteService(arg0);
+//		Log.i("StartReceiver", "StartReceiver call CacheDeleteService");
+
+	}
+
+	private void callCheckUpdateService(Context context) {
+
+		Intent serviceIntent = new Intent(context, CheckUpdateService.class);
+		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		PendingIntent pendingIntent = PendingIntent.getService(context, 0, serviceIntent, 0);
+
+		SharedPreferences sharedpref = PreferenceManager.getDefaultSharedPreferences(context);
+		CharSequence cs = context.getText(R.string.ID_updateTimePreference);
 
 		String key = cs.toString();
 		String updateTime = String.valueOf(sharedpref.getString(key, "not_set"));
@@ -41,5 +51,29 @@ public class StartReceiver extends BroadcastReceiver {
 		}
 
 	}
+
+	/*
+	private void callCacheDeleteService(Context context) {
+
+		Intent serviceIntent = new Intent(context, CacheDeleteService.class);
+		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		PendingIntent pendingIntent = PendingIntent.getService(context, 0, serviceIntent, 0);
+
+		YouRoomUtil youRoomUtil = new YouRoomUtil(context);
+		
+		if(!youRoomUtil.isLogined()) {		
+			pendingIntent.cancel();
+			alarmManager.cancel(pendingIntent);
+			Log.i("CheckUpdateService", "Not Logined");
+		} else {
+			String updateTime = "24";
+			Calendar cal = Calendar.getInstance();
+			cal.setTimeInMillis(System.currentTimeMillis());
+			long updateTimeInMillis = Long.parseLong(updateTime) * (60 * 60 * 1000);
+			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), updateTimeInMillis, pendingIntent);
+			Log.i("CacheDeleteService", String.format("Set CacheDeleteTime every [%s] hours", updateTime));
+		}
+	}
+	*/
 
 }
