@@ -1,11 +1,9 @@
 
-    <TableLayout android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/LoginLayout">
-        <LinearLayout android:id="@+id/linearLayout1" android:layout_height="fill_parent" android:layout_width="fill_parent" android:layout_weight="1" android:orientation="vertical">
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical" xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/LoginLayout">
+        <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_gravity="left" android:text="Email"></TextView>
         <EditText android:layout_height="wrap_content" android:id="@+id/login_email" android:layout_width="fill_parent" android:hint="Email"></EditText> 
+        <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_gravity="left" android:text="Password"></TextView>
         <EditText android:layout_height="wrap_content" android:id="@+id/login_password" android:inputType="textPassword" android:layout_width="fill_parent" android:hint="Password"></EditText>
-		</LinearLayout>
-        <LinearLayout android:id="@+id/linearLayout2" android:layout_width="fill_parent" android:layout_height="wrap_content">
-        <Button android:id="@+id/login_submit" android:text="@string/login_submit" android:layout_gravity="bottom" android:layout_width="wrap_content" android:layout_height="fill_parent"></Button>
-        </LinearLayout>
-    </TableLayout>
+        <Button android:id="@+id/login_submit" android:text="@string/login_submit" android:layout_gravity="right" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+    </LinearLayout>
  

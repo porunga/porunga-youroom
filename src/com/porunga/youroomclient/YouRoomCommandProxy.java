@@ -96,7 +96,7 @@ public class YouRoomCommandProxy {
 		}
 		return roomImage;
 	}
-	
+
 	public Bitmap getMemberImage(String roomId, String participationId, boolean[] errFlg) {
 		Bitmap memberImage = null;
 		byte[] image = null;
@@ -521,7 +521,10 @@ public class YouRoomCommandProxy {
 			e.printStackTrace();
 			Log.w("NW", "Network Error occured");
 			errFlg[0] = true;
-
+		} catch (OutOfMemoryError e) {
+			e.printStackTrace();
+			Log.w("NW", "Out Of Memory Error occured");
+			errFlg[1] = true;
 		} finally {
 			cacheDb.endTransaction();
 			if (c != null) {
@@ -636,7 +639,7 @@ public class YouRoomCommandProxy {
 			entry.setDescendantsCount(json.optInt("descendants_count"));
 			entry.setCanUpdate(json.getBoolean("can_update"));
 			entry.setRoomId(roomId);
-			
+
 			Bitmap memberImageBitmap = null;
 			memberImageBitmap = this.getMemberImageFromCache(roomId, participationId);
 			if (memberImageBitmap != null)

@@ -23,6 +23,7 @@ public class YouRoomUtil extends ContextWrapper {
 	public static final int RELOAD = 0;
 	public static final int EDIT = 1;
 	public static final int DELETE = 2;
+	public static final int FOOTER_MIN_HEIGHT = 65;
 
 	public YouRoomUtil(Context base) {
 		super(base);

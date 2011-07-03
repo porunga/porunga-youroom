@@ -22,8 +22,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
@@ -47,7 +45,6 @@ public class RoomActivity extends Activity implements OnClickListener {
 	private ImageButton reloadButton;
 	// The maximum number of entries from youRoom API
 	private final int MAX_ROOM_COUNT = 10;
-	private final int FOOTER_MIN_HEIGHT = 65;
 	private final int REACQUIRE_ROOM = 1;
 
 	private MainHandler handler = new MainHandler();
@@ -83,7 +80,7 @@ public class RoomActivity extends Activity implements OnClickListener {
 		// footerView.setVisibility(View.GONE);
 		listView.addFooterView(footerView);
 		emptyView = new TextView(this);
-		emptyView.setMinHeight(FOOTER_MIN_HEIGHT);
+		emptyView.setMinHeight(YouRoomUtil.FOOTER_MIN_HEIGHT);
 		emptyView.setVisibility(View.GONE);
 		listView.addFooterView(emptyView);
 
@@ -132,17 +129,17 @@ public class RoomActivity extends Activity implements OnClickListener {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				if (view == footerView) {
-					Map<String, String> parameterMap = new HashMap<String, String>();
-					parameterMap.put("page", String.valueOf(page));
-					// footerView.setMinimumHeight(FOOTER_MIN_HEIGHT);
-					ProgressBar progress = (ProgressBar) footerView.findViewById(R.id.progbar);
-					progress.setVisibility(View.VISIBLE);
-					TextView footerText = (TextView) footerView.findViewById(R.id.footer_text_view);
-					footerText.setText(getBaseContext().getString(R.string.now_loading));
-					// footerView.setVisibility(View.GONE);
-					GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap, activity);
-					task.execute();
-					page++;
+					if (reloadButton.isClickable()) {
+						Map<String, String> parameterMap = new HashMap<String, String>();
+						parameterMap.put("page", String.valueOf(page));
+						ProgressBar progress = (ProgressBar) footerView.findViewById(R.id.progbar);
+						progress.setVisibility(View.VISIBLE);
+						TextView footerText = (TextView) footerView.findViewById(R.id.footer_text_view);
+						footerText.setText(getBaseContext().getString(R.string.now_loading));
+						GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap, activity);
+						task.execute();
+						page++;
+					}
 				} else {
 					ListView listView = (ListView) parent;
 					YouRoomEntry item = (YouRoomEntry) listView.getItemAtPosition(position);
@@ -181,33 +178,6 @@ public class RoomActivity extends Activity implements OnClickListener {
 						startActivity(intent);
 					}
 				}
-			}
-		});
-
-		listView.setOnScrollListener(new OnScrollListener() {
-			private int mark = 0;
-
-			@Override
-			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-				if ((totalItemCount - visibleItemCount) == firstVisibleItem && totalItemCount > mark && listView.getFooterViewsCount() == 2 && reloadButton.isClickable()) {
-					mark = totalItemCount;
-					Map<String, String> parameterMap = new HashMap<String, String>();
-					parameterMap.put("page", String.valueOf(page));
-					// footerView.setMinimumHeight(FOOTER_MIN_HEIGHT);
-					ProgressBar progress = (ProgressBar) footerView.findViewById(R.id.progbar);
-					progress.setVisibility(View.VISIBLE);
-					TextView footerText = (TextView) footerView.findViewById(R.id.footer_text_view);
-					footerText.setText(getBaseContext().getString(R.string.now_loading));
-					// footerView.setVisibility(View.GONE);
-					GetRoomEntryTask task = new GetRoomEntryTask(roomId, parameterMap, activity);
-					task.execute();
-					page++;
-				}
-			}
-
-			@Override
-			public void onScrollStateChanged(AbsListView arg0, int arg1) {
 			}
 		});
 
