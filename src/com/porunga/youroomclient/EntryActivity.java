@@ -380,12 +380,13 @@ public class EntryActivity extends Activity implements OnClickListener {
 		protected ArrayList<YouRoomEntry> doInBackground(YouRoomEntry... roomChildEntries) {
 			ArrayList<YouRoomEntry> dataList = new ArrayList<YouRoomEntry>();
 			YouRoomEntry item = proxy.getEntry(roomId, String.valueOf(roomChildEntries[0].getId()), roomChildEntries[0].getUpdatedTime(), errFlg);
-			item.setLevel(0);
-			dataList.add(item);
-			for (YouRoomEntry child : item.getChildren()) {
-				addChildEntries(dataList, child, 1);
+			if (item != null) {
+				item.setLevel(0);
+				dataList.add(item);
+				for (YouRoomEntry child : item.getChildren()) {
+					addChildEntries(dataList, child, 1);
+				}
 			}
-
 			return dataList;
 		}
 
@@ -438,7 +439,7 @@ public class EntryActivity extends Activity implements OnClickListener {
 		}
 
 	}
-	
+
 	private void reloadList() {
 		YouRoomEntry pseudYouRoomEntry = (YouRoomEntry) intent.getSerializableExtra("youRoomEntry");
 		GetChildEntryTask task = new GetChildEntryTask();
