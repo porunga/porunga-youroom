@@ -34,7 +34,7 @@ public class CheckUpdateService extends Service {
 	@Override
 	public void onCreate() {
 		// For Debugging
-		Toast.makeText(this, "更新確認を開始しました。", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, getString(R.string.start_check_update), Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class CheckUpdateService extends Service {
 	public void onDestroy() {
 		// For Debugging
 		timer.cancel();
-		Toast.makeText(this, "更新確認を終了しました。", Toast.LENGTH_LONG).show();
+		Toast.makeText(this, getString(R.string.stop_check_update), Toast.LENGTH_LONG).show();
 	}
 
 //	private ArrayList<YouRoomEntry> acquireHomeEntryList(Map<String, String> parameterMap) {
@@ -134,9 +134,9 @@ public class CheckUpdateService extends Service {
 			int updateItemCount = dataList.size();
 			if (updateItemCount > 0) {
 				if (updateItemCount == 10) {
-					message = updateItemCount + "件以上の更新があります。";
+					message = updateItemCount + getString(R.string.num_of_updates_more_than);
 				} else {
-					message = updateItemCount + "件の更新があります。";
+					message = updateItemCount + getString(R.string.num_of_updates);
 				}
 
 				Class<GroupActivity> distActivity = GroupActivity.class;

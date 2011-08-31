@@ -41,4 +41,8 @@
 	<string name="minutes_ago">分前</string>
 	<string name="hours_ago">時間前</string>
 	<string name="read_more">もっと読む</string>
+	<string name="start_check_update">更新確認を開始しました。</string>
+	<string name="stop_check_update">更新確認を終了しました。</string>
+	<string name="num_of_updates_more_than">件以上の更新があります。</string>
+	<string name="num_of_updates">件の更新があります。</string>
 </resources>
