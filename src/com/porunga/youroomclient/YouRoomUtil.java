@@ -191,8 +191,7 @@ public class YouRoomUtil extends ContextWrapper {
 		StringBuffer dateBuf = new StringBuffer();
 
 		if ((milliseconds / 1000) < 60) {
-			dateBuf.append(0);
-			dateBuf.append(base.getString(R.string.minutes_ago));
+			dateBuf.append(base.getString(R.string.just_now));
 			return dateBuf.toString();
 		} else if (milliseconds / (1000 * 60) < 60) {
 			dateBuf.append(milliseconds/(1000*60));

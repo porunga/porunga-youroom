@@ -36,6 +36,7 @@
 	<string name="delete_dialog_title">エントリの削除</string>
 	<string name="delete_dialog_message">本当に削除しますか？</string>
 	<string name="now_deleting">削除中...</string>
+	<string name="just_now">Just Now</string>
 	<string name="sec_ago">秒前</string>
 	<string name="minutes_ago">分前</string>
 	<string name="hours_ago">時間前</string>
