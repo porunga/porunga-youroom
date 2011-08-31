@@ -146,7 +146,7 @@ public class CheckUpdateService extends Service {
 				notification.number = updateItemCount;
 				Intent intent = new Intent(getApplication(), distActivity);
 				PendingIntent contentIntent = PendingIntent.getActivity(getApplication(), 0, intent, 0);
-				notification.setLatestEventInfo(getApplicationContext(), "youRoomClient", message, contentIntent);
+				notification.setLatestEventInfo(getApplicationContext(), getString(R.string.app_name), message, contentIntent);
 				notificationManager.notify(R.string.app_name, notification);
 			}
 		}
