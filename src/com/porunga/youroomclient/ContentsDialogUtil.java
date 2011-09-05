@@ -2,10 +2,6 @@ package com.porunga.youroomclient;
 
 import java.util.ArrayList;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -16,9 +12,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -42,7 +40,7 @@ public class ContentsDialogUtil extends YouRoomUtil {
 
 	private AlertDialog contentDialog;
 	protected AlertDialog imageDialog;
-	protected ImageView imageView;
+	private View attachmentImageView;
 	protected DialogHandler dialogHandler = new DialogHandler();
 	private Handler handler = null;
 	protected String status_code;
@@ -81,7 +79,7 @@ public class ContentsDialogUtil extends YouRoomUtil {
 		for (URLSpan url : urls)
 			rows.add(new DialogContent(ATTACHMENT_TYPE_LINK, url.getURL()));
 
-//		Credential credential = proxy.getCredential(roomId);
+		// Credential credential = proxy.getCredential(roomId);
 		if (isEditable(item))
 			rows.add(new DialogContent(EDIT_ENTRY, getString(R.string.edit_entry)));
 		if (isDeletable(item))
@@ -215,8 +213,14 @@ public class ContentsDialogUtil extends YouRoomUtil {
 
 	public void showAttachmentImageDialog(final String roomId, final String entryId) {
 		final YouRoomCommand youRoomCommand = new YouRoomCommand(getOauthTokenFromLocal());
-		imageView = new ImageView(this);
+		Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+		LayoutInflater inflater = (LayoutInflater) base.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		attachmentImageView = inflater.inflate(R.layout.attachment_image_view, null);
 
+		final ScalableView scalableView = (ScalableView) attachmentImageView.findViewById(R.id.attachment_image_view);
+		scalableView.setMinimumWidth(display.getWidth());
+		scalableView.setMinimumHeight(display.getHeight());
+		
 		final ProgressDialog progressDialog = new ProgressDialog(this);
 		progressDialog.setMessage(getString(R.string.now_loading));
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -226,7 +230,7 @@ public class ContentsDialogUtil extends YouRoomUtil {
 			@Override
 			public void run() {
 				try {
-					imageView.setImageBitmap(youRoomCommand.getAttachmentImage(roomId, entryId));
+					scalableView.setImageBitmap(youRoomCommand.getAttachmentImage(roomId, entryId));
 					progressDialog.dismiss();
 					dialogHandler.sendEmptyMessage(SHOW_IMAGE_DIALOG);
 				} catch (YouRoomServerException e) {
@@ -245,7 +249,7 @@ public class ContentsDialogUtil extends YouRoomUtil {
 
 			case SHOW_IMAGE_DIALOG: {
 				AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getBaseContext());
-				alertDialogBuilder.setView(imageView);
+				alertDialogBuilder.setView(attachmentImageView);
 				alertDialogBuilder.create().show();
 				// imageDialog.show();
 				break;

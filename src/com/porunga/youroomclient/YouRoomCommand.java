@@ -132,8 +132,11 @@ public class YouRoomCommand {
 		String method = "GET";
 		String api = "https://www.youroom.in/r/" + roomId + "/entries/" + entryId + "/attachment";
 
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("original", "true");
 		youRoomAccess.setMethod(method);
 		youRoomAccess.setApi(api);
+		youRoomAccess.setParameter(parameterMap);
 		HttpResponse objResponse = youRoomAccess.requestGet();
 
 		int statusCode = objResponse.getStatusLine().getStatusCode();
